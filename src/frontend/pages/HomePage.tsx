@@ -63,36 +63,7 @@ export default function HomePage() {
 
   return (
     <div className="app-shell">
-      <div className="card">
-        <div className="brand">
-          <p className="eyebrow">Ultimate Bun Starter</p>
-          <h1>Full-stack starter with Hono, React, and Drizzle</h1>
-        </div>
-        <div className="panel">
-          <div className="tabs">
-            <button className={mode === "signin" ? "tab active" : "tab"} onClick={() => setMode("signin")}>Sign in</button>
-            <button className={mode === "signup" ? "tab active" : "tab"} onClick={() => setMode("signup")}>Sign up</button>
-          </div>
-          <form className="form" onSubmit={handleSubmit}>
-            <label>
-              Email
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
-            </label>
-            <label>
-              Password
-              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" required />
-            </label>
-            {message ? <p className="message error">{message}</p> : null}
-            <button className="button" type="submit" disabled={isLoading}>
-              {isLoading ? "Working…" : submitLabel}
-            </button>
-          </form>
-          <div className="divider">Or continue with</div>
-          <div className="oauth-buttons">
-            <a className="button button-alt" href={getAuthUrl("github")}>Continue with GitHub</a>
-          </div>
-        </div>
-      </div>
+      
     </div>
   );
 }
