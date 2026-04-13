@@ -87,7 +87,7 @@ body {
   color: var(--text);
   background: radial-gradient(circle at top, rgba(99, 71, 42, 0.16), transparent 30%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
-  transition: --bg 2s cubic-bezier(0.22, 1, 0.36, 1), --bg-alt 2s cubic-bezier(0.22, 1, 0.36, 1), color 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: --bg 1s cubic-bezier(0.22, 1, 0.36, 1), --bg-alt 1s cubic-bezier(0.22, 1, 0.36, 1), color 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .route-main {
@@ -152,7 +152,7 @@ h1 {
   border-radius: 28px;
   padding: 2rem;
   box-shadow: var(--shadow);
-  transition: background 2s cubic-bezier(0.22, 1, 0.36, 1), border-color 2s cubic-bezier(0.22, 1, 0.36, 1), color 2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background 1s cubic-bezier(0.22, 1, 0.36, 1), border-color 1s cubic-bezier(0.22, 1, 0.36, 1), color 1s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .hero-card {
@@ -204,7 +204,7 @@ h1 {
 
 .feature-card {
   padding: 1.75rem;
-  transition: transform 0.25s ease, background 2s cubic-bezier(0.22, 1, 0.36, 1), border-color 2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.25s ease, background 1s cubic-bezier(0.22, 1, 0.36, 1), border-color 1s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .feature-card:hover {
@@ -265,7 +265,7 @@ p {
   justify-content: center;
   border-radius: 9999px;
   font-weight: 600;
-  transition: transform 0.2s ease, background 2s cubic-bezier(0.22, 1, 0.36, 1), color 2s cubic-bezier(0.22, 1, 0.36, 1), border-color 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.2s ease, background 1s cubic-bezier(0.22, 1, 0.36, 1), color 1s cubic-bezier(0.22, 1, 0.36, 1), border-color 1s cubic-bezier(0.22, 1, 0.36, 1);
   text-decoration: none;
 }
 
@@ -322,7 +322,7 @@ body textarea {
   color: var(--text);
   border-radius: 14px;
   padding: 0.95rem 1rem;
-  transition: border-color 2s cubic-bezier(0.22, 1, 0.36, 1), background 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: border-color 1s cubic-bezier(0.22, 1, 0.36, 1), background 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body input:focus,
@@ -340,7 +340,7 @@ body textarea:focus {
   background: rgba(255, 255, 255, 0.92);
   padding: 0.6rem 0.85rem;
   cursor: pointer;
-  transition: transform 0.2s ease, background 2s cubic-bezier(0.22, 1, 0.36, 1), border-color 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.2s ease, background 1s cubic-bezier(0.22, 1, 0.36, 1), border-color 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html.dark .theme-switch,
@@ -423,7 +423,7 @@ html[data-theme="jrcoffee-dark"] .theme-switch {
   text-align: center;
   color: var(--muted-soft);
   font-size: 0.95rem;
-  transition: color 2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: color 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (max-width: 680px) {

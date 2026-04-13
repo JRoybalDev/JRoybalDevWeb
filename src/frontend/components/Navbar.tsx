@@ -15,7 +15,7 @@ const ThemeToggle = ({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: ()
                 y: isDark ? "100%" : "0%",
                 opacity: isDark ? 0 : 1,
             }}
-            transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0 bg-white/60 z-0 pointer-events-none"
         />
         <div className="relative w-8 h-4 rounded-full bg-[--bg] flex items-center p-0.5 z-10">
@@ -27,13 +27,13 @@ const ThemeToggle = ({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: ()
                     borderRadius: isDark ? "50%" : "40% 60% 50% 50%"
                 }}
                 transition={{
-                    duration: 2,
+                    duration: 1,
                     ease: [0.22, 1, 0.36, 1]
                 }}
                 className="w-3 h-3 bg-[--accent] shadow-sm"
             />
         </div>
-        <span className="relative z-10 w-10 text-center select-none transition-colors duration-[2000ms] ease-coffee">
+        <span className="relative z-10 w-10 text-center select-none transition-colors duration-[1000ms] ease-coffee">
             {isDark ? "Dark" : "Light"}
         </span>
     </div>
@@ -71,7 +71,7 @@ function Navbar() {
 
     return (
         <>
-            <nav className='flex justify-between items-center px-[2rem] bg-[--bg-alt] w-full h-12 shadow-md border-b border-[--border] z-50 relative transition-colors duration-[2000ms] ease-coffee'>
+            <nav className='flex justify-between items-center px-[2rem] bg-[--bg-alt] w-full h-12 shadow-md border-b border-[--border] z-50 relative transition-colors duration-[1000ms] ease-coffee'>
                 {/* Left Section */}
                 <div className='flex items-center gap-2'>
                     <TbCoffee className="w-8 h-8" />
@@ -83,7 +83,7 @@ function Navbar() {
                     {navLinks.map((link, index) => (
                         <NavLink
                             className={({ isActive }) =>
-                                `text-sm transition-colors duration-[2000ms] ease-coffee cursor-pointer ${isActive ? "text-[--accent] font-medium" : "text-[--text] hover:text-[--accent-strong]"
+                                `text-sm transition-colors duration-[1000ms] ease-coffee cursor-pointer ${isActive ? "text-[--accent] font-medium" : "text-[--text] hover:text-[--accent-strong]"
                                 }`
                             }
                             key={index}
@@ -118,17 +118,17 @@ function Navbar() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 2 }}
+                            transition={{ duration: 1 }}
                             onClick={() => setIsOpen(false)}
-                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden transition-colors duration-[2000ms] ease-coffee"
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden transition-colors duration-[1000ms] ease-coffee"
                         />
                         
                         <motion.div
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
-                            transition={{ duration: 2, ease: [0.4, 0, 0.2, 1] }}
-                            className="fixed inset-x-0 bottom-0 top-12 bg-[--bg] z-40 flex flex-col md:hidden shadow-2xl overflow-hidden border-t border-[--border] transition-colors duration-[2000ms] ease-coffee"
+                            transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
+                            className="fixed inset-x-0 bottom-0 top-12 bg-[--bg] z-40 flex flex-col md:hidden shadow-2xl overflow-hidden border-t border-[--border] transition-colors duration-[1000ms] ease-coffee"
                         >
                             <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8">
                                 {navLinks.map((link, index) => (
@@ -137,7 +137,7 @@ function Navbar() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ 
-                                            duration: 2, 
+                                            duration: 1, 
                                             delay: index * 0.1,
                                             ease: [0.4, 0, 0.2, 1]
                                         }}
@@ -146,7 +146,7 @@ function Navbar() {
                                         <NavLink
                                             onClick={() => setIsOpen(false)}
                                             className={({ isActive }) =>
-                                                `block py-4 text-2xl tracking-tight transition-all duration-[2000ms] ease-coffee ${
+                                                `block py-4 text-2xl tracking-tight transition-all duration-[1000ms] ease-coffee ${
                                                     isActive 
                                                         ? "text-[--accent] font-bold scale-110" 
                                                         : "text-[--text] opacity-80 hover:text-[--accent-strong]"
