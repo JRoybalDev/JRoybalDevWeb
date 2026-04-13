@@ -1,0 +1,647 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+
+  .wf-root { padding: 1.5rem 0; display: flex; flex-direction: column; gap: 2.5rem; }
+
+  .page-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--color-text-tertiary); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .page-label::after {
+    content: ''; flex: 1; height: 0.5px; background: var(--color-border-tertiary);
+  }
+
+  .frame {
+    border: 1.5px solid var(--color-border-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-background-secondary);
+  }
+
+  /* Nav */
+  .wf-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--color-background-primary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    gap: 12px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 8px; }
+  .nav-brand .bean {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--color-background-warning);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .brand-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .nav-links { display: flex; gap: 18px; }
+  .nav-link { font-size: 12px; color: var(--color-text-secondary); cursor: pointer; }
+  .nav-link.active { color: var(--color-text-warning); font-weight: 500; }
+  .nav-toggle {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-secondary);
+    cursor: pointer; font-size: 11px; color: var(--color-text-secondary);
+  }
+  .toggle-pill {
+    width: 28px; height: 14px; border-radius: 7px;
+    background: var(--color-background-warning);
+    position: relative;
+  }
+  .toggle-knob {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--color-text-warning);
+    position: absolute; top: 2px; left: 2px;
+  }
+
+  /* Page content areas */
+  .page-content { padding: 24px; }
+
+  /* Hero */
+  .hero-row { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 20px; align-items: center; margin-bottom: 20px; }
+  .hero-eyebrow {
+    font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--color-text-warning); margin-bottom: 6px;
+  }
+  .hero-h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); line-height: 1.2; margin-bottom: 8px; }
+  .hero-sub { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 14px; max-width: 340px; }
+  .hero-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-primary {
+    padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    background: var(--color-background-warning); color: var(--color-text-warning);
+    border: none; cursor: pointer;
+  }
+  .btn-secondary {
+    padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    background: transparent; color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-secondary); cursor: pointer;
+  }
+  .hero-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 12px; padding: 16px;
+  }
+  .hero-card-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--color-background-warning);
+    margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .hc-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .hc-sub { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 12px; }
+  .hc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-box { background: var(--color-background-secondary); border-radius: 8px; padding: 8px; }
+  .stat-num { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-lbl { font-size: 10px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Services row */
+  .section-eyebrow { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.15em; color: var(--color-text-warning); margin-bottom: 4px; }
+  .section-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 14px; }
+  .cards-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .cards-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .service-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 10px; padding: 14px;
+  }
+  .svc-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--color-background-warning); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .svc-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .svc-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; }
+
+  /* Projects */
+  .project-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 10px; padding: 14px;
+  }
+  .proj-img {
+    height: 80px; border-radius: 8px;
+    background: var(--color-background-secondary);
+    margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+  }
+  .proj-img-label { font-size: 11px; color: var(--color-text-tertiary); }
+  .proj-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .proj-desc { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; line-height: 1.5; }
+  .proj-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: var(--color-background-warning);
+    color: var(--color-text-warning); font-weight: 500;
+  }
+
+  /* Callout */
+  .callout {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: 12px; padding: 16px 20px; gap: 16px;
+  }
+  .callout-text .ct-h { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .callout-text .ct-s { font-size: 11px; color: var(--color-text-secondary); }
+
+  /* Resume */
+  .resume-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; }
+  .resume-section {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 10px; padding: 14px; margin-bottom: 12px;
+  }
+  .rs-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-text-warning); margin-bottom: 8px; }
+  .rs-item { border-left: 2px solid var(--color-border-warning); padding-left: 10px; margin-bottom: 8px; }
+  .rs-item-title { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+  .rs-item-sub { font-size: 11px; color: var(--color-text-secondary); }
+  .skill-bar-wrap { margin-bottom: 6px; }
+  .skill-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+  .skill-bar-track { height: 5px; background: var(--color-background-secondary); border-radius: 3px; }
+  .skill-bar-fill { height: 100%; border-radius: 3px; background: var(--color-background-warning); }
+  .download-btn {
+    width: 100%; padding: 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    background: var(--color-background-warning); color: var(--color-text-warning);
+    border: none; cursor: pointer; text-align: center; margin-top: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* Experience */
+  .timeline-item { display: flex; gap: 14px; margin-bottom: 14px; }
+  .tl-dot-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--color-background-warning); border: 2px solid var(--color-text-warning); flex-shrink: 0; margin-top: 3px; }
+  .tl-line { width: 2px; flex: 1; background: var(--color-border-tertiary); min-height: 30px; margin-top: 4px; }
+  .tl-card {
+    flex: 1; background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 10px; padding: 12px; margin-bottom: 4px;
+  }
+  .tl-role { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .tl-meta { font-size: 10px; color: var(--color-text-warning); font-weight: 500; margin-bottom: 4px; }
+  .tl-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; }
+  .roast-badge {
+    display: inline-block; font-size: 10px; padding: 2px 8px;
+    border-radius: 10px; background: var(--color-background-success); color: var(--color-text-success);
+    margin-left: 6px; font-weight: 500;
+  }
+
+  /* About */
+  .about-layout { display: grid; grid-template-columns: 0.8fr 1fr; gap: 20px; align-items: start; }
+  .about-img {
+    background: var(--color-background-secondary);
+    border-radius: 12px; border: 0.5px solid var(--color-border-tertiary);
+    aspect-ratio: 3/4; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px;
+  }
+  .img-placeholder { width: 40px; height: 40px; border-radius: 50%; background: var(--color-background-warning); }
+  .img-ph-label { font-size: 11px; color: var(--color-text-tertiary); }
+  .values-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .value-chip {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px; padding: 8px 10px;
+    font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+    text-align: center;
+  }
+
+  /* Contact */
+  .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .contact-info { padding: 4px 0; }
+  .ci-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .ci-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--color-background-warning); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .ci-text .ci-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-tertiary); }
+  .ci-text .ci-val { font-size: 12px; color: var(--color-text-primary); }
+  .form-group { margin-bottom: 10px; }
+  .form-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .form-input {
+    width: 100%; padding: 8px 10px; border-radius: 8px; font-size: 12px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+  }
+  .form-textarea { height: 70px; resize: none; }
+  .submit-btn {
+    width: 100%; padding: 9px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    background: var(--color-background-warning); color: var(--color-text-warning);
+    border: none; cursor: pointer; margin-top: 4px;
+  }
+  .contact-copy { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .contact-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px; line-height: 1.6; }
+
+  /* Footer */
+  .wf-footer {
+    background: var(--color-background-primary);
+    border-top: 0.5px solid var(--color-border-tertiary);
+    padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-brand { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+  .footer-links { display: flex; gap: 14px; }
+  .footer-link { font-size: 11px; color: var(--color-text-tertiary); }
+
+  .section-divider { height: 0.5px; background: var(--color-border-tertiary); margin: 18px 0; }
+
+  .annotation {
+    font-size: 10px; color: var(--color-text-tertiary);
+    border: 0.5px dashed var(--color-border-tertiary);
+    border-radius: 6px; padding: 3px 8px; display: inline-block; margin-top: 4px;
+  }
+
+  .page-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0 20px; background: var(--color-background-primary); }
+  .page-tab { font-size: 12px; padding: 8px 14px; color: var(--color-text-tertiary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; }
+  .page-tab.active { color: var(--color-text-warning); border-bottom-color: var(--color-text-warning); }
+</style>
+
+<div class="wf-root">
+  <h2 class="sr-only">JRoybalDev portfolio wireframe showing layout for all six pages: Home, Projects, Resume, Experience, About, and Contact.</h2>
+
+  <!-- ─── HOME ─────────────────────────────────────── -->
+  <div>
+    <div class="page-label">Home — /</div>
+    <div class="frame">
+      <div class="wf-nav">
+        <div class="nav-brand">
+          <div class="bean">☕</div>
+          <span class="brand-name">JRoybalDev</span>
+        </div>
+        <div class="nav-links">
+          <span class="nav-link active">Home</span>
+          <span class="nav-link">Projects</span>
+          <span class="nav-link">Experience</span>
+          <span class="nav-link">Resume</span>
+          <span class="nav-link">About</span>
+          <span class="nav-link">Contact</span>
+        </div>
+        <div class="nav-toggle">
+          <div class="toggle-pill"><div class="toggle-knob"></div></div>
+          Light
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Hero -->
+        <div class="hero-row">
+          <div class="hero-copy">
+            <div class="hero-eyebrow">Full-stack · Freelance · Consulting</div>
+            <div class="hero-h1">Crafted full-stack solutions — rich, smooth, and delivered.</div>
+            <div class="hero-sub">JRoybalDev brews professional web products for clients who need results. From solo contracts to full consulting engagements.</div>
+            <div class="hero-btns">
+              <div class="btn-primary">View my work</div>
+              <div class="btn-secondary">Let's talk ↗</div>
+            </div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-card-icon">☕</div>
+            <div class="hc-title">Currently available</div>
+            <div class="hc-sub">Open to new contracts & consulting</div>
+            <div class="hc-stats">
+              <div class="stat-box"><div class="stat-num">5+</div><div class="stat-lbl">Years exp.</div></div>
+              <div class="stat-box"><div class="stat-num">20+</div><div class="stat-lbl">Projects</div></div>
+              <div class="stat-box"><div class="stat-num">100%</div><div class="stat-lbl">Remote</div></div>
+              <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Services</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="section-eyebrow">What I brew</div>
+        <div class="section-title">Services</div>
+        <div class="cards-3">
+          <div class="service-card">
+            <div class="svc-icon">🔧</div>
+            <div class="svc-title">Full-stack Contracts</div>
+            <div class="svc-desc">End-to-end web development, APIs, and deployment. House blend quality.</div>
+          </div>
+          <div class="service-card">
+            <div class="svc-icon">💼</div>
+            <div class="svc-title">Professional Freelancing</div>
+            <div class="svc-desc">Focused execution on defined scopes. Your signature brew, delivered.</div>
+          </div>
+          <div class="service-card">
+            <div class="svc-icon">🎯</div>
+            <div class="svc-title">Consulting</div>
+            <div class="svc-desc">Architecture reviews, tech strategy, team mentoring. Expert roast.</div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Featured projects teaser -->
+        <div class="section-eyebrow">Featured work</div>
+        <div class="section-title">Recent projects</div>
+        <div class="cards-3">
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Project screenshot</span></div>
+            <div class="proj-title">Project Alpha</div>
+            <div class="proj-desc">Short flavor note about what was built and the outcome.</div>
+            <div class="proj-tags"><span class="tag">React</span><span class="tag">Node</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Project screenshot</span></div>
+            <div class="proj-title">Project Beta</div>
+            <div class="proj-desc">Short flavor note about what was built and the outcome.</div>
+            <div class="proj-tags"><span class="tag">TypeScript</span><span class="tag">Postgres</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Project screenshot</span></div>
+            <div class="proj-title">Project Gamma</div>
+            <div class="proj-desc">Short flavor note about what was built and the outcome.</div>
+            <div class="proj-tags"><span class="tag">AWS</span><span class="tag">Docker</span></div>
+          </div>
+        </div>
+
+        <!-- CTA callout -->
+        <div class="callout">
+          <div class="callout-text">
+            <div class="ct-h">Ready to brew your next product?</div>
+            <div class="ct-s">Let's make your next project rich, smooth, and on time.</div>
+          </div>
+          <div class="btn-primary">Get in touch</div>
+        </div>
+      </div>
+
+      <div class="wf-footer">
+        <div class="footer-brand">JRoybalDev © 2025</div>
+        <div class="footer-links">
+          <span class="footer-link">GitHub</span>
+          <span class="footer-link">LinkedIn</span>
+          <span class="footer-link">Email</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PROJECTS ──────────────────────────────────── -->
+  <div>
+    <div class="page-label">Projects — /projects</div>
+    <div class="frame">
+      <div class="wf-nav">
+        <div class="nav-brand"><div class="bean">☕</div><span class="brand-name">JRoybalDev</span></div>
+        <div class="nav-links">
+          <span class="nav-link">Home</span>
+          <span class="nav-link active">Projects</span>
+          <span class="nav-link">Experience</span>
+          <span class="nav-link">Resume</span>
+          <span class="nav-link">About</span>
+          <span class="nav-link">Contact</span>
+        </div>
+        <div class="nav-toggle"><div class="toggle-pill"><div class="toggle-knob"></div></div>Light</div>
+      </div>
+
+      <div class="page-content">
+        <div class="hero-eyebrow">The menu</div>
+        <div style="font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Projects &amp; case studies</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:16px">A curated selection of work — each one a distinct roast.</div>
+
+        <!-- Filter pills -->
+        <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">
+          <div class="btn-primary" style="font-size:11px;padding:4px 12px">All</div>
+          <div class="btn-secondary" style="font-size:11px;padding:4px 12px">Full-stack</div>
+          <div class="btn-secondary" style="font-size:11px;padding:4px 12px">Consulting</div>
+          <div class="btn-secondary" style="font-size:11px;padding:4px 12px">Freelance</div>
+        </div>
+
+        <div class="cards-3">
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Preview</span></div>
+            <div class="proj-title">Project name</div>
+            <div class="proj-desc">Flavor note — what problem, what outcome, what stack.</div>
+            <div class="proj-tags"><span class="tag">React</span><span class="tag">Node</span><span class="tag">AWS</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Preview</span></div>
+            <div class="proj-title">Project name</div>
+            <div class="proj-desc">Flavor note — what problem, what outcome, what stack.</div>
+            <div class="proj-tags"><span class="tag">TypeScript</span><span class="tag">Postgres</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Preview</span></div>
+            <div class="proj-title">Project name</div>
+            <div class="proj-desc">Flavor note — what problem, what outcome, what stack.</div>
+            <div class="proj-tags"><span class="tag">Docker</span><span class="tag">Redis</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Preview</span></div>
+            <div class="proj-title">Project name</div>
+            <div class="proj-desc">Flavor note — what problem, what outcome, what stack.</div>
+            <div class="proj-tags"><span class="tag">Next.js</span><span class="tag">Tailwind</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img"><span class="proj-img-label">Preview</span></div>
+            <div class="proj-title">Project name</div>
+            <div class="proj-desc">Flavor note — what problem, what outcome, what stack.</div>
+            <div class="proj-tags"><span class="tag">GraphQL</span><span class="tag">Prisma</span></div>
+          </div>
+          <div class="project-card">
+            <div class="proj-img" style="border:2px dashed var(--color-border-secondary);background:transparent"><span class="proj-img-label">+ Add project</span></div>
+            <div class="proj-title" style="color:var(--color-text-tertiary)">More coming</div>
+            <div class="proj-desc">Currently brewing...</div>
+          </div>
+        </div>
+        <div class="annotation">Metric chips can go on each card: "12% conversion lift" · "shipped in 3 weeks"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RESUME ────────────────────────────────────── -->
+  <div>
+    <div class="page-label">Resume — /resume</div>
+    <div class="frame">
+      <div class="wf-nav">
+        <div class="nav-brand"><div class="bean">☕</div><span class="brand-name">JRoybalDev</span></div>
+        <div class="nav-links">
+          <span class="nav-link">Home</span><span class="nav-link">Projects</span><span class="nav-link">Experience</span><span class="nav-link active">Resume</span><span class="nav-link">About</span><span class="nav-link">Contact</span>
+        </div>
+        <div class="nav-toggle"><div class="toggle-pill"><div class="toggle-knob"></div></div>Light</div>
+      </div>
+
+      <div class="page-content">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div class="hero-eyebrow">The tasting board</div>
+            <div style="font-size:20px;font-weight:500;color:var(--color-text-primary)">Professional résumé</div>
+          </div>
+          <div class="download-btn" style="width:auto;padding:8px 20px">⬇ Download PDF — Order slip</div>
+        </div>
+
+        <div class="resume-layout">
+          <!-- Left col -->
+          <div>
+            <div class="resume-section">
+              <div class="rs-label">Signature brew — Skills</div>
+              <div class="skill-bar-wrap"><div class="skill-bar-label"><span>React / TypeScript</span><span>95%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" style="width:95%"></div></div></div>
+              <div class="skill-bar-wrap"><div class="skill-bar-label"><span>Node.js / Express</span><span>90%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" style="width:90%"></div></div></div>
+              <div class="skill-bar-wrap"><div class="skill-bar-label"><span>PostgreSQL</span><span>85%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+              <div class="skill-bar-wrap"><div class="skill-bar-label"><span>AWS / DevOps</span><span>80%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" style="width:80%"></div></div></div>
+              <div class="skill-bar-wrap"><div class="skill-bar-label"><span>Docker / CI/CD</span><span>75%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" style="width:75%"></div></div></div>
+            </div>
+            <div class="resume-section">
+              <div class="rs-label">Education</div>
+              <div class="rs-item"><div class="rs-item-title">B.S. Computer Science</div><div class="rs-item-sub">University · 20XX</div></div>
+            </div>
+            <div class="resume-section">
+              <div class="rs-label">Certifications</div>
+              <div class="rs-item"><div class="rs-item-title">AWS Certified Developer</div><div class="rs-item-sub">Amazon · 20XX</div></div>
+              <div class="rs-item"><div class="rs-item-title">Add cert here</div><div class="rs-item-sub">Issuer · 20XX</div></div>
+            </div>
+          </div>
+          <!-- Right col -->
+          <div>
+            <div class="resume-section">
+              <div class="rs-label">House blend — Experience</div>
+              <div class="rs-item">
+                <div class="rs-item-title">Full-stack Developer</div>
+                <div class="rs-item-sub" style="color:var(--color-text-warning);font-weight:500">Client / Company · 20XX – Present</div>
+                <div class="rs-item-sub" style="margin-top:4px">Key achievement or responsibility. Metrics and impact here.</div>
+              </div>
+              <div class="rs-item">
+                <div class="rs-item-title">Freelance Engineer</div>
+                <div class="rs-item-sub" style="color:var(--color-text-warning);font-weight:500">Self-employed · 20XX – 20XX</div>
+                <div class="rs-item-sub" style="margin-top:4px">Built and shipped N client projects. Describe outcomes.</div>
+              </div>
+            </div>
+            <div class="resume-section">
+              <div class="rs-label">Expert roast — Summary</div>
+              <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">Full-stack engineer and consultant with X years of experience delivering scalable web products. Specialising in React, Node, and cloud architecture. Available for remote contracts and consulting engagements.</div>
+            </div>
+          </div>
+        </div>
+        <div class="annotation">Each section styled as a "menu tier": Signature Brew · House Blend · Expert Roast</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── EXPERIENCE ────────────────────────────────── -->
+  <div>
+    <div class="page-label">Experience — /experience</div>
+    <div class="frame">
+      <div class="wf-nav">
+        <div class="nav-brand"><div class="bean">☕</div><span class="brand-name">JRoybalDev</span></div>
+        <div class="nav-links">
+          <span class="nav-link">Home</span><span class="nav-link">Projects</span><span class="nav-link active">Experience</span><span class="nav-link">Resume</span><span class="nav-link">About</span><span class="nav-link">Contact</span>
+        </div>
+        <div class="nav-toggle"><div class="toggle-pill"><div class="toggle-knob"></div></div>Light</div>
+      </div>
+
+      <div class="page-content">
+        <div class="hero-eyebrow">The roast levels</div>
+        <div style="font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:18px">Experience timeline</div>
+
+        <div style="max-width:560px">
+          <div class="timeline-item">
+            <div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div>
+              <div class="tl-card">
+                <div class="tl-meta">20XX – Present</div>
+                <div class="tl-role">Full-stack Contractor <span class="roast-badge">Expert Roast</span></div>
+                <div class="tl-desc">Consulting and contract work across multiple clients. Architecture, delivery, and mentoring.</div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div>
+              <div class="tl-card">
+                <div class="tl-meta">20XX – 20XX</div>
+                <div class="tl-role">Senior Engineer <span class="roast-badge" style="background:var(--color-background-info);color:var(--color-text-info)">Medium Roast</span></div>
+                <div class="tl-desc">Led engineering team at a product company. Shipped major feature sets and improved CI/CD.</div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot-col"><div class="tl-dot"></div></div>
+            <div>
+              <div class="tl-card">
+                <div class="tl-meta">20XX – 20XX</div>
+                <div class="tl-role">Junior Developer <span class="roast-badge" style="background:var(--color-background-tertiary);color:var(--color-text-tertiary)">Light Roast</span></div>
+                <div class="tl-desc">First professional role. Built internal tooling and learned the craft.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="annotation">Roast level badges: Expert · Medium · Light — encoded as amber/info/gray</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ABOUT ──────────────────────────────────────── -->
+  <div>
+    <div class="page-label">About — /about</div>
+    <div class="frame">
+      <div class="wf-nav">
+        <div class="nav-brand"><div class="bean">☕</div><span class="brand-name">JRoybalDev</span></div>
+        <div class="nav-links">
+          <span class="nav-link">Home</span><span class="nav-link">Projects</span><span class="nav-link">Experience</span><span class="nav-link">Resume</span><span class="nav-link active">About</span><span class="nav-link">Contact</span>
+        </div>
+        <div class="nav-toggle"><div class="toggle-pill"><div class="toggle-knob"></div></div>Light</div>
+      </div>
+
+      <div class="page-content">
+        <div class="about-layout">
+          <div class="about-img">
+            <div class="img-placeholder"></div>
+            <div class="img-ph-label">Photo / avatar</div>
+          </div>
+          <div>
+            <div class="hero-eyebrow">The barista</div>
+            <div style="font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px">Hi, I'm JRoybalDev.</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:12px">A paragraph about your story — where you come from, what drives you, and why you love building things. Keep it warm and personal, like a coffee shop conversation. This is where the brand voice really shines.</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:14px">A second paragraph about your process, how you work with clients, and what makes JRoybalDev different from other freelancers.</div>
+
+            <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Core values</div>
+            <div class="values-row">
+              <div class="value-chip">Quality first</div>
+              <div class="value-chip">Clear comms</div>
+              <div class="value-chip">Ship on time</div>
+              <div class="value-chip">Own the work</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── CONTACT ───────────────────────────────────── -->
+  <div>
+    <div class="page-label">Contact — /contact</div>
+    <div class="frame">
+      <div class="wf-nav">
+        <div class="nav-brand"><div class="bean">☕</div><span class="brand-name">JRoybalDev</span></div>
+        <div class="nav-links">
+          <span class="nav-link">Home</span><span class="nav-link">Projects</span><span class="nav-link">Experience</span><span class="nav-link">Resume</span><span class="nav-link">About</span><span class="nav-link active">Contact</span>
+        </div>
+        <div class="nav-toggle"><div class="toggle-pill"><div class="toggle-knob"></div></div>Light</div>
+      </div>
+
+      <div class="page-content">
+        <div class="contact-layout">
+          <div class="contact-info">
+            <div class="contact-copy">Let's make something rich and smooth.</div>
+            <div class="contact-sub">Ready to brew your next product? Drop me a line — I respond within one business day.</div>
+
+            <div class="ci-item"><div class="ci-icon">✉</div><div class="ci-text"><div class="ci-lbl">Email</div><div class="ci-val">hello@jroybaldev.com</div></div></div>
+            <div class="ci-item"><div class="ci-icon">🔗</div><div class="ci-text"><div class="ci-lbl">GitHub</div><div class="ci-val">github.com/jroybaldev</div></div></div>
+            <div class="ci-item"><div class="ci-icon">💼</div><div class="ci-text"><div class="ci-lbl">LinkedIn</div><div class="ci-val">linkedin.com/in/jroybaldev</div></div></div>
+
+            <div style="margin-top:16px;padding:12px;border-radius:10px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)">
+              <div style="font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Availability</div>
+              <div style="font-size:11px;color:var(--color-text-secondary)">Open to new contracts · Remote only · Response &lt; 24h</div>
+            </div>
+          </div>
+          <div>
+            <div class="form-group"><div class="form-label">Name</div><input class="form-input" placeholder="Your name" /></div>
+            <div class="form-group"><div class="form-label">Email</div><input class="form-input" placeholder="your@email.com" /></div>
+            <div class="form-group"><div class="form-label">Project type</div>
+              <select class="form-input" style="appearance:none">
+                <option>Full-stack contract</option>
+                <option>Consulting</option>
+                <option>Freelance project</option>
+              </select>
+            </div>
+            <div class="form-group"><div class="form-label">Message</div><textarea class="form-input form-textarea" placeholder="Tell me about your project — what you're building, your timeline, and budget range."></textarea></div>
+            <button class="submit-btn">Pull the shot — Send message ☕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

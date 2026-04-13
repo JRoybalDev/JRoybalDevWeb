@@ -1,0 +1,477 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wf-root{display:flex;flex-direction:column;gap:2.5rem;padding:1.5rem 0}
+.page-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--color-text-tertiary);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.page-label::after{content:'';flex:1;height:.5px;background:var(--color-border-tertiary)}
+.frame{border:1.5px solid var(--color-border-secondary);border-radius:12px;overflow:hidden;background:var(--color-background-secondary)}
+
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--color-background-primary);border-bottom:.5px solid var(--color-border-tertiary);gap:12px}
+.brand{display:flex;align-items:center;gap:8px}
+.bean{width:22px;height:22px;border-radius:50%;background:var(--color-background-warning);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-warning);font-weight:500}
+.brand-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.brand-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--color-background-danger);color:var(--color-text-danger);font-weight:500;margin-left:4px}
+.top-right{display:flex;align-items:center;gap:10px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--color-background-warning);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--color-text-warning)}
+.top-link{font-size:12px;color:var(--color-text-secondary);cursor:pointer}
+.top-link.danger{color:var(--color-text-danger)}
+
+.sidebar-layout{display:grid;grid-template-columns:180px 1fr}
+.sidebar{background:var(--color-background-primary);border-right:.5px solid var(--color-border-tertiary);padding:14px 0;min-height:620px}
+.sb-section{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-tertiary);padding:8px 16px 4px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-left:2px solid transparent}
+.sb-item.active{color:var(--color-text-warning);background:var(--color-background-warning);border-left-color:var(--color-text-warning);border-radius:0}
+.sb-item svg{width:14px;height:14px;flex-shrink:0;opacity:.7}
+.sb-item.active svg{opacity:1}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--color-background-success);margin-left:auto}
+
+.main{padding:20px;display:flex;flex-direction:column;gap:16px}
+
+.metrics-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric-card{background:var(--color-background-secondary);border-radius:8px;padding:12px}
+.mc-label{font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px}
+.mc-value{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.mc-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.mc-delta{font-size:11px;font-weight:500}
+.mc-delta.up{color:var(--color-text-success)}
+.mc-delta.warn{color:var(--color-text-warning)}
+.mc-delta.danger{color:var(--color-text-danger)}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.section-actions{display:flex;gap:6px}
+.pill-btn{font-size:11px;padding:4px 12px;border-radius:20px;border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.pill-btn.active{background:var(--color-background-warning);color:var(--color-text-warning);border-color:var(--color-border-warning)}
+.pill-btn.primary{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-secondary);font-weight:500}
+
+.table-wrap{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden}
+.db-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.db-table th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-tertiary);padding:8px 12px;background:var(--color-background-secondary);border-bottom:.5px solid var(--color-border-tertiary);text-align:left}
+.db-table td{font-size:12px;color:var(--color-text-primary);padding:9px 12px;border-bottom:.5px solid var(--color-border-tertiary);vertical-align:middle}
+.db-table tr:last-child td{border-bottom:none}
+.db-table tr:hover td{background:var(--color-background-secondary)}
+.db-table .muted{color:var(--color-text-secondary)}
+.db-table .mono{font-family:var(--font-mono);font-size:11px}
+
+.status-badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
+.status-badge.active{background:var(--color-background-success);color:var(--color-text-success)}
+.status-badge.review{background:var(--color-background-warning);color:var(--color-text-warning)}
+.status-badge.paused{background:var(--color-background-secondary);color:var(--color-text-tertiary);border:.5px solid var(--color-border-secondary)}
+.status-badge.complete{background:var(--color-background-info);color:var(--color-text-info)}
+.status-badge.overdue{background:var(--color-background-danger);color:var(--color-text-danger)}
+.status-badge.negotiation{background:#EEEDFE;color:#3C3489}
+
+.priority-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.p-high{background:#E24B4A}
+.p-med{background:#BA7517}
+.p-low{background:#639922}
+
+.progress-bar{height:5px;background:var(--color-background-secondary);border-radius:3px;width:80px}
+.progress-fill{height:100%;border-radius:3px;background:var(--color-background-success)}
+
+.tag-list{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 6px;border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card-panel{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:10px;padding:14px}
+.field-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.field-row:last-child{border-bottom:none}
+.field-key{font-size:11px;color:var(--color-text-secondary)}
+.field-val{font-size:12px;color:var(--color-text-primary);text-align:right}
+.field-val.mono{font-family:var(--font-mono);font-size:11px}
+.field-val.success{color:var(--color-text-success)}
+.field-val.warning{color:var(--color-text-warning)}
+
+.mini-bar-wrap{margin-bottom:6px}
+.mini-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.mini-bar-track{height:5px;background:var(--color-background-secondary);border-radius:3px}
+.mini-bar-fill{height:100%;border-radius:3px;background:var(--color-background-warning)}
+.mini-bar-fill.success{background:var(--color-background-success)}
+.mini-bar-fill.info{background:var(--color-background-info)}
+.mini-bar-fill.danger{background:var(--color-background-danger)}
+
+.activity-item{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--color-background-warning);margin-top:3px;flex-shrink:0}
+.act-text{font-size:12px;color:var(--color-text-primary);line-height:1.4}
+.act-time{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);border:.5px solid var(--color-border-secondary);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--color-text-secondary);flex:1}
+
+.signin-shell{display:flex;justify-content:center;align-items:center;padding:40px 20px;background:var(--color-background-secondary)}
+.signin-card{background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:12px;padding:28px;width:100%;max-width:380px}
+.signin-logo{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px}
+.signin-title{font-size:18px;font-weight:500;color:var(--color-text-primary);text-align:center;margin-bottom:4px}
+.signin-sub{font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:22px}
+.form-group{margin-bottom:12px}
+.form-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em}
+.form-input{width:100%;padding:8px 12px;border-radius:8px;border:.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px}
+.form-input:focus{outline:none;border-color:var(--color-border-warning)}
+.submit-btn{width:100%;padding:10px;border-radius:20px;border:none;background:var(--color-background-warning);color:var(--color-text-warning);font-size:13px;font-weight:500;cursor:pointer;margin-top:4px}
+.signin-note{font-size:11px;color:var(--color-text-tertiary);text-align:center;margin-top:14px;padding-top:12px;border-top:.5px solid var(--color-border-tertiary)}
+.totp-row{display:flex;gap:6px;justify-content:center;margin:4px 0}
+.totp-box{width:36px;height:40px;border-radius:8px;border:.5px solid var(--color-border-secondary);background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.totp-box.filled{border-color:var(--color-border-warning);background:var(--color-background-warning);color:var(--color-text-warning)}
+.divider-row{display:flex;align-items:center;gap:10px;margin:14px 0}
+.divider-line{flex:1;height:.5px;background:var(--color-border-tertiary)}
+.divider-text{font-size:11px;color:var(--color-text-tertiary)}
+</style>
+
+<div class="wf-root">
+<h2 class="sr-only">Admin sign-in and project dashboard wireframe for JRoybalDev with full data fields.</h2>
+
+<!-- SIGN IN PAGE -->
+<div>
+  <div class="page-label">Admin sign-in — /admin/login</div>
+  <div class="frame">
+    <div class="top-bar">
+      <div class="brand">
+        <div class="bean">J</div>
+        <span class="brand-name">JRoybalDev</span>
+        <span class="brand-badge">Admin</span>
+      </div>
+      <span style="font-size:11px;color:var(--color-text-tertiary)">Restricted access</span>
+    </div>
+    <div class="signin-shell">
+      <div class="signin-card">
+        <div class="signin-logo">
+          <div class="bean" style="width:32px;height:32px;font-size:15px">J</div>
+        </div>
+        <div class="signin-title">Admin portal</div>
+        <div class="signin-sub">JRoybalDev — restricted access only</div>
+
+        <div class="form-group">
+          <div class="form-label">Email</div>
+          <input class="form-input" type="email" placeholder="admin@jroybaldev.com" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">Password</div>
+          <input class="form-input" type="password" placeholder="••••••••••••" />
+        </div>
+
+        <div class="divider-row">
+          <div class="divider-line"></div>
+          <span class="divider-text">2-factor authentication</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="form-label" style="text-align:center;margin-bottom:8px">6-digit code</div>
+        <div class="totp-row">
+          <div class="totp-box filled">4</div>
+          <div class="totp-box filled">8</div>
+          <div class="totp-box filled">2</div>
+          <div class="totp-box">_</div>
+          <div class="totp-box">_</div>
+          <div class="totp-box">_</div>
+        </div>
+
+        <button class="submit-btn" style="margin-top:18px">Sign in to dashboard</button>
+
+        <div class="signin-note">
+          Not an admin? <span style="color:var(--color-text-info);cursor:pointer">Return to portfolio</span><br>
+          <span style="color:var(--color-text-danger)">Failed attempts are logged and IP-blocked after 5 tries.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div>
+  <div class="page-label">Admin dashboard — /admin/dashboard</div>
+  <div class="frame">
+    <div class="top-bar">
+      <div class="brand">
+        <div class="bean">J</div>
+        <span class="brand-name">JRoybalDev</span>
+        <span class="brand-badge">Admin</span>
+      </div>
+      <div class="top-right">
+        <div class="search-bar" style="width:180px">Search projects...</div>
+        <div class="avatar">JR</div>
+        <span class="top-link">Settings</span>
+        <span class="top-link danger">Sign out</span>
+      </div>
+    </div>
+
+    <div class="sidebar-layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sb-section">Overview</div>
+        <div class="sb-item active">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>
+          Dashboard
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="8" y1="5" x2="8" y2="11"/></svg>
+          New project
+        </div>
+
+        <div class="sb-section" style="margin-top:8px">Projects</div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><polyline points="8,4 8,8 11,10"/></svg>
+          Active <div class="sb-dot"></div>
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,5 8,11 14,5"/></svg>
+          In review
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,8 6,12 14,4"/></svg>
+          Completed
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+          Archived
+        </div>
+
+        <div class="sb-section" style="margin-top:8px">Finance</div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="9" rx="1"/><line x1="1" y1="7" x2="15" y2="7"/></svg>
+          Invoices
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,12 5,7 9,9 15,3"/></svg>
+          Revenue
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="8" x2="10" y2="10"/></svg>
+          Time tracking
+        </div>
+
+        <div class="sb-section" style="margin-top:8px">Clients</div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+          Client list
+        </div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H2v12l3-3h9V2z"/></svg>
+          Notes & comms
+        </div>
+
+        <div class="sb-section" style="margin-top:8px">System</div>
+        <div class="sb-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+          Settings
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="main">
+
+        <!-- Metric row -->
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="mc-label">Active projects</div>
+            <div class="mc-value">7</div>
+            <div class="mc-sub"><span class="mc-delta up">+2</span> from last month</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">YTD revenue</div>
+            <div class="mc-value">$48,200</div>
+            <div class="mc-sub"><span class="mc-delta up">+18%</span> vs prior year</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Hours logged</div>
+            <div class="mc-value">312</div>
+            <div class="mc-sub"><span class="mc-delta warn">84%</span> billable rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Overdue tasks</div>
+            <div class="mc-value">3</div>
+            <div class="mc-sub"><span class="mc-delta danger">Needs attention</span></div>
+          </div>
+        </div>
+
+        <!-- Project table -->
+        <div>
+          <div class="section-header">
+            <span class="section-title">Projects</span>
+            <div class="section-actions">
+              <span class="pill-btn active">All</span>
+              <span class="pill-btn">Active</span>
+              <span class="pill-btn">Review</span>
+              <span class="pill-btn">Complete</span>
+              <span class="pill-btn primary">+ Add project</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="db-table">
+              <thead>
+                <tr>
+                  <th style="width:160px">Project name</th>
+                  <th style="width:90px">Client</th>
+                  <th style="width:72px">Status</th>
+                  <th style="width:58px">Priority</th>
+                  <th style="width:70px">Progress</th>
+                  <th style="width:68px">Contract $</th>
+                  <th style="width:70px">Invoiced</th>
+                  <th style="width:60px">Hours</th>
+                  <th style="width:80px">Start date</th>
+                  <th style="width:80px">Deadline</th>
+                  <th style="width:90px">Stack</th>
+                  <th style="width:70px">Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:500">Brewhaus E-comm</td>
+                  <td class="muted">Brewhaus Co.</td>
+                  <td><span class="status-badge active">Active</span></td>
+                  <td><span class="priority-dot p-high"></span><span style="font-size:12px">High</span></td>
+                  <td><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--color-background-success)"></div></div><span style="font-size:10px;color:var(--color-text-tertiary);margin-left:4px">65%</span></td>
+                  <td class="mono">$12,500</td>
+                  <td class="mono">$8,750</td>
+                  <td class="muted">94h</td>
+                  <td class="muted">Jan 12</td>
+                  <td style="color:var(--color-text-warning);font-size:12px">Apr 30</td>
+                  <td><div class="tag-list"><span class="tag">React</span><span class="tag">Node</span></div></td>
+                  <td><span class="status-badge complete">Contract</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">PortalX Dashboard</td>
+                  <td class="muted">PortalX Inc.</td>
+                  <td><span class="status-badge review">Review</span></td>
+                  <td><span class="priority-dot p-med"></span><span style="font-size:12px">Med</span></td>
+                  <td><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div><span style="font-size:10px;color:var(--color-text-tertiary);margin-left:4px">90%</span></td>
+                  <td class="mono">$7,000</td>
+                  <td class="mono">$7,000</td>
+                  <td class="muted">68h</td>
+                  <td class="muted">Feb 1</td>
+                  <td style="color:var(--color-text-success);font-size:12px">Apr 15</td>
+                  <td><div class="tag-list"><span class="tag">Next.js</span><span class="tag">PG</span></div></td>
+                  <td><span class="status-badge active" style="background:var(--color-background-info);color:var(--color-text-info)">Freelance</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">TechStart Consult</td>
+                  <td class="muted">TechStart LLC</td>
+                  <td><span class="status-badge active">Active</span></td>
+                  <td><span class="priority-dot p-high"></span><span style="font-size:12px">High</span></td>
+                  <td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--color-background-warning)"></div></div><span style="font-size:10px;color:var(--color-text-tertiary);margin-left:4px">40%</span></td>
+                  <td class="mono">$4,200/mo</td>
+                  <td class="mono">$8,400</td>
+                  <td class="muted">112h</td>
+                  <td class="muted">Nov 1</td>
+                  <td style="font-size:12px;color:var(--color-text-secondary)">Ongoing</td>
+                  <td><div class="tag-list"><span class="tag">AWS</span><span class="tag">Docker</span></div></td>
+                  <td><span class="status-badge negotiation">Consult</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Alpha CRM MVP</td>
+                  <td class="muted">Alpha Group</td>
+                  <td><span class="status-badge overdue">Overdue</span></td>
+                  <td><span class="priority-dot p-high"></span><span style="font-size:12px">High</span></td>
+                  <td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--color-background-danger)"></div></div><span style="font-size:10px;color:var(--color-text-tertiary);margin-left:4px">55%</span></td>
+                  <td class="mono">$9,000</td>
+                  <td class="mono">$4,500</td>
+                  <td class="muted">77h</td>
+                  <td class="muted">Dec 5</td>
+                  <td style="color:var(--color-text-danger);font-size:12px">Mar 31</td>
+                  <td><div class="tag-list"><span class="tag">TS</span><span class="tag">Prisma</span></div></td>
+                  <td><span class="status-badge complete">Contract</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500">Nomad Booking App</td>
+                  <td class="muted">NomadCo</td>
+                  <td><span class="status-badge paused">Paused</span></td>
+                  <td><span class="priority-dot p-low"></span><span style="font-size:12px">Low</span></td>
+                  <td><div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div><span style="font-size:10px;color:var(--color-text-tertiary);margin-left:4px">25%</span></td>
+                  <td class="mono">$6,000</td>
+                  <td class="mono">$1,500</td>
+                  <td class="muted">30h</td>
+                  <td class="muted">Mar 1</td>
+                  <td style="font-size:12px;color:var(--color-text-tertiary)">TBD</td>
+                  <td><div class="tag-list"><span class="tag">React</span><span class="tag">Supabase</span></div></td>
+                  <td><span class="status-badge active" style="background:var(--color-background-info);color:var(--color-text-info)">Freelance</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bottom two-col -->
+        <div class="two-col">
+          <!-- Project detail panel -->
+          <div>
+            <div class="section-header"><span class="section-title">Project detail — Brewhaus E-comm</span></div>
+            <div class="card-panel">
+              <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-warning);margin-bottom:8px">Core fields</div>
+              <div class="field-row"><span class="field-key">Project ID</span><span class="field-val mono">#PRJ-0014</span></div>
+              <div class="field-row"><span class="field-key">Client name</span><span class="field-val">Brewhaus Co.</span></div>
+              <div class="field-row"><span class="field-key">Client email</span><span class="field-val mono" style="font-size:11px">client@brewhaus.co</span></div>
+              <div class="field-row"><span class="field-key">Client contact</span><span class="field-val">Sarah Mendoza</span></div>
+              <div class="field-row"><span class="field-key">Contract type</span><span class="field-val">Fixed-price contract</span></div>
+              <div class="field-row"><span class="field-key">Project type</span><span class="field-val">Full-stack · E-commerce</span></div>
+              <div class="field-row"><span class="field-key">Contract value</span><span class="field-val success">$12,500</span></div>
+              <div class="field-row"><span class="field-key">Amount invoiced</span><span class="field-val">$8,750</span></div>
+              <div class="field-row"><span class="field-key">Amount outstanding</span><span class="field-val warning">$3,750</span></div>
+              <div class="field-row"><span class="field-key">Payment terms</span><span class="field-val">Net-30</span></div>
+              <div class="field-row"><span class="field-key">Deposit paid</span><span class="field-val success">Yes — 25%</span></div>
+              <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-warning);margin:10px 0 8px">Timeline & scope</div>
+              <div class="field-row"><span class="field-key">Start date</span><span class="field-val">Jan 12, 2025</span></div>
+              <div class="field-row"><span class="field-key">Deadline</span><span class="field-val warning">Apr 30, 2025</span></div>
+              <div class="field-row"><span class="field-key">Est. hours</span><span class="field-val">140h</span></div>
+              <div class="field-row"><span class="field-key">Logged hours</span><span class="field-val">94h</span></div>
+              <div class="field-row"><span class="field-key">Effective rate</span><span class="field-val success">$93/hr</span></div>
+              <div class="field-row"><span class="field-key">Revision rounds</span><span class="field-val">2 of 3 used</span></div>
+              <div class="field-row"><span class="field-key">Scope changes</span><span class="field-val warning">1 approved</span></div>
+              <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-warning);margin:10px 0 8px">Tech & delivery</div>
+              <div class="field-row"><span class="field-key">Stack</span><span class="field-val">React · Node · Postgres</span></div>
+              <div class="field-row"><span class="field-key">Hosting</span><span class="field-val">AWS · Vercel</span></div>
+              <div class="field-row"><span class="field-key">Repo</span><span class="field-val mono" style="font-size:11px">github.com/jroybal/brew</span></div>
+              <div class="field-row"><span class="field-key">Staging URL</span><span class="field-val mono" style="font-size:11px">staging.brewhaus.co</span></div>
+              <div class="field-row"><span class="field-key">NDA signed</span><span class="field-val success">Yes</span></div>
+              <div class="field-row"><span class="field-key">Contract signed</span><span class="field-val success">Yes — DocuSign</span></div>
+              <div class="field-row"><span class="field-key">Last milestone</span><span class="field-val">Checkout flow QA</span></div>
+              <div class="field-row"><span class="field-key">Next milestone</span><span class="field-val warning">Product import</span></div>
+              <div class="field-row"><span class="field-key">Priority</span><span class="field-val" style="color:var(--color-text-danger)">High</span></div>
+              <div class="field-row"><span class="field-key">Internal notes</span><span class="field-val muted" style="font-size:11px">Client prefers Slack</span></div>
+            </div>
+          </div>
+
+          <!-- Right col: revenue + activity -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div class="section-header"><span class="section-title">Revenue by type</span></div>
+              <div class="card-panel">
+                <div class="mini-bar-wrap"><div class="mini-bar-label"><span>Fixed contracts</span><span>$28,500</span></div><div class="mini-bar-track"><div class="mini-bar-fill success" style="width:72%"></div></div></div>
+                <div class="mini-bar-wrap"><div class="mini-bar-label"><span>Freelance</span><span>$13,200</span></div><div class="mini-bar-track"><div class="mini-bar-fill info" style="width:42%"></div></div></div>
+                <div class="mini-bar-wrap"><div class="mini-bar-label"><span>Consulting retainer</span><span>$8,400</span></div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:26%"></div></div></div>
+                <div class="mini-bar-wrap"><div class="mini-bar-label"><span>Outstanding</span><span style="color:var(--color-text-danger)">$11,250</span></div><div class="mini-bar-track"><div class="mini-bar-fill danger" style="width:35%"></div></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-header"><span class="section-title">Invoice tracker</span></div>
+              <div class="table-wrap">
+                <table class="db-table">
+                  <thead><tr><th>Invoice #</th><th>Project</th><th>Amount</th><th>Due</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">#INV-041</td><td class="muted">Brewhaus</td><td class="mono">$4,375</td><td class="muted">Apr 15</td><td><span class="status-badge review">Sent</span></td></tr>
+                    <tr><td class="mono">#INV-040</td><td class="muted">PortalX</td><td class="mono">$3,500</td><td class="muted">Apr 1</td><td><span class="status-badge active">Paid</span></td></tr>
+                    <tr><td class="mono">#INV-039</td><td class="muted">Alpha CRM</td><td class="mono">$4,500</td><td style="color:var(--color-text-danger);font-size:12px">Mar 31</td><td><span class="status-badge overdue">Overdue</span></td></tr>
+                    <tr><td class="mono">#INV-038</td><td class="muted">TechStart</td><td class="mono">$4,200</td><td class="muted">Mar 15</td><td><span class="status-badge active">Paid</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-header"><span class="section-title">Recent activity</span></div>
+              <div class="card-panel">
+                <div class="activity-item"><div class="act-dot"></div><div><div class="act-text">Scope change approved — Brewhaus checkout redesign</div><div class="act-time">Today, 2:14 PM</div></div></div>
+                <div class="activity-item"><div class="act-dot" style="background:var(--color-background-success)"></div><div><div class="act-text">Invoice #INV-040 paid — PortalX Inc. $3,500</div><div class="act-time">Yesterday, 10:30 AM</div></div></div>
+                <div class="activity-item"><div class="act-dot" style="background:var(--color-background-danger)"></div><div><div class="act-text">Invoice #INV-039 overdue — Alpha Group follow-up needed</div><div class="act-time">Apr 1</div></div></div>
+                <div class="activity-item"><div class="act-dot" style="background:var(--color-background-info)"></div><div><div class="act-text">New project added — Nomad Booking App kickoff</div><div class="act-time">Mar 28</div></div></div>
+                <div class="activity-item"><div class="act-dot"></div><div><div class="act-text">Milestone completed — PortalX auth module</div><div class="act-time">Mar 25</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
