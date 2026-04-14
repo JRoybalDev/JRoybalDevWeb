@@ -114,7 +114,7 @@ function Navbar() {
                 {isOpen && (
                     <>
                         {/* Backdrop Blur */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -122,7 +122,7 @@ function Navbar() {
                             onClick={() => setIsOpen(false)}
                             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden transition-colors duration-[1000ms] ease-coffee"
                         />
-                        
+
                         <motion.div
                             initial={{ y: "100%" }}
                             animate={{ y: 0 }}
@@ -136,8 +136,8 @@ function Navbar() {
                                         key={index}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ 
-                                            duration: 1, 
+                                        transition={{
+                                            duration: 1,
                                             delay: index * 0.1,
                                             ease: [0.4, 0, 0.2, 1]
                                         }}
@@ -146,10 +146,9 @@ function Navbar() {
                                         <NavLink
                                             onClick={() => setIsOpen(false)}
                                             className={({ isActive }) =>
-                                                `block py-4 text-2xl tracking-tight transition-all duration-[1000ms] ease-coffee ${
-                                                    isActive 
-                                                        ? "text-[--accent] font-bold scale-110" 
-                                                        : "text-[--text] opacity-80 hover:text-[--accent-strong]"
+                                                `block py-4 text-2xl tracking-tight transition-all duration-[1000ms] ease-coffee ${isActive
+                                                    ? "text-[--accent] font-bold scale-110"
+                                                    : "text-[--text] opacity-80 hover:text-[--accent-strong]"
                                                 }`
                                             }
                                             end={link.link === "/"}
@@ -159,7 +158,7 @@ function Navbar() {
                                     </motion.div>
                                 ))}
                             </div>
-                            
+
                             <div className="p-10 mb-8 border-t border-[--border] bg-[--bg-alt]/30 flex flex-col items-center gap-4">
                                 <p className="text-[--muted] text-xs font-semibold uppercase tracking-[0.2em]">Appearance</p>
                                 <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
