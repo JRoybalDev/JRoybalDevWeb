@@ -82,14 +82,28 @@ function Navbar() {
                 <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
                     {navLinks.map((link, index) => (
                         <NavLink
-                            className={({ isActive }) =>
-                                `text-md transition-colors duration-[1000ms] ease-coffee cursor-pointer ${isActive ? "text-[--accent] font-medium" : "text-[--text] hover:text-[--accent-strong]"
-                                }`
-                            }
                             key={index}
                             end={link.link === "/"}
                             to={link.link}>
-                            {link.title}
+                            {({ isActive }) => (
+                                <motion.span
+                                    style={{ display: "inline-block" }}
+                                    animate={{
+                                        color: isActive ? "var(--accent)" : "var(--text)",
+                                        y: isActive ? -1 : 0,
+                                        scale: isActive ? 1.1 : 1,
+                                        opacity: isActive ? 1 : 0.8,
+                                    }}
+                                    whileHover={!isActive ? {
+                                        color: "var(--accent-strong)",
+                                        scale: 1.02,
+                                        opacity: 1,
+                                    } : {}}
+                                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                                >
+                                    {link.title}
+                                </motion.span>
+                            )}
                         </NavLink>
                     ))}
                 </div>
@@ -146,14 +160,23 @@ function Navbar() {
                                         <NavLink
                                             onClick={() => setIsOpen(false)}
                                             className={({ isActive }) =>
-                                                `block py-4 text-2xl tracking-tight transition-all duration-[1000ms] ease-coffee ${isActive
-                                                    ? "text-[--accent] font-bold scale-110"
-                                                    : "text-[--text] opacity-80 hover:text-[--accent-strong]"
-                                                }`
+                                                `block py-4 text-2xl tracking-tight transition-all duration-[1000ms] ease-coffee`
                                             }
                                             end={link.link === "/"}
                                             to={link.link}>
-                                            {link.title}
+                                            {({ isActive }) => (
+                                                <motion.span
+                                                    style={{ display: "inline-block" }}
+                                                    animate={{
+                                                        color: isActive ? "var(--accent)" : "var(--text)",
+                                                        scale: isActive ? 1.1 : 1,
+                                                        opacity: isActive ? 1 : 0.8,
+                                                    }}
+                                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                >
+                                                    {link.title}
+                                                </motion.span>
+                                            )}
                                         </NavLink>
                                     </motion.div>
                                 ))}
