@@ -453,23 +453,11 @@ html[data-theme="jrcoffee-dark"] .theme-switch {
   align-items: center;
 }
 
-.footer-social-link:hover {
-  color: var(--accent-strong);
-  transform: translateY(-2px);
-}
-
 .footer-copy {
   color: var(--muted-soft);
   font-size: 12px;
   font-weight: 500;
   transition: color 1s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.footer-social-link {
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .footer-social-link:hover {

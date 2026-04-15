@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import { useAuth } from "../providers/AuthProvider";
+import CoffeeShopScene from "@frontend/components/CoffeeShopScene";
 
 const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
 
@@ -63,7 +64,9 @@ export default function HomePage() {
 
   return (
     <div className="app-shell">
-      {/* Top Section (Hero & Hero Card) */}
+      {/* Coffee Shop Animation */}
+      <CoffeeShopScene/>
+      {/* Hero & Hero Card Section */}
 
       {/* Services Section */}
 
