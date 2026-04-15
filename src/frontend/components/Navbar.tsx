@@ -66,6 +66,7 @@ function Navbar() {
     const toggleTheme = () => {
         const newDark = !isDark;
         document.documentElement.classList.toggle("dark", newDark);
+        localStorage.setItem("theme", newDark ? "dark" : "light");
         setIsDark(newDark);
     };
 
@@ -75,7 +76,7 @@ function Navbar() {
                 {/* Left Section */}
                 <div className='flex items-center gap-2'>
                     <TbCoffee className="w-10 h-10" />
-                    <h1 className="text-xl font-bold">JRoybalDev</h1>
+                    <NavLink to={"/"} className="text-xl font-bold">JRoybalDev</NavLink>
                 </div>
 
                 {/* Center Section (Desktop Only) */}

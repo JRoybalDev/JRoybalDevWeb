@@ -13,25 +13,24 @@ import Navbar from "./components/Navbar";
 
 export default function App() {
   useEffect(() => {
-    // Define the media query for system dark mode
     const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const stored = localStorage.getItem("theme");
 
-    // Logic to add or remove the 'dark' class based on system preference
-    const handleThemeChange = (isDark: boolean) => {
-      if (isDark) {
+    if (!stored) {
+      if (darkQuery.matches) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
-    };
 
-    // Initial detection
-    handleThemeChange(darkQuery.matches);
-
-    // Listen for system preference changes
-    const listener = (e: MediaQueryListEvent) => handleThemeChange(e.matches);
-    darkQuery.addEventListener("change", listener);
-    return () => darkQuery.removeEventListener("change", listener);
+      const listener = (e: MediaQueryListEvent) => {
+        if (!localStorage.getItem("theme")) {
+          document.documentElement.classList.toggle("dark", e.matches);
+        }
+      };
+      darkQuery.addEventListener("change", listener);
+      return () => darkQuery.removeEventListener("change", listener);
+    }
   }, []);
 
   return (
