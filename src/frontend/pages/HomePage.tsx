@@ -63,7 +63,13 @@ export default function HomePage() {
 
   return (
     <div className="app-shell">
-      
+      {/* Top Section (Hero & Hero Card) */}
+
+      {/* Services Section */}
+
+      {/* Featured Projects Section */}
+
+      {/* CTA Contact Callout */}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import Contact from "./pages/Contact";
 import Experience from "./pages/Experience";
 import About from "./pages/About";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 export default function App() {
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <Footer />
     </>
   );
 }
