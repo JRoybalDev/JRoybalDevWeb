@@ -7,7 +7,7 @@ import { CgMenuRightAlt, CgClose } from "react-icons/cg";
 const ThemeToggle = ({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: () => void }) => (
     <div
         onClick={toggleTheme}
-        className="relative flex items-center cursor-pointer gap-2 px-3 py-1 rounded-full border-[0.5px] border-[--border] bg-[--switch-bg] text-xs font-bold tracking-wider text-[--text] overflow-hidden"
+        className="relative flex items-center cursor-pointer gap-2 px-3 py-1 rounded-full border-[0.5px] border-[--border] bg-[--switch-bg] text-sm font-bold tracking-wider text-[--text] overflow-hidden"
     >
         <motion.div
             initial={false}
@@ -71,11 +71,11 @@ function Navbar() {
 
     return (
         <>
-            <nav className='flex justify-between items-center px-[2rem] bg-[--bg-alt] w-full h-12 shadow-md border-b border-[--border] z-50 relative transition-colors duration-[1000ms] ease-coffee'>
+            <nav className='flex justify-between items-center px-[2rem] bg-[--bg-alt] w-full h-14 shadow-md border-b border-[--border] z-50 relative transition-colors duration-[1000ms] ease-coffee'>
                 {/* Left Section */}
                 <div className='flex items-center gap-2'>
-                    <TbCoffee className="w-8 h-8" />
-                    <h1 className="text-lg font-bold">JRoybalDev</h1>
+                    <TbCoffee className="w-10 h-10" />
+                    <h1 className="text-xl font-bold">JRoybalDev</h1>
                 </div>
 
                 {/* Center Section (Desktop Only) */}
@@ -83,7 +83,7 @@ function Navbar() {
                     {navLinks.map((link, index) => (
                         <NavLink
                             className={({ isActive }) =>
-                                `text-sm transition-colors duration-[1000ms] ease-coffee cursor-pointer ${isActive ? "text-[--accent] font-medium" : "text-[--text] hover:text-[--accent-strong]"
+                                `text-md transition-colors duration-[1000ms] ease-coffee cursor-pointer ${isActive ? "text-[--accent] font-medium" : "text-[--text] hover:text-[--accent-strong]"
                                 }`
                             }
                             key={index}
