@@ -88,6 +88,7 @@ function Navbar() {
                             to={link.link}>
                             {({ isActive }) => (
                                 <motion.span
+                                    className={`${isActive && "font-medium"}`}
                                     style={{ display: "inline-block" }}
                                     animate={{
                                         color: isActive ? "var(--accent)" : "var(--text)",
