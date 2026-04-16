@@ -72,7 +72,7 @@ function Navbar() {
 
     return (
         <>
-            <nav className='bg-[--bg-alt] w-full shadow-md border-b border-[--border] z-50'>
+            <nav className='sticky top-0 bg-[--bg-alt] w-full shadow-md border-b border-[--border] z-50'>
                 <div className="page-shell !py-0 flex justify-between items-center h-14 relative transition-colors duration-[1000ms] ease-coffee">
                     {/* Left Section */}
                     <div className='flex items-center gap-2'>
@@ -146,7 +146,7 @@ function Navbar() {
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
                             transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
-                            className="fixed inset-x-0 bottom-0 top-12 bg-[--bg] z-40 flex flex-col md:hidden shadow-2xl overflow-hidden border-t border-[--border] transition-colors duration-[1000ms] ease-coffee"
+                            className="fixed inset-x-0 bottom-0 top-14 bg-[--bg] z-40 flex flex-col md:hidden shadow-2xl overflow-hidden border-t border-[--border] transition-colors duration-[1000ms] ease-coffee"
                         >
                             <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8">
                                 {navLinks.map((link, index) => (
