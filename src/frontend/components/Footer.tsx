@@ -19,7 +19,7 @@ const socialLinks: SocialLink[] = [
 
 function Footer() {
     return (
-        <footer className="site-footer">
+        <footer className="site-footer page-shell">
             <span className="footer-copy">
                 © JRoybalDev {new Date().getFullYear()}. All rights reserved.
             </span>
