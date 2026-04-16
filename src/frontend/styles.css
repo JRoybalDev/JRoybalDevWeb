@@ -432,6 +432,12 @@ html[data-theme="jrcoffee-dark"] .theme-switch {
   }
 }
 
+@media (max-width: 900px) {
+  .hero-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .footer-inner {
   display: flex;
   justify-content: space-between;

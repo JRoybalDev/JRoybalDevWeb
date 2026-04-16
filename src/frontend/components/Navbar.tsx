@@ -72,56 +72,58 @@ function Navbar() {
 
     return (
         <>
-            <nav className='flex justify-between items-center px-[2rem] bg-[--bg-alt] w-full h-14 shadow-md border-b border-[--border] z-50 relative transition-colors duration-[1000ms] ease-coffee'>
-                {/* Left Section */}
-                <div className='flex items-center gap-2'>
-                    <TbCoffee className="w-10 h-10" />
-                    <NavLink to={"/"} className="text-xl font-bold">JRoybalDev</NavLink>
-                </div>
-
-                {/* Center Section (Desktop Only) */}
-                <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
-                    {navLinks.map((link, index) => (
-                        <NavLink
-                            key={index}
-                            end={link.link === "/"}
-                            to={link.link}>
-                            {({ isActive }) => (
-                                <motion.span
-                                    className={`${isActive && "font-medium"}`}
-                                    style={{ display: "inline-block" }}
-                                    animate={{
-                                        color: isActive ? "var(--accent)" : "var(--text)",
-                                        y: isActive ? -1 : 0,
-                                        scale: isActive ? 1.1 : 1,
-                                        opacity: isActive ? 1 : 0.8,
-                                    }}
-                                    whileHover={!isActive ? {
-                                        color: "var(--accent-strong)",
-                                        scale: 1.02,
-                                        opacity: 1,
-                                    } : {}}
-                                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                                >
-                                    {link.title}
-                                </motion.span>
-                            )}
-                        </NavLink>
-                    ))}
-                </div>
-
-                {/* Right Section */}
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:block">
-                        <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
+            <nav className='bg-[--bg-alt] w-full shadow-md border-b border-[--border] z-50'>
+                <div className="page-shell !py-0 flex justify-between items-center h-14 relative transition-colors duration-[1000ms] ease-coffee">
+                    {/* Left Section */}
+                    <div className='flex items-center gap-2'>
+                        <TbCoffee className="w-10 h-10" />
+                        <NavLink to={"/"} className="text-xl font-bold">JRoybalDev</NavLink>
                     </div>
-                    {/* Mobile Toggle */}
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="md:hidden text-2xl text-[--text] z-50"
-                    >
-                        {isOpen ? <CgClose /> : <CgMenuRightAlt />}
-                    </button>
+
+                    {/* Center Section (Desktop Only) */}
+                    <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
+                        {navLinks.map((link, index) => (
+                            <NavLink
+                                key={index}
+                                end={link.link === "/"}
+                                to={link.link}>
+                                {({ isActive }) => (
+                                    <motion.span
+                                        className={`${isActive && "font-medium"}`}
+                                        style={{ display: "inline-block" }}
+                                        animate={{
+                                            color: isActive ? "var(--accent)" : "var(--text)",
+                                            y: isActive ? -1 : 0,
+                                            scale: isActive ? 1.1 : 1,
+                                            opacity: isActive ? 1 : 0.8,
+                                        }}
+                                        whileHover={!isActive ? {
+                                            color: "var(--accent-strong)",
+                                            scale: 1.02,
+                                            opacity: 1,
+                                        } : {}}
+                                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                                    >
+                                        {link.title}
+                                    </motion.span>
+                                )}
+                            </NavLink>
+                        ))}
+                    </div>
+
+                    {/* Right Section */}
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:block">
+                            <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
+                        </div>
+                        {/* Mobile Toggle */}
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="md:hidden text-2xl text-[--text] z-50"
+                        >
+                            {isOpen ? <CgClose /> : <CgMenuRightAlt />}
+                        </button>
+                    </div>
                 </div>
             </nav>
 
