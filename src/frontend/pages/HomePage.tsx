@@ -9,6 +9,7 @@ import HeroCard from "@frontend/components/HeroCard";
 import { FiCode, FiBriefcase, FiTarget } from 'react-icons/fi'
 import ServiceCard from '@frontend/components/ServiceCard'
 import type { IconType } from 'react-icons'
+import ProjectCard from "@frontend/components/ProjectCard";
 
 interface Service {
   icon: IconType
@@ -31,6 +32,42 @@ const services: Service[] = [
     icon: FiTarget,
     title: 'Consulting',
     description: 'Architecture reviews, tech strategy, team mentoring. Expert roast.',
+  },
+]
+
+
+interface Project {
+  thumbnail?: string
+  name: string
+  description: string
+  tags: string[]
+  category: string
+  github_url?: string
+  live_url?: string
+}
+
+const projects: Project[] = [
+  {
+    name: 'Brewhaus E-commerce',
+    description: 'Full-stack e-commerce platform with cart, checkout, and admin dashboard.',
+    tags: ['React', 'Node', 'Postgres'],
+    category: 'Full-stack Contract',
+    github_url: 'https://github.com/jroybaldev/brewhaus',
+    live_url: 'https://brewhaus.co',
+  },
+  {
+    name: 'PortalX Dashboard',
+    description: 'Internal analytics dashboard with real-time data and role-based access.',
+    tags: ['Next.js', 'TypeScript', 'Prisma'],
+    category: 'Freelance',
+    github_url: 'https://github.com/jroybaldev/portalx',
+  },
+  {
+    name: 'TechStart Consulting',
+    description: 'Architecture review and cloud migration strategy for a Series A startup.',
+    tags: ['AWS', 'Docker', 'CI/CD'],
+    category: 'Consulting',
+    live_url: 'https://techstart.io',
   },
 ]
 
@@ -171,13 +208,15 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="py-10 border-t border-[--border]"
+        className="pt-10 border-t border-[--border]"
       >
         <div className="page-shell flex flex-col">
           <p className="eyebrow">Featured Work</p>
           <h2 className="mb-8 font-medium">Recent Projects</h2>
           <div className="feature-grid">
-
+            {projects.map((project) => (
+              <ProjectCard key={project.name} {...project} />
+            ))}
           </div>
         </div>
       </motion.section>
@@ -188,7 +227,7 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="py-10"
+        className=""
       >
         <div className="page-shell">
           <div className="flex flex-col gap-8 md:gap-0 md:flex-row md:justify-between border-2 border-[--border] p-8 rounded-3xl text-center md:text-start md:w-full">
@@ -197,7 +236,7 @@ export default function HomePage() {
               <p className="">Let's make your next project rich, smooth, and on time.
               </p>
             </div>
-            <Button mode="primary" label="Get in touch" onClick={handleLetMeTalk}/>
+            <Button mode="primary" label="Get in touch" onClick={handleLetMeTalk} />
           </div>
         </div>
       </motion.section>
