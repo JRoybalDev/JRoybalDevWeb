@@ -48,12 +48,11 @@ interface Project {
 
 const projects: Project[] = [
   {
-    name: 'Brewhaus E-commerce',
-    description: 'Full-stack e-commerce platform with cart, checkout, and admin dashboard.',
-    tags: ['React', 'Node', 'Postgres'],
+    name: 'African Marine Conservation Organization',
+    description: 'Organization website for the African Marine Conservation Organization (AMCO), a non-profit organization, based in Cameroon.',
+    tags: ['Next.JS', 'TypeScrpt', 'Sanity', 'Tailwind CSS', 'Figma'],
     category: 'Full-stack Contract',
-    github_url: 'https://github.com/jroybaldev/brewhaus',
-    live_url: 'https://brewhaus.co',
+    live_url: 'https://ammco.org',
   },
   {
     name: 'PortalX Dashboard',
