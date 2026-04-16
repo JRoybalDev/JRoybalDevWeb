@@ -6,6 +6,33 @@ import { useAuth } from "../providers/AuthProvider";
 import CoffeeShopScene from "@frontend/components/CoffeeShopScene";
 import Button from "@frontend/components/Button";
 import HeroCard from "@frontend/components/HeroCard";
+import { FiCode, FiBriefcase, FiTarget } from 'react-icons/fi'
+import ServiceCard from '@frontend/components/ServiceCard'
+import type { IconType } from 'react-icons'
+
+interface Service {
+  icon: IconType
+  title: string
+  description: string
+}
+
+const services: Service[] = [
+  {
+    icon: FiCode,
+    title: 'Full-stack Contracts',
+    description: 'End-to-end web development, APIs, and deployment. House blend quality.',
+  },
+  {
+    icon: FiBriefcase,
+    title: 'Professional Freelancing',
+    description: 'Focused execution on defined scopes. Your signature brew, delivered.',
+  },
+  {
+    icon: FiTarget,
+    title: 'Consulting',
+    description: 'Architecture reviews, tech strategy, team mentoring. Expert roast.',
+  },
+]
 
 const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
 
@@ -81,7 +108,7 @@ export default function HomePage() {
       {/* Hero & Hero Card Section */}
       <div className="flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12 page-shell">
         {/* Left: Hero copy */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -98,13 +125,13 @@ export default function HomePage() {
             From solo contracts to full consulting engagements.
           </p>
           <div className="hero-btns flex gap-3 flex-wrap justify-center md:justify-start">
-            <Button mode="primary" label="View my work" onClick={handleViewMyWork}/>
-            <Button mode="secondary" label="Let's talk" showArrow onClick={handleLetMeTalk}/>
+            <Button mode="primary" label="View my work" onClick={handleViewMyWork} />
+            <Button mode="secondary" label="Let's talk" showArrow onClick={handleLetMeTalk} />
           </div>
         </motion.div>
 
         {/* Right: Stats card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -115,19 +142,58 @@ export default function HomePage() {
       </div>
 
       {/* Services Section */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
         className="py-12 border-t border-[--border]"
       >
-        {/* Content for services would go here */}
+        <div className="page-shell container mx-auto flex flex-col">
+          <p className="eyebrow">What I brew</p>
+          <h2 className="mb-8">Services</h2>
+          <div className="feature-grid">
+            {services.map((service) => (
+              <ServiceCard
+                key={service.title}
+                icon={service.icon}
+                title={service.title}
+                description={service.description}
+              />
+            ))}
+          </div>
+        </div>
       </motion.section>
-      
+
       {/* Featured Projects Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="py-12 border-t border-[--border]"
+      >
+        <div className="page-shell container mx-auto flex flex-col">
+          <h3 className="section-eyebrow font-bold text-xs uppercase tracking-[0.15em] text-[--accent] mb-1">Featured Work</h3>
+          <h3 className="section-title text-xl font-medium mb-3.5">Recent Projects</h3>
+          <div className="cards-3">
+
+          </div>
+        </div>
+      </motion.section>
 
       {/* CTA Contact Callout */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="py-12 border-t border-[--border]"
+      >
+        <div className="page-shell container mx-auto">
+
+        </div>
+      </motion.section>
     </div>
   );
 }
