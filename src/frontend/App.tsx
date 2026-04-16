@@ -35,7 +35,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <div className="select-none">
       <Navbar />
       <main className="route-main">
         <Routes>
@@ -57,6 +57,6 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

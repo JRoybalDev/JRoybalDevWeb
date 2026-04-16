@@ -9,7 +9,7 @@ interface ButtonProps {
 }
 
 function Button({ mode, label, showArrow = false, onClick }: ButtonProps) {
-  const base = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all duration-[1000ms] ease-coffee hover:-translate-y-px hover:duration-400'
+  const base = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all duration-[1000ms] ease-coffee hover:-translate-y-px hover:duration-400 justify-center'
 
   const styles = {
     primary: `

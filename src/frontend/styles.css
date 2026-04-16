@@ -249,7 +249,7 @@ p {
 
 .eyebrow {
   margin: 0 0 0.85rem;
-  color: var(--muted);
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.76rem;

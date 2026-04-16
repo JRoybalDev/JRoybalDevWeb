@@ -147,11 +147,11 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="py-12 border-t border-[--border]"
+        className="py-10 border-t border-[--border]"
       >
-        <div className="page-shell container mx-auto flex flex-col">
+        <div className="page-shell flex flex-col">
           <p className="eyebrow">What I brew</p>
-          <h2 className="mb-8">Services</h2>
+          <h2 className="mb-8 font-medium">Services</h2>
           <div className="feature-grid">
             {services.map((service) => (
               <ServiceCard
@@ -171,12 +171,12 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="py-12 border-t border-[--border]"
+        className="py-10 border-t border-[--border]"
       >
-        <div className="page-shell container mx-auto flex flex-col">
-          <h3 className="section-eyebrow font-bold text-xs uppercase tracking-[0.15em] text-[--accent] mb-1">Featured Work</h3>
-          <h3 className="section-title text-xl font-medium mb-3.5">Recent Projects</h3>
-          <div className="cards-3">
+        <div className="page-shell flex flex-col">
+          <p className="eyebrow">Featured Work</p>
+          <h2 className="mb-8 font-medium">Recent Projects</h2>
+          <div className="feature-grid">
 
           </div>
         </div>
@@ -188,10 +188,17 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="py-12 border-t border-[--border]"
+        className="py-10"
       >
-        <div className="page-shell container mx-auto">
-
+        <div className="page-shell">
+          <div className="flex flex-col gap-8 md:gap-0 md:flex-row md:justify-between border-2 border-[--border] p-8 rounded-3xl text-center md:text-start md:w-full">
+            <div className="flex flex-col gap-2 md:gap-0">
+              <h2 className="eyebrow">Ready to brew your next project?</h2>
+              <p className="">Let's make your next project rich, smooth, and on time.
+              </p>
+            </div>
+            <Button mode="primary" label="Get in touch" onClick={handleLetMeTalk}/>
+          </div>
         </div>
       </motion.section>
     </div>
