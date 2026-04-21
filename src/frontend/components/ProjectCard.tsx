@@ -21,7 +21,7 @@ export default function ProjectCard({
     live_url,
 }: ProjectCardProps) {
     return (
-        <div className="feature-card flex flex-col gap-4">
+        <div className="feature-card flex flex-col gap-4 h-full">
 
             {/* Thumbnail */}
             <div

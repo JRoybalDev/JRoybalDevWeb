@@ -36,7 +36,7 @@ const services: Service[] = [
 ]
 
 
-interface Project {
+export interface Project {
   thumbnail?: string
   name: string
   description: string
@@ -46,7 +46,7 @@ interface Project {
   live_url?: string
 }
 
-const projects: Project[] = [
+export const projects: Project[] = [
   {
     name: 'African Marine Conservation Organization',
     description: 'Organization website for the African Marine Conservation Organization (AMCO), a non-profit organization, based in Cameroon.',
