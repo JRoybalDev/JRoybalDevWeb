@@ -15,12 +15,17 @@ function About() {
         <h1>Hi, I'm Jack!</h1>
           <div className="hero-text flex flex-col gap-6 mt-6">
             <p>
-              A paragraph about your story — where you come from, what drives you, and why you love building things. 
-              Keep it warm and personal, like a coffee shop conversation. This is where the brand voice really shines.
+              I'm a versatile Software Engineer and Frontend Developer passionate about creating exceptional user experiences while 
+              maintaining a keen eye on the entire application ecosystem. My approach to problem-solving is holistic—I bridge the 
+              gap between the user interface and the database to brew seamless digital products.
             </p>
+            <blockquote className="italic border-l-4 border-[--accent] pl-4 my-2 text-[--text]">
+              "That brain of mine is something more than merely mortal; as time will show." — Ada Lovelace
+            </blockquote>
             <p>
-              A second paragraph about your process, how you work with clients, and what makes JRoybalDev different 
-              from other freelancers.
+              Beyond standard development, my background in cybersecurity ensures that I design and implement secure, 
+              resilient solutions that protect valuable data. Whether it's a custom freelance mod or a large-scale 
+              non-profit platform, I focus on delivering code that is as rich and smooth as a perfect roast.
             </p>
           </div>
         </motion.div>

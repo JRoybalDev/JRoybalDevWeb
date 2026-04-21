@@ -48,25 +48,37 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    name: 'African Marine Conservation Organization',
+    name: 'African Marine Conservation',
     description: 'Organization website for the African Marine Conservation Organization (AMCO), a non-profit organization, based in Cameroon.',
-    tags: ['Next.JS', 'TypeScrpt', 'Sanity', 'Tailwind CSS', 'Figma'],
+    tags: ['Next.js', 'TypeScript', 'Sanity', 'Tailwind', 'Figma'],
     category: 'Full-stack Contract',
     live_url: 'https://ammco.org',
   },
   {
-    name: 'PortalX Dashboard',
-    description: 'Internal analytics dashboard with real-time data and role-based access.',
-    tags: ['Next.js', 'TypeScript', 'Prisma'],
+    name: 'Server Backup Fabric',
+    description: 'A robust Java-based utility for Minecraft servers that automates backups and ensures data integrity for community environments.',
+    tags: ['Java', 'Fabric API', 'Minecraft'],
     category: 'Freelance',
-    github_url: 'https://github.com/jroybaldev/portalx',
+    github_url: 'https://github.com/JRoybalDev/ServerBackupFabric',
   },
   {
-    name: 'TechStart Consulting',
-    description: 'Architecture review and cloud migration strategy for a Series A startup.',
-    tags: ['AWS', 'Docker', 'CI/CD'],
-    category: 'Consulting',
-    live_url: 'https://techstart.io',
+    name: 'Watchboxd',
+    description: 'A user-friendly website designed for movie enthusiasts to track, rate, and review films using real-time API integration.',
+    tags: ['React', 'TypeScript', 'Node.js', 'TMDB API'],
+    category: 'Freelance',
+    live_url: 'https://watchboxd.vercel.app',
+  },
+  {
+    name: 'Asante',
+    description: 'A comprehensive web application focused on community engagement and streamlined resource management.',
+    tags: ['Next.js', 'PostgreSQL', 'Prisma', 'Tailwind'],
+    category: 'Full-stack Contract',
+  },
+  {
+    name: 'Relive',
+    description: 'A specialized modding project aimed at restoring and enhancing features in legacy gaming environments.',
+    tags: ['Lua', 'C++', 'Reverse Engineering'],
+    category: 'Freelance',
   },
 ]
 

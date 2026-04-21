@@ -22,7 +22,7 @@ function Button({ mode, label, showArrow = false, onClick }: ButtonProps) {
     `,
     secondary: `
       border border-[var(--border)]
-      bg-transparent
+      bg-[var(--surface)]
       text-[var(--text)]
       hover:border-[var(--accent-strong)]
       hover:text-[var(--accent-strong)]

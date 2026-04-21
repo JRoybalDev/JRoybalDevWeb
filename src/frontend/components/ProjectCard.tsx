@@ -26,7 +26,7 @@ export default function ProjectCard({
             {/* Thumbnail */}
             <div
                 className="w-full h-40 rounded-2xl overflow-hidden flex items-center justify-center"
-                style={{ background: 'var(--surface-strong)', border: '1px solid var(--card-border)' }}
+                style={{ background: 'var(--foam)', border: '1px solid var(--card-border)' }}
             >
                 {thumbnail ? (
                     <img

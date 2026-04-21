@@ -3,39 +3,65 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from "framer-motion";
 import { NavLink } from "react-router-dom";
 import { CgMenuRightAlt, CgClose } from "react-icons/cg";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 const ThemeToggle = ({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: () => void }) => (
     <div
         onClick={toggleTheme}
-        className="relative flex items-center cursor-pointer gap-2 px-3 py-1 rounded-full border-[0.5px] border-[--border] bg-[--switch-bg] text-sm font-bold tracking-wider text-[--text] overflow-hidden"
+        className="relative flex items-center cursor-pointer gap-3 px-3 py-1.5 rounded-full border border-[--border] bg-[--switch-bg] text-[10px] font-bold tracking-[0.2em] text-[--text] overflow-hidden select-none h-9 group"
     >
+        {/* Light mode "Milk" highlight */}
         <motion.div
             initial={false}
             animate={{
-                y: isDark ? "100%" : "0%",
+                x: isDark ? "120%" : "0%",
                 opacity: isDark ? 0 : 1,
             }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 bg-white/60 z-0 pointer-events-none"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-0 bg-[--foam]/40 z-0 pointer-events-none"
         />
-        <div className="relative w-8 h-4 rounded-full bg-[--bg] flex items-center p-0.5 z-10">
+
+        {/* Toggle Track with icons */}
+        <div className="relative w-9 h-5 rounded-full bg-[--bg] flex items-center p-0.5 z-10 border border-[--border] transition-colors duration-1000 ease-coffee">
             <motion.div
                 initial={false}
                 animate={{
                     x: isDark ? 16 : 0,
-                    scale: isDark ? 0.9 : 1.1,
-                    borderRadius: isDark ? "50%" : "40% 60% 50% 50%"
+                    scale: isDark ? 0.95 : 1,
                 }}
-                transition={{
-                    duration: 1,
-                    ease: [0.22, 1, 0.36, 1]
-                }}
-                className="w-3 h-3 bg-[--accent] shadow-sm"
-            />
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className="w-3.5 h-3.5 bg-[--accent] shadow-sm flex items-center justify-center rounded-full text-[--bg]"
+            >
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                        key={isDark ? "moon" : "sun"}
+                        initial={{ scale: 0, rotate: -90 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        exit={{ scale: 0, rotate: 90 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex items-center justify-center"
+                    >
+                        {isDark ? <FiMoon size={10} /> : <FiSun size={10} />}
+                    </motion.div>
+                </AnimatePresence>
+            </motion.div>
         </div>
-        <span className="relative z-10 w-10 text-center select-none transition-colors duration-[1000ms] ease-coffee">
-            {isDark ? "Dark" : "Light"}
-        </span>
+
+        {/* Label Animation */}
+        <div className="relative z-10 w-10 h-full flex items-center overflow-hidden">
+            <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                    key={isDark ? "dark" : "light"}
+                    initial={{ y: 15, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -15, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0 flex items-center justify-center uppercase"
+                >
+                    {isDark ? "Dark" : "Light"}
+                </motion.span>
+            </AnimatePresence>
+        </div>
     </div>
 );
 

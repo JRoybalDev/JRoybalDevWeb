@@ -21,7 +21,7 @@ function Projects() {
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <p className="eyebrow">The menu</p>
-        <h1 className="mb-4">Projects & case studies</h1>
+        <h1 className="mb-4">Projects & Case Studies</h1>
         <p className="hero-text">
           A curated selection of work — each one a distinct roast.
         </p>

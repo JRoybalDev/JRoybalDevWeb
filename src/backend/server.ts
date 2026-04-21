@@ -1,7 +1,9 @@
 import { serve } from "bun";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { authRoutes, apiRoutes } from "./routes";
+import authRoutes from "./routes/auth";
+import apiRoutes from "./routes/api";
+
 
 const app = new Hono();
 
@@ -15,9 +17,13 @@ app.use(
   })
 );
 
-app.get("/api/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
-app.route("/api/auth", authRoutes);
-app.route("/api", apiRoutes);
+// Group all API routes under the /api prefix
+const api = new Hono();
+api.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
+api.route("/auth", authRoutes);
+api.route("/", apiRoutes);
+
+app.route("/api", api);
 
 app.get("/assets/*", (c) => {
   return c.body(Bun.file(`./dist${c.req.path}`) as any);

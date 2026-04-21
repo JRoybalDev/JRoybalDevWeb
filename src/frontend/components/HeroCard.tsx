@@ -15,10 +15,10 @@ const stats: Stat[] = [
 export default function HeroCard() {
   return (
     <div className="hero-card w-full">
-      <div className="hero-card-inner">
+      <div className="hero-card-inner bg-[--surface] theme-transition">
 
         {/* Icon */}
-        <div className="hero-icon">
+        <div className="hero-icon theme-transition">
           <FiCoffee size={20} />
         </div>
 
@@ -40,9 +40,9 @@ export default function HeroCard() {
           {stats.map(({ value, label }) => (
             <div
               key={label}
-              className="flex flex-col gap-0.5 p-3 rounded-2xl"
+              className="flex flex-col gap-0.5 p-3 rounded-2xl theme-transition"
               style={{
-                background: 'var(--surface-strong)',
+                background: 'var(--foam)',
                 border: '1px solid var(--card-border)',
               }}
             >
@@ -59,7 +59,7 @@ export default function HeroCard() {
 
         {/* Availability indicator */}
         <div
-          className="flex items-center gap-2 text-xs rounded-full px-3 py-1.5 w-fit"
+          className="flex items-center gap-2 text-xs rounded-full px-3 py-1.5 w-fit theme-transition"
           style={{ background: 'rgba(156, 114, 75, 0.10)', color: 'var(--muted)' }}
         >
           <span
