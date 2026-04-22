@@ -1,47 +1,45 @@
-import { pgTable, serial, integer as pgInteger, text as pgText, timestamp as pgTimestamp } from "drizzle-orm/pg-core";
-import { sqliteTable, integer, text as sqliteText } from "drizzle-orm/sqlite-core";
-import type { InferModel } from "drizzle-orm";
+import { pgTable, text, integer, serial, timestamp } from "drizzle-orm/pg-core";
 
-export const pgUsers = pgTable("users", {
+export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  email: pgText("email").notNull().unique(),
-  hashedPassword: pgText("hashed_password").notNull(),
-  createdAt: pgTimestamp("created_at").notNull().defaultNow(),
+  email: text("email").notNull().unique(),
+  hashedPassword: text("password").notNull(),
+  githubId: text("github_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  role: text("role").default("user"), // 'admin' or 'user'
 });
 
-export const sqliteUsers = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  email: sqliteText("email").notNull().unique(),
-  hashedPassword: sqliteText("hashed_password").notNull(),
-  createdAt: sqliteText("created_at").notNull().default("CURRENT_TIMESTAMP"),
+export const profiles = pgTable("profiles", {
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+  displayName: text("display_name"),
+  bio: text("bio"),
 });
 
-export const users = (Bun.env.DATABASE_URL ? pgUsers : sqliteUsers) as typeof pgUsers;
-
-export const pgProfiles = pgTable("profiles", {
+export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
-  userId: pgInteger("user_id").notNull().unique(),
-  displayName: pgText("display_name").notNull().default(""),
-  bio: pgText("bio").default(""),
-  createdAt: pgTimestamp("created_at").notNull().defaultNow(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  thumbnail: text("thumbnail"),
+  tags: text("tags").notNull(), // Store as comma-separated or JSON string
+  category: text("category").notNull(),
+  githubUrl: text("github_url"),
+  liveUrl: text("live_url"),
 });
 
-export const sqliteProfiles = sqliteTable("profiles", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  userId: integer("user_id").notNull().unique(),
-  displayName: sqliteText("display_name").notNull().default(""),
-  bio: sqliteText("bio").default(""),
-  createdAt: sqliteText("created_at").notNull().default("CURRENT_TIMESTAMP"),
+export const experience = pgTable("experience", {
+  id: serial("id").primaryKey(),
+  year: text("year").notNull(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle").notNull(),
+  bullets: text("bullets").notNull(), // Store as JSON string
+  type: text("type").notNull(), // 'work' or 'education'
 });
 
-export const profiles = (Bun.env.DATABASE_URL ? pgProfiles : sqliteProfiles) as typeof pgProfiles;
-
-export type SqliteUser = InferModel<typeof sqliteUsers>;
-export type PgUser = InferModel<typeof pgUsers>;
-export type User = SqliteUser | PgUser;
-export type NewUser = Omit<User, "id" | "createdAt">;
-
-export type SqliteProfile = InferModel<typeof sqliteProfiles>;
-export type PgProfile = InferModel<typeof pgProfiles>;
-export type Profile = SqliteProfile | PgProfile;
-export type NewProfile = Omit<Profile, "id" | "createdAt">;
+export const contactInquiries = pgTable("contact_inquiries", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  projectType: text("project_type").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});

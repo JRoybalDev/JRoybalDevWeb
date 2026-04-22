@@ -5,10 +5,10 @@ interface ProjectCardProps {
     thumbnail?: string
     name: string
     description: string
-    tags: string[]
+    tags: string[] | string
     category: string
-    github_url?: string
-    live_url?: string
+    githubUrl?: string
+    liveUrl?: string
 }
 
 export default function ProjectCard({
@@ -17,9 +17,11 @@ export default function ProjectCard({
     description,
     tags,
     category,
-    github_url,
-    live_url,
+    githubUrl,
+    liveUrl,
 }: ProjectCardProps) {
+    const normalizedTags = Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim());
+
     return (
         <div className="feature-card flex flex-col gap-4 h-full">
 
@@ -61,7 +63,7 @@ export default function ProjectCard({
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
+                {normalizedTags.map((tag) => (
                     <span
                         key={tag}
                         className="text-xs px-2.5 py-1 rounded-full"
@@ -77,11 +79,11 @@ export default function ProjectCard({
             </div>
 
             {/* Links — only render if url exists */}
-            {(github_url || live_url) && (
+            {(githubUrl || liveUrl) && (
                 <div className="flex items-center gap-3 mt-auto pt-2" style={{ borderTop: '1px solid var(--card-border)' }}>
-                    {github_url && (
+                    {githubUrl && (
                         <a
-                            href={github_url}
+                            href={githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-1.5 text-xs transition-all duration-200 hover:-translate-y-px"
@@ -93,9 +95,9 @@ export default function ProjectCard({
                             Source
                         </a>
                     )}
-                    {live_url && (
+                    {liveUrl && (
                         <a
-                            href={live_url}
+                            href={liveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-1.5 text-xs transition-all duration-200 hover:-translate-y-px"

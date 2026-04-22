@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { projects } from './HomePage';
+import type { Project } from './HomePage';
 import ProjectCard from '@frontend/components/ProjectCard';
 import Button from '@frontend/components/Button';
 
 const categories = ['All', 'Full-stack Contract', 'Freelance', 'Consulting'];
 
 function Projects() {
+  const [projects, setProjects] = useState<Project[]>([]);
   const [activeFilter, setActiveFilter] = useState('All');
+  const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
+
+  useEffect(() => {
+    fetch(`${apiBase}/api/projects`)
+      .then(res => res.json())
+      .then(data => setProjects(data))
+      .catch(console.error);
+  }, []);
 
   const filteredProjects = activeFilter === 'All' 
     ? projects 

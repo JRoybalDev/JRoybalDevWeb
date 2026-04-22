@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '@frontend/components/Button';
 import ExperienceCard from '@frontend/components/ExperienceCard';
@@ -11,62 +11,19 @@ export interface TimelineItem {
   type: 'work' | 'education';
 }
 
-export const timelineData: TimelineItem[] = [
-  {
-    year: 'Nov 2023 — Present',
-    title: 'Frontend Developer',
-    subtitle: 'African Marine Conservation Organization (AMCO)',
-    bullets: [
-      'Developed and maintained the main webpage using JavaScript, React, Next.js, and Bootstrap, ensuring a seamless user experience and adherence to design specifications.',
-      'Collaborated with team members to implement new features, optimize code, and troubleshoot issues, resulting in improved website performance and user engagement.',
-    ],
-    type: 'work',
-  },
-  {
-    year: 'Aug 2019 — May 2022',
-    title: 'Freelance Mod Developer',
-    subtitle: 'JRoybalDev',
-    bullets: [
-      'Engineered diverse Lua, JavaScript, and Java-based mods and plugins for multiple video game platforms, elevating user experiences through innovative enhancements.',
-      'Self-taught technical skills to proficiently troubleshoot stack traces and errors, significantly streamlining the debugging process for enhanced efficiency.',
-    ],
-    type: 'work',
-  },
-  {
-    year: 'Jun 2025',
-    title: 'Google Cybersecurity Certificate',
-    subtitle: 'Coursera',
-    bullets: [
-      'Mastered core cybersecurity concepts including incident management, network security, and SIEM tools.',
-      'Gained hands-on experience in identifying vulnerabilities and implementing secure, resilient data protection solutions.',
-    ],
-    type: 'education',
-  },
-  {
-    year: 'Jun 2023',
-    title: 'Software Engineering Bootcamp',
-    subtitle: 'App Academy',
-    bullets: [
-      'Intensive immersion in full-stack web development, data structures, algorithms, and object-oriented programming.',
-    ],
-    type: 'education',
-  },
-  {
-    year: 'Present',
-    title: 'CIS: Programmer — A.A.',
-    subtitle: 'Cerritos College',
-    bullets: [
-      'Learned advanced programming topics such as system design, data structures and algorithms, and object-oriented programming.',
-      'Covered topics including programming in C/C++ and object-oriented programming in Java.',
-    ],
-    type: 'education',
-  },
-];
-
 const categories = ['All', 'Work', 'Education'];
 
 function Experience() {
+  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
   const [activeFilter, setActiveFilter] = useState('All');
+  const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
+
+  useEffect(() => {
+    fetch(`${apiBase}/api/experience`)
+      .then(res => res.json())
+      .then(setTimelineData)
+      .catch(console.error);
+  }, []);
 
   const filteredData =
     activeFilter === 'All'

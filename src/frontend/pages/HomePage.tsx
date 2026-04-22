@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import type { FormEvent } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../providers/AuthProvider";
 import CoffeeShopScene from "@frontend/components/CoffeeShopScene";
@@ -35,110 +34,30 @@ const services: Service[] = [
   },
 ]
 
-
 export interface Project {
+  id?: number
   thumbnail?: string
   name: string
   description: string
   tags: string[]
   category: string
-  github_url?: string
-  live_url?: string
+  githubUrl?: string
+  liveUrl?: string
 }
-
-export const projects: Project[] = [
-  {
-    name: 'African Marine Conservation',
-    description: 'Organization website for the African Marine Conservation Organization (AMCO), a non-profit organization, based in Cameroon.',
-    tags: ['Next.js', 'TypeScript', 'Sanity', 'Tailwind', 'Figma'],
-    category: 'Full-stack Contract',
-    live_url: 'https://ammco.org',
-  },
-  {
-    name: 'Server Backup Fabric',
-    description: 'A robust Java-based utility for Minecraft servers that automates backups and ensures data integrity for community environments.',
-    tags: ['Java', 'Fabric API', 'Minecraft'],
-    category: 'Freelance',
-    github_url: 'https://github.com/JRoybalDev/ServerBackupFabric',
-  },
-  {
-    name: 'Watchboxd',
-    description: 'A user-friendly website designed for movie enthusiasts to track, rate, and review films using real-time API integration.',
-    tags: ['React', 'TypeScript', 'Node.js', 'TMDB API'],
-    category: 'Freelance',
-    live_url: 'https://watchboxd.vercel.app',
-  },
-  {
-    name: 'Asante',
-    description: 'A comprehensive web application focused on community engagement and streamlined resource management.',
-    tags: ['Next.js', 'PostgreSQL', 'Prisma', 'Tailwind'],
-    category: 'Full-stack Contract',
-  },
-  {
-    name: 'Relive',
-    description: 'A specialized modding project aimed at restoring and enhancing features in legacy gaming environments.',
-    tags: ['Lua', 'C++', 'Reverse Engineering'],
-    category: 'Freelance',
-  },
-]
 
 const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
 
-function buildHeaders() {
-  return { "Content-Type": "application/json" };
-}
-
-function extractMessage(response: Response) {
-  return response.json().then((data) => data?.error ?? "Something went wrong.");
-}
-
-function getAuthUrl(provider: string) {
-  return `${apiBase}/api/auth/oauth/${provider}`;
-}
-
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  const submitLabel = useMemo(() => (mode === "signin" ? "Sign In" : "Create Account"), [mode]);
-
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsLoading(true);
-    setMessage(null);
-
-    const endpoint = mode === "signin" ? "/api/auth/login" : "/api/auth/register";
-    const response = await fetch(`${apiBase}${endpoint}`, {
-      method: "POST",
-      headers: buildHeaders(),
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      const errorMessage = await extractMessage(response);
-      setMessage(errorMessage);
-      setIsLoading(false);
-      return;
-    }
-
-    await response.json();
-    await refreshUser();
-    setEmail("");
-    setPassword("");
-    setMessage(null);
-    setIsLoading(false);
-    navigate("/dashboard");
-  }
+  useEffect(() => {
+    fetch(`${apiBase}/api/projects`)
+      .then(res => res.json())
+      .then(setProjects)
+      .catch(console.error);
+  }, []);
 
   const handleViewMyWork = () => {
     navigate("/projects");

@@ -1,12 +1,19 @@
 import { Context, Hono } from "hono";
+import { cors } from "hono/cors";
 import { eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
 import { db } from "../../db/client";
-import { profiles, users } from "../../db/schema";
+import { profiles, users, projects, experience, contactInquiries } from "../../db/schema";
 import { jwtVerify } from "jose";
 import { Resend } from "resend";
 
 const app = new Hono();
+
+app.use("*", cors({
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://jroybal.dev"],
+  credentials: true,
+}));
+
 const jwtKey = new TextEncoder().encode(Bun.env.JWT_SECRET ?? "dev-secret");
 const resend = new Resend(Bun.env.RESEND_API_KEY);
 
@@ -33,21 +40,32 @@ async function parseSessionToken(c: Context) {
   }
 }
 
+// Public Data Fetching
+app.get("/projects", async (c) => {
+  const data = await db.select().from(projects);
+  return c.json(data.map((p) => ({ ...p, tags: p.tags.split(',') })));
+});
+
+app.get("/experience", async (c) => {
+  const data = await db.select().from(experience);
+  return c.json(data.map((e) => ({ ...e, bullets: JSON.parse(e.bullets) })));
+});
+
 app.get("/profile", async (c) => {
   const payload = await parseSessionToken(c);
   if (!payload?.sub) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const [user] = await (db as any).select().from(users).where(eq(users.id, Number(payload.sub))).limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, Number(payload.sub))).limit(1);
   if (!user) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const [profile] = await (db as any).select().from(profiles).where(eq(profiles.userId, Number(payload.sub))).limit(1);
+  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, Number(payload.sub))).limit(1);
 
   return c.json({
-    user: { id: user.id, email: user.email, createdAt: user.createdAt },
+    user: { id: user.id, email: user.email, createdAt: user.createdAt, role: user.role },
     profile: profile
       ? { displayName: profile.displayName, bio: profile.bio }
       : null,
@@ -85,6 +103,14 @@ app.post("/contact", async (c) => {
       return c.json({ error: "Email service not configured." }, 500);
     }
 
+    // Save to Database
+    await db.insert(contactInquiries).values({
+      name: name.trim(),
+      email: email.trim(),
+      projectType,
+      message: message.trim(),
+    });
+
     const { error } = await resend.emails.send({
       from: "JRoybalDev <contact@jroybal.dev>",// Update this to your verified domain in production
       to: ["contact@jroybal.dev"], // The recipient
@@ -112,6 +138,29 @@ app.post("/contact", async (c) => {
     console.error("Contact form error:", err);
     return c.json({ error: "The machine is clogged. Please try again later or email me directly." }, 500);
   }
+});
+
+// Admin Middleware
+const adminOnly = async (c: Context, next: () => Promise<void>) => {
+  const payload = await parseSessionToken(c);
+  if (!payload?.sub) return c.json({ error: "Unauthorized" }, 401);
+
+  const [user] = await db.select().from(users).where(eq(users.id, Number(payload.sub))).limit(1);
+  if (!user || user.role !== 'admin') return c.json({ error: "Forbidden" }, 403);
+  
+  await next();
+};
+
+// Admin Routes
+app.get("/admin/inquiries", adminOnly, async (c) => {
+  const inquiries = await db.select().from(contactInquiries);
+  return c.json(inquiries);
+});
+
+app.post("/admin/projects", adminOnly, async (c) => {
+  const body = await c.req.json();
+  await db.insert(projects).values(body);
+  return c.json({ success: true });
 });
 
 export default app;

@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { eq } from "drizzle-orm";
 import { compareSync, hashSync } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
@@ -7,6 +8,12 @@ import { db } from "../../db/client";
 import { profiles, users } from "../../db/schema";
 
 const app = new Hono();
+
+app.use("*", cors({
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  credentials: true,
+}));
+
 const COOKIE_NAME = "session";
 const jwtKey = new TextEncoder().encode(Bun.env.JWT_SECRET ?? "dev-secret");
 const isProduction = Bun.env.NODE_ENV === "production";
@@ -60,8 +67,7 @@ app.post("/register", async (c) => {
   }
 
   const hashedPassword = createHash(password);
-  await db.insert(users).values({ email, hashedPassword });
-  const [saved] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const [saved] = await db.insert(users).values({ email, hashedPassword }).returning();
 
   if (saved) {
     await db.insert(profiles).values({
@@ -177,8 +183,7 @@ app.get("/oauth/github/callback", async (c) => {
 
   if (!user) {
     const hashedPassword = createHash(Math.random().toString(36) + Date.now());
-    await db.insert(users).values({ email, hashedPassword });
-    [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    [user] = await db.insert(users).values({ email, hashedPassword }).returning();
   }
 
   if (user) {

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { readdirSync, readFileSync } from "fs";
+import { readdirSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { db } from "./client";
 
@@ -24,7 +24,7 @@ async function ensureMigrationsTable() {
   if (Bun.env.DATABASE_URL) {
     await (db.$client as import("pg").Pool).query(sql);
   } else {
-    (db.$client as import("bun:sqlite").Database).exec(sql);
+    (db.$client as unknown as import("bun:sqlite").Database).exec(sql);
   }
 }
 
@@ -37,7 +37,7 @@ async function hasMigration(id: string) {
     return (result.rowCount ?? 0) > 0;
   }
 
-  const rows = (db.$client as import("bun:sqlite").Database)
+  const rows = (db.$client as unknown as import("bun:sqlite").Database)
     .prepare(`SELECT id FROM migrations WHERE id = ? LIMIT 1`)
     .all(id);
 
@@ -51,7 +51,7 @@ async function markMigration(id: string) {
       [id]
     );
   } else {
-    (db.$client as import("bun:sqlite").Database)
+    (db.$client as unknown as import("bun:sqlite").Database)
       .prepare(`INSERT INTO migrations (id, run_at) VALUES (?, datetime('now'))`)
       .run(id);
   }
@@ -60,9 +60,19 @@ async function markMigration(id: string) {
 async function runMigrations() {
   await ensureMigrationsTable();
 
+  if (!existsSync(migrationsDir)) {
+    console.warn(`Migrations directory not found: ${migrationsDir}`);
+    return;
+  }
+
   const files = readdirSync(migrationsDir)
     .filter((file) => file.endsWith(".sql"))
     .sort();
+
+  if (files.length === 0) {
+    console.log("No migration files found in:", migrationsDir);
+    return;
+  }
 
   for (const file of files) {
     const id = `${dialect}/${file}`;
@@ -75,7 +85,7 @@ async function runMigrations() {
     if (Bun.env.DATABASE_URL) {
       await (db.$client as import("pg").Pool).query(sql);
     } else {
-      (db.$client as import("bun:sqlite").Database).exec(sql);
+      (db.$client as unknown as import("bun:sqlite").Database).exec(sql);
     }
 
     await markMigration(id);

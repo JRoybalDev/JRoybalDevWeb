@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { timelineData } from './Experience';
+import type { TimelineItem } from './Experience';
 import Button from '@frontend/components/Button';
 import { useReactToPrint } from 'react-to-print';
 
@@ -18,9 +18,18 @@ const certifications = [
 ];
 
 function Resume() {
+  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
   const componentRef = useRef<HTMLDivElement>(null); // Create a ref for the component to be printed
   const experience = timelineData.filter((item) => item.type === 'work');
   const education = timelineData.filter((item) => item.type === 'education');
+  const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
+
+  useEffect(() => {
+    fetch(`${apiBase}/api/experience`)
+      .then(res => res.json())
+      .then(setTimelineData)
+      .catch(console.error);
+  }, []);
 
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
