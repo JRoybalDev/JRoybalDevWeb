@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -14,6 +14,9 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 export default function App() {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith("/dashboard");
+
   useEffect(() => {
     const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const stored = localStorage.getItem("theme");
@@ -37,8 +40,8 @@ export default function App() {
 
   return (
     <div className="select-none">
-      <Navbar />
-      <main className="route-main">
+      {!isDashboard && <Navbar />}
+      <main className="">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/projects" element={<Projects />} />
@@ -58,7 +61,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <Footer />
+      {!isDashboard && <Footer />}
     </div>
   );
 }

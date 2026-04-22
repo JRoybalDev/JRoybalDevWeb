@@ -3,9 +3,9 @@ import { cors } from "hono/cors";
 import { eq } from "drizzle-orm";
 import { compareSync, hashSync } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import { getCookie, setCookie } from "hono/cookie";
-import { db } from "../../db/client";
-import { profiles, users } from "../../db/schema";
+import { getCookie, setCookie } from "hono/cookie"; // Assuming client.ts is in src/db
+import { db } from "../../db/client"; 
+import { users } from "../../db/schema"; // profiles table removed
 
 const app = new Hono();
 
@@ -67,14 +67,15 @@ app.post("/register", async (c) => {
   }
 
   const hashedPassword = createHash(password);
-  const [saved] = await db.insert(users).values({ email, hashedPassword }).returning();
+  const [saved] = await db.insert(users).values({ email, password: hashedPassword }).returning();
 
   if (saved) {
-    await db.insert(profiles).values({
-      userId: Number(saved.id),
-      displayName: email.split("@")[0],
-      bio: "",
-    });
+    // profiles table removed
+    // await db.insert(profiles).values({
+    //   userId: Number(saved.id),
+    //   displayName: email.split("@")[0],
+    //   bio: "",
+    // });
   }
 
   if (!saved) {
@@ -97,7 +98,7 @@ app.post("/login", async (c) => {
   }
 
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  if (!user || !verifyPassword(password, user.hashedPassword)) {
+  if (!user || !verifyPassword(password, user.password)) {
     return c.json({ error: "Invalid email or password." }, 401);
   }
 
@@ -125,86 +126,6 @@ app.get("/me", async (c) => {
 app.post("/logout", (c) => {
   setCookie(c, COOKIE_NAME, "", { ...buildCookieOptions(), maxAge: 0 });
   return c.json({ success: true });
-});
-
-app.get("/oauth/github", (c) => {
-  const clientId = Bun.env.GITHUB_CLIENT_ID;
-  const redirectUri = Bun.env.OAUTH_REDIRECT_URI ?? "http://localhost:3000/api/auth/oauth/github/callback";
-  if (!clientId) {
-    return c.json({ error: "GitHub OAuth is not configured." }, 500);
-  }
-
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    scope: "read:user user:email",
-    allow_signup: "true",
-  });
-
-  return c.redirect(`https://github.com/login/oauth/authorize?${params}`);
-});
-
-app.get("/oauth/github/callback", async (c) => {
-  const code = c.req.query("code");
-  const clientId = Bun.env.GITHUB_CLIENT_ID;
-  const clientSecret = Bun.env.GITHUB_CLIENT_SECRET;
-  const redirectUri = Bun.env.OAUTH_REDIRECT_URI ?? "http://localhost:3000/api/auth/oauth/github/callback";
-
-  if (!clientId || !clientSecret || !code) {
-    return c.json({ error: "OAuth callback is missing required values." }, 400);
-  }
-
-  const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code, redirect_uri: redirectUri }),
-  });
-
-  const tokenData = await tokenResponse.json();
-  const accessToken = tokenData.access_token;
-  if (!accessToken) {
-    return c.json({ error: "Unable to obtain GitHub access token." }, 500);
-  }
-
-  const profileRes = await fetch("https://api.github.com/user", {
-    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-  });
-  const profile = await profileRes.json();
-
-  const emailRes = await fetch("https://api.github.com/user/emails", {
-    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-  });
-  const emails = await emailRes.json();
-  const primaryEmail = Array.isArray(emails) ? emails.find((item: any) => item.primary)?.email || emails[0]?.email : null;
-  const email = primaryEmail || `${profile.login}@github.local`;
-
-  const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  let user = existing;
-
-  if (!user) {
-    const hashedPassword = createHash(Math.random().toString(36) + Date.now());
-    [user] = await db.insert(users).values({ email, hashedPassword }).returning();
-  }
-
-  if (user) {
-    const [existingProfile] = await db.select().from(profiles).where(eq(profiles.userId, Number(user.id))).limit(1);
-    if (!existingProfile) {
-      await db.insert(profiles).values({
-        userId: Number(user.id),
-        displayName: email.split("@")[0],
-        bio: "",
-      });
-    }
-  }
-
-  if (!user) {
-    return c.json({ error: "Unable to create or lookup OAuth user." }, 500);
-  }
-
-  const token = await createToken({ sub: String(user.id), email });
-  setCookie(c, COOKIE_NAME, token, buildCookieOptions());
-
-  return c.redirect("http://localhost:5173");
 });
 
 export default app;

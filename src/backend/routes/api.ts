@@ -2,8 +2,8 @@ import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
-import { db } from "../../db/client";
-import { profiles, users, projects, experience, contactInquiries } from "../../db/schema";
+import { db } from "../../db/client"; // Assuming client.ts is in src/db
+import { users, projects, experience, contactInquiries } from "../../db/schema";
 import { jwtVerify } from "jose";
 import { Resend } from "resend";
 
@@ -43,7 +43,7 @@ async function parseSessionToken(c: Context) {
 // Public Data Fetching
 app.get("/projects", async (c) => {
   const data = await db.select().from(projects);
-  return c.json(data.map((p) => ({ ...p, tags: p.tags.split(',') })));
+  return c.json(data.map((p) => ({ ...p, tags: p.tags?.split(',') || [] })));
 });
 
 app.get("/experience", async (c) => {
@@ -62,13 +62,11 @@ app.get("/profile", async (c) => {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const [profile] = await db.select().from(profiles).where(eq(profiles.userId, Number(payload.sub))).limit(1);
+  // const [profile] = await db.select().from(profiles).where(eq(profiles.userId, Number(payload.sub))).limit(1); // profiles table removed
 
   return c.json({
     user: { id: user.id, email: user.email, createdAt: user.createdAt, role: user.role },
-    profile: profile
-      ? { displayName: profile.displayName, bio: profile.bio }
-      : null,
+    profile: null,
   });
 });
 
@@ -153,13 +151,59 @@ const adminOnly = async (c: Context, next: () => Promise<void>) => {
 
 // Admin Routes
 app.get("/admin/inquiries", adminOnly, async (c) => {
-  const inquiries = await db.select().from(contactInquiries);
-  return c.json(inquiries);
+  const data = await db.select().from(contactInquiries);
+  return c.json(data);
 });
 
+// Create Project
 app.post("/admin/projects", adminOnly, async (c) => {
-  const body = await c.req.json();
-  await db.insert(projects).values(body);
+  const project = await c.req.json();
+  
+  // Financial Auto-calc
+  const val = parseFloat(project.contractValue) || 0;
+  const inv = parseFloat(project.amountInvoiced) || 0;
+  project.amountOutstanding = (val - inv).toString();
+
+  // Auto-generate Project ID if missing
+  if (!project.projectId) {
+    project.projectId = `PRJ-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+
+  const [saved] = await db.insert(projects).values(project).returning();
+  return c.json(saved);
+});
+
+// Update Project
+app.put("/admin/projects/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const project = await c.req.json();
+  
+  const val = parseFloat(project.contractValue) || 0;
+  const inv = parseFloat(project.amountInvoiced) || 0;
+  project.amountOutstanding = (val - inv).toString();
+
+  const [updated] = await db.update(projects).set(project).where(eq(projects.id, id)).returning();
+  return c.json(updated);
+});
+
+// Delete Project
+app.delete("/admin/projects/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(projects).where(eq(projects.id, id));
+  return c.json({ success: true });
+});
+
+// Delete Inquiry
+app.delete("/admin/inquiries/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(contactInquiries).where(eq(contactInquiries.id, id));
+  return c.json({ success: true });
+});
+
+// Mark Inquiry as Read
+app.patch("/admin/inquiries/:id/read", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.update(contactInquiries).set({ isRead: true }).where(eq(contactInquiries.id, id));
   return c.json({ success: true });
 });
 

@@ -1,29 +1,52 @@
-import { pgTable, text, integer, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
-  hashedPassword: text("password").notNull(),
-  githubId: text("github_id"),
-  createdAt: timestamp("created_at").defaultNow(),
-  role: text("role").default("user"), // 'admin' or 'user'
-});
-
-export const profiles = pgTable("profiles", {
-  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
-  displayName: text("display_name"),
-  bio: text("bio"),
+  password: text("password").notNull(),
+  role: text("role").$type<"admin" | "user">().default("user").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
+  projectId: text("project_id"), // Format: PRJ-####
   name: text("name").notNull(),
+  clientName: text("client_name"),
+  clientEmail: text("client_email"),
+  clientContact: text("client_contact"),
+  contractType: text("contract_type").$type<"Fixed-price" | "Hourly" | "Retainer">().default("Fixed-price"),
+  projectType: text("project_type").default("Full-stack"),
+  status: text("status").$type<"Active" | "Review" | "Completed" | "Archived">().default("Active"),
+  contractValue: text("contract_value"),
+  amountInvoiced: text("amount_invoiced"),
+  amountOutstanding: text("amount_outstanding"),
+  paymentTerms: text("payment_terms"),
+  depositPaid: text("deposit_paid"),
+  startDate: text("start_date"),
+  deadline: text("deadline"),
+  estHours: text("est_hours"),
+  loggedHours: text("logged_hours"),
+  effectiveRate: text("effective_rate"),
+  revisionRounds: text("revision_rounds"),
+  scopeChanges: text("scope_changes"),
+  stack: text("stack"),
+  hosting: text("hosting"),
+  repo: text("repo"),
+  stagingUrl: text("staging_url"),
+  ndaSigned: text("nda_signed"),
+  contractSigned: text("contract_signed"),
+  lastMilestone: text("last_milestone"),
+  nextMilestone: text("next_milestone"),
+  priority: text("priority").$type<"Low" | "Medium" | "High">().default("Medium"),
+  internalNotes: text("internal_notes"),
   description: text("description").notNull(),
   thumbnail: text("thumbnail"),
-  tags: text("tags").notNull(), // Store as comma-separated or JSON string
-  category: text("category").notNull(),
+  tags: text("tags"), // Comma-separated list for the portfolio
+  category: text("category"),
   githubUrl: text("github_url"),
   liveUrl: text("live_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const experience = pgTable("experience", {
@@ -31,8 +54,9 @@ export const experience = pgTable("experience", {
   year: text("year").notNull(),
   title: text("title").notNull(),
   subtitle: text("subtitle").notNull(),
-  bullets: text("bullets").notNull(), // Store as JSON string
-  type: text("type").notNull(), // 'work' or 'education'
+  bullets: text("bullets").notNull(), // Stored as stringified JSON array
+  type: text("type").$type<"work" | "education">().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const contactInquiries = pgTable("contact_inquiries", {
@@ -41,5 +65,6 @@ export const contactInquiries = pgTable("contact_inquiries", {
   email: text("email").notNull(),
   projectType: text("project_type").notNull(),
   message: text("message").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });

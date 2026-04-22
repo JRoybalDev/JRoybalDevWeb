@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NavLink } from "react-router-dom";
 import { CgMenuRightAlt, CgClose } from "react-icons/cg";
 import { FiSun, FiMoon } from "react-icons/fi";
+import { useAuth } from "@frontend/providers/AuthProvider";
 
 const ThemeToggle = ({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: () => void }) => (
     <div
@@ -71,13 +72,16 @@ function Navbar() {
     );
     const [isOpen, setIsOpen] = useState(false);
 
+    const {user, signOut} = useAuth();
+
     const navLinks = [
         { title: "Home", link: "/" },
         { title: "About", link: "/about" },
         { title: "Projects", link: "/projects" },
         { title: "Experience", link: "/experience" },
         { title: "Resume", link: "/resume" },
-        { title: "Contact", link: "/contact" }
+        { title: "Contact", link: "/contact" },
+        ...(user?.role === 'admin' ? [{ title: "Dashboard", link: "/dashboard" }] : [])
     ]
 
     // Sync state if system preference or other logic changes the class

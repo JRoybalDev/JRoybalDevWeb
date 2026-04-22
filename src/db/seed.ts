@@ -17,7 +17,7 @@ async function seedUser() {
 
   await db.insert(users).values({
     email,
-    hashedPassword: hashSync(password, 10),
+    password: hashSync(password, 10),
   });
 
   console.log(`Seed user created: ${email}`);

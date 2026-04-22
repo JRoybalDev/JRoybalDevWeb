@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMail, FiGithub, FiLinkedin, FiClock, FiChevronDown } from 'react-icons/fi';
 import Button from '@frontend/components/Button';

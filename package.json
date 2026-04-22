@@ -21,6 +21,7 @@
     "bcryptjs": "^3.0.3",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1",
     "framer-motion": "^12.38.0",
     "hono": "^4.12.12",
     "jose": "^6.2.2",
