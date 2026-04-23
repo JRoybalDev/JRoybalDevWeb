@@ -4,7 +4,7 @@ import type { Project } from './HomePage';
 import ProjectCard from '@frontend/components/ProjectCard';
 import Button from '@frontend/components/Button';
 
-const categories = ['All', 'Full-stack Contract', 'Freelance', 'Consulting'];
+const categories = ['All', 'Full-stack', 'Consulting', 'Games'];
 
 function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -18,9 +18,15 @@ function Projects() {
       .catch(console.error);
   }, []);
 
-  const filteredProjects = activeFilter === 'All' 
-    ? projects 
-    : projects.filter(p => p.category === activeFilter);
+  const sortedProjects = [...projects].sort((a, b) => {
+    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  const filteredProjects = activeFilter === 'All'
+    ? sortedProjects
+    : sortedProjects.filter(p => p.projectType === activeFilter);
 
   return (
     <div className="page-shell">
@@ -41,7 +47,7 @@ function Projects() {
             <Button
               key={cat}
               mode={activeFilter === cat ? 'primary' : 'secondary'}
-              label={cat === 'Full-stack Contract' ? 'Full-stack' : cat}
+              label={cat}
               onClick={() => setActiveFilter(cat)}
             />
           ))}

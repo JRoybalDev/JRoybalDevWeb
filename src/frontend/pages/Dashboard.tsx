@@ -1,32 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../providers/AuthProvider";
-import { Navigate, useLocation, Link } from "react-router-dom";
+import { Navigate, useLocation, Link, Form } from "react-router-dom";
 import { motion, AnimatePresence, Variants, LayoutGroup } from "framer-motion";
-import { FiMail, FiLogOut, FiX, FiPlus, FiSettings, FiClock, FiSearch, FiTrash2, FiEdit2, FiEye, FiGrid, FiPlusSquare, FiCircle, FiChevronDown, FiCheckSquare, FiXSquare, FiCreditCard, FiTrendingUp, FiUsers, FiMessageSquare, FiMenu, FiArrowLeft, FiChevronLeft, FiChevronRight, FiExternalLink, FiBell, FiAlertTriangle, FiCheck } from "react-icons/fi";
+import { FiMail, FiLogOut, FiX, FiPlus, FiSettings, FiClock, FiSearch, FiTrash2, FiEdit2, FiEye, FiGrid, FiPlusSquare, FiCircle, FiChevronDown, FiCheckSquare, FiXSquare, FiCreditCard, FiTrendingUp, FiUsers, FiMessageSquare, FiMenu, FiArrowLeft, FiChevronLeft, FiChevronRight, FiExternalLink, FiBell, FiAlertTriangle, FiCheck, FiUploadCloud, FiImage } from "react-icons/fi";
 import Button from "@frontend/components/Button";
+import CloudinaryImage from "@frontend/components/CloudinaryImage";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [experiences, setExperiences] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeNotification, setActiveDropdown] = useState<'overdue' | 'inquiries' | null>(null);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   
+  // Skill Usage State
+  const [skillUsage, setSkillUsage] = useState<any[]>([]);
+  // Available Tags State
+  const [availableTags, setAvailableTags] = useState<{name: string, count: number}[]>([]);
+
   // Form State
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
+  const [editingExperienceId, setEditingExperienceId] = useState<number | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
-  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [expForm, setExpForm] = useState({
-    year: '',
+    startDate: '', // YYYY-MM
+    endDate: '',   // YYYY-MM
+    isPresent: false,
     title: '',
     subtitle: '',
-    bullets: '',
-    type: 'work' as 'work' | 'education'
+    bullets: '', // Newline separated
+    type: 'work' as 'work' | 'education' | 'certificate'
   });
 
   const [projectForm, setProjectForm] = useState({
@@ -61,6 +70,7 @@ export default function Dashboard() {
     priority: 'Medium',
     internalNotes: '',
     description: '',
+    isPublic: true,
     thumbnail: '',
     tags: '',
     category: 'Full-stack Contract',
@@ -70,25 +80,128 @@ export default function Dashboard() {
 
   const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
 
+  // Define skill categories and keywords for calculation
+  const skillCategories: Record<string, string[]> = {
+    'Frontend': ['React', 'Next.js', 'Vue', 'Angular', 'JavaScript', 'TypeScript', 'HTML', 'CSS', 'TailwindCSS', 'Framer Motion', 'Sass', 'Less', 'Webpack', 'Vite'],
+    'Backend': ['Node.js', 'Python', 'Go', 'Express', 'Django', 'Flask', 'NestJS', 'GraphQL', 'REST API', 'Ruby on Rails', 'PHP', 'Java', 'Spring Boot', 'C#', '.NET'],
+    'Database Management': ['PostgreSQL', 'MongoDB', 'SQLite', 'MySQL', 'Redis', 'SQL', 'NoSQL', 'Prisma', 'TypeORM', 'Mongoose', 'Sanity'],
+    'CyberSecurity/SecOps': ['OWASP', 'Penetration Testing', 'Security Audits', 'Threat Modeling', 'Encryption', 'Authentication', 'Authorization', 'OAuth', 'JWT', 'SSO', 'MFA'],
+    'Design Systems': ['Storybook', 'Figma', 'UI/UX', 'Design Tokens', 'Component Library', 'Material UI', 'Ant Design', 'Chakra UI']
+  };
+
+  const resetExpForm = () => {
+    setExpForm({ startDate: '', endDate: '', isPresent: false, title: '', subtitle: '', bullets: '', type: 'work' });
+    setEditingExperienceId(null);
+    setFormError(null);
+  };
+
+  const closeExpForm = () => {
+    setEditingExperienceId(null);
+    setIsCreatingNew(false);
+    resetExpForm();
+  };
+
+  // --- Data Fetching ---
+
   const fetchData = async () => {
     if (user?.role !== 'admin') return;
     
     try {
-      const [inqRes, projRes] = await Promise.all([
+      const [inqRes, projRes, expRes] = await Promise.all([
         fetch(`${apiBase}/api/admin/inquiries`, { credentials: 'include' }),
-        fetch(`${apiBase}/api/projects`)
+        fetch(`${apiBase}/api/projects`),
+        fetch(`${apiBase}/api/admin/experience`, { credentials: 'include' })
       ]);
       
       if (inqRes.ok) setInquiries(await inqRes.json());
       if (projRes.ok) setProjects(await projRes.json());
+      if (expRes.ok) setExperiences(await expRes.json());
     } catch (error) {
       console.error("Dashboard sync error:", error);
     }
   };
 
+  // --- Effects ---
+
   useEffect(() => {
     fetchData();
   }, [user]);
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      const totalProjects = projects.length;
+      const categoryCounts: { [key: string]: number } = {};
+
+      for (const category in skillCategories) {
+        categoryCounts[category] = 0;
+      }
+
+      projects.forEach(project => {
+        const projectSkills = new Set<string>(); // Use a Set to avoid double counting skills within one project
+
+        // Process project.stack (assuming it's a comma-separated string or array)
+        if (typeof project.stack === 'string' && project.stack) {
+          project.stack.split(',').forEach((s: string) => projectSkills.add(s.trim()));
+        } else if (Array.isArray(project.stack)) {
+          project.stack.forEach((s: string) => projectSkills.add(s.trim()));
+        }
+
+        // Process project.tags (assuming it's a comma-separated string or array)
+        if (typeof project.tags === 'string' && project.tags) {
+          project.tags.split(',').forEach((t: string) => projectSkills.add(t.trim()));
+        } else if (Array.isArray(project.tags)) {
+          project.tags.forEach((t: string) => projectSkills.add(t.trim()));
+        }
+
+        const categoriesMatchedForProject = new Set<string>(); // Track categories this project has already contributed to
+
+        projectSkills.forEach(pSkill => {
+          for (const category in skillCategories) {
+            if (!categoriesMatchedForProject.has(category) && skillCategories[category].some(keyword => pSkill.toLowerCase().includes(keyword.toLowerCase()))) {
+              categoryCounts[category]++;
+              categoriesMatchedForProject.add(category); // Mark this category as matched for this project
+            }
+          }
+        });
+      });
+
+      const calculatedSkillUsage = Object.keys(categoryCounts).map(category => ({
+        name: category,
+        percentage: totalProjects > 0 ? (categoryCounts[category] / totalProjects) * 100 : 0
+      }));
+      setSkillUsage(calculatedSkillUsage);
+    } else {
+      setSkillUsage([]); // Clear skill usage if no projects
+    }
+
+    // Calculate tag frequency for the tag input dropdown
+    if (projects.length >= 0) {
+      const tagMap: Record<string, number> = {};
+      
+      // Seed with default skills from categories so they always appear as options
+      Object.values(skillCategories).flat().forEach(skill => {
+        tagMap[skill] = 0;
+      });
+
+      projects.forEach(p => {
+        const pTags = typeof p.tags === 'string' ? p.tags.split(',') : p.tags;
+        if (Array.isArray(pTags)) {
+          pTags.forEach(t => {
+            const trimmed = t.trim();
+            if (trimmed) {
+              tagMap[trimmed] = (tagMap[trimmed] || 0) + 1;
+            }
+          });
+        }
+      });
+      const sortedTags = Object.entries(tagMap)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+      setAvailableTags(sortedTags);
+    }
+  }, [projects]); // Recalculate when projects change
+
+  // --- Project Management ---
 
   const deleteProject = async (id: number) => {
     if (!window.confirm("Are you sure you want to remove this project from the menu?")) return;
@@ -143,6 +256,7 @@ export default function Dashboard() {
       priority: project.priority || 'Medium',
       internalNotes: project.internalNotes || '',
       description: project.description,
+      isPublic: project.isPublic ?? true,
       thumbnail: project.thumbnail || '',
       tags: typeof project.tags === 'string' ? project.tags : project.tags.join(', '),
       category: project.category,
@@ -150,6 +264,33 @@ export default function Dashboard() {
       liveUrl: project.liveUrl || '',
     });
     setFormError(null);
+  };
+
+  const openEditExperience = (exp: any) => {
+    setEditingExperienceId(exp.id);
+    
+    setExpForm({
+      startDate: exp.startDate || '',
+      endDate: '', // End date is part of the formatted 'year' string, we leave it to user to adjust
+      isPresent: exp.year.toLowerCase().includes('present'),
+      title: exp.title,
+      subtitle: exp.subtitle,
+      bullets: Array.isArray(exp.bullets) ? exp.bullets.join('\n') : '',
+      type: exp.type
+    });
+  };
+
+  const deleteExperience = async (id: number) => {
+    if (!window.confirm("Remove this experience entry?")) return;
+    try {
+      const res = await fetch(`${apiBase}/api/admin/experience/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+      if (res.ok) fetchData();
+    } catch (err) {
+      console.error("Delete experience error:", err);
+    }
   };
 
   const deleteInquiry = async (id: number) => {
@@ -244,6 +385,7 @@ export default function Dashboard() {
       priority: 'Medium',
       internalNotes: '',
       description: '',
+      isPublic: true,
       thumbnail: '',
       tags: '',
       category: 'Full-stack Contract',
@@ -259,24 +401,43 @@ export default function Dashboard() {
 
     if (expForm.title.length < 2) return setFormError("Title is too short.");
     
+    const formatDisplayDate = (val: string) => {
+      if (!val) return '';
+      const [y, m] = val.split('-');
+      const date = new Date(parseInt(y), parseInt(m) - 1);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    };
+
+    const yearRange = `${formatDisplayDate(expForm.startDate)} — ${expForm.isPresent ? 'Present' : formatDisplayDate(expForm.endDate)}`;
+
+    const method = editingExperienceId ? 'PUT' : 'POST';
+    const url = editingExperienceId 
+      ? `${apiBase}/api/admin/experience/${editingExperienceId}` 
+      : `${apiBase}/api/admin/experience`;
+
     try {
       // Convert newline-separated bullets to a JSON string for the DB
       const bulletArray = expForm.bullets.split('\n').filter(b => b.trim() !== '');
       
-      const res = await fetch(`${apiBase}/api/admin/experience`, {
-        method: 'POST',
+      const finalEntry = {
+        title: expForm.title,
+        subtitle: expForm.subtitle,
+        type: expForm.type,
+        year: yearRange,
+        startDate: expForm.startDate,
+        bullets: JSON.stringify(bulletArray)
+      };
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...expForm,
-          bullets: JSON.stringify(bulletArray)
-        }),
+        body: JSON.stringify(finalEntry),
         credentials: 'include'
       });
 
       if (!res.ok) throw new Error();
-      setIsExperienceModalOpen(false);
+      closeExpForm();
       fetchData();
-      setExpForm({ year: '', title: '', subtitle: '', bullets: '', type: 'work' });
     } catch (err) {
       setFormError("Failed to brew this experience entry.");
     }
@@ -369,6 +530,12 @@ export default function Dashboard() {
               icon={FiPlusSquare} label="New Project" 
               onClick={() => { setActiveTab('projects-active'); setIsCreatingNew(true); }} 
               collapsed={isSidebarCollapsed} 
+            />
+            <SidebarLink
+              icon={FiClock} label="Manage Timeline"
+              isActive={activeTab === 'experience-list'}
+              onClick={() => setActiveTab('experience-list')}
+              collapsed={isSidebarCollapsed}
             />
           </div>
           <div className="border-b rounded-md border-[--border]"/>
@@ -521,6 +688,8 @@ export default function Dashboard() {
               {activeTab === 'finance-revenue' && 'Revenue'}
               {activeTab === 'finance-time' && 'Time Tracking'}
               {activeTab === 'clients-list' && 'Clients'}
+              {activeTab === 'experience-management' && 'Experience Management'}
+              {activeTab === 'experience-list' && 'Timeline History'}
               {activeTab === 'clients-notes' && 'Communications'}
               {activeTab === 'settings' && 'Settings'}
             </h1>
@@ -531,6 +700,11 @@ export default function Dashboard() {
               <input type="text" placeholder="Search data..." className="pl-10 pr-4 py-2 bg-[--bg] border border-[--border] rounded-full text-sm w-full md:w-64 focus:outline-none focus:border-[--accent]" />
             </div>
             <Button mode="primary" label="+ Create" onClick={() => {
+              if (activeTab === 'experience-list') {
+                closeExpForm();
+                setIsCreatingNew(true);
+                return;
+              }
               closeProjectForm();
               setIsCreatingNew(true);
               setFormError(null);
@@ -571,6 +745,35 @@ export default function Dashboard() {
                 <p className="text-[10px] text-[--muted] mt-1 font-bold">Pending review</p>
               </motion.div>
             </motion.div>
+
+            {/* Skill Usage Section */}
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mb-10">
+              <div className="flex justify-between items-end mb-4">
+                <h3 className="font-bold flex items-center gap-2"><FiTrendingUp className="text-[--accent]" /> Skill Usage</h3>
+              </div>
+              <div className="bg-[--bg] border border-[--border] rounded-2xl overflow-hidden shadow-sm p-6">
+                <div className="flex flex-col gap-4">
+                  {skillUsage.length > 0 ? skillUsage.map((skill, index) => (
+                    <div key={skill.name} className="flex flex-col gap-2">
+                      <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-[--text]">
+                        <span>{skill.name}</span>
+                        <span className="opacity-50">{skill.percentage.toFixed(0)}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-[--border] rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${skill.percentage}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="h-full bg-[--accent] rounded-full"
+                        />
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="text-center text-[--muted]">No projects to calculate skill usage.</p>
+                  )}
+                </div>
+              </div>
+            </motion.section>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               {/* Left: Snapshots */}
@@ -708,6 +911,7 @@ export default function Dashboard() {
                             setForm={setProjectForm} 
                             onSubmit={handleProjectSubmit} 
                             error={formError} 
+                            availableTags={availableTags}
                           />
                         </div>
                       </td>
@@ -767,6 +971,7 @@ export default function Dashboard() {
                               setForm={setProjectForm} 
                               onSubmit={handleProjectSubmit} 
                               error={formError} 
+                              availableTags={availableTags}
                             />
                           </div>
                         </td>
@@ -779,95 +984,98 @@ export default function Dashboard() {
             </div>
           </motion.div>
         )}
-        </AnimatePresence>
-      </main>
 
-      {/* Add Experience Modal */}
-      <AnimatePresence>
-        {isExperienceModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsExperienceModalOpen(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            />
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl card order-slip shadow-2xl overflow-y-auto max-h-[90vh] theme-transition"
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-8">
-                  <div>
-                    <p className="eyebrow">Roast Levels</p>
-                    <h2 className="text-2xl font-bold">Add Experience / Education</h2>
-                  </div>
-                  <button onClick={() => setIsExperienceModalOpen(false)} className="p-2 rounded-full hover:bg-[--border] text-[--muted]">
-                    <FiX size={24} />
-                  </button>
-                </div>
-
-                <form onSubmit={handleExperienceSubmit} className="form">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Year Range</label>
-                      <input type="text" placeholder="e.g. 2023 — Present" value={expForm.year} onChange={e => setExpForm({...expForm, year: e.target.value})} required />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Entry Type</label>
-                      <select 
-                        value={expForm.type} 
-                        onChange={e => setExpForm({...expForm, type: e.target.value as any})}
-                        className="bg-[--input-bg] text-[--text] border border-[--input-border] rounded-xl p-3 text-sm"
-                      >
-                        <option value="work">Work Experience</option>
-                        <option value="education">Education / Cert</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Title / Role</label>
-                      <input type="text" placeholder="e.g. Senior Barista" value={expForm.title} onChange={e => setExpForm({...expForm, title: e.target.value})} required />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Company / School</label>
-                      <input type="text" placeholder="e.g. Mocha Tech" value={expForm.subtitle} onChange={e => setExpForm({...expForm, subtitle: e.target.value})} required />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Key Bullets (one per line)</label>
-                    </div>
-                    <textarea 
-                      rows={5} 
-                      className="resize-none" 
-                      placeholder="Developed the rich blend...&#10;Optimized the pour-over process..." 
-                      value={expForm.bullets}
-                      onChange={e => setExpForm({...expForm, bullets: e.target.value})}
-                      required 
-                    />
-                  </div>
-
-                  {formError && (
-                    <div className="message danger text-xs">{formError}</div>
+        {activeTab === 'experience-list' && (
+          <motion.div key="exp-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="bg-[--bg] border border-[--border] rounded-2xl overflow-hidden shadow-sm">
+              <table className="w-full text-left">
+                <thead className="bg-[--bg-alt]/50 text-[10px] font-bold uppercase tracking-widest border-b border-[--border]">
+                  <tr>
+                    <th className="px-6 py-4">Title</th>
+                    <th className="px-6 py-4">Type</th>
+                    <th className="px-6 py-4">Timeline</th>
+                    <th className="px-6 py-4 text-right">Manage</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm divide-y divide-[--border]">
+                  {/* Inline Creation Row for Experience */}
+                  {activeTab === 'experience-list' && isCreatingNew && (
+                    <tr>
+                      <td colSpan={4} className="bg-[--bg-alt]/30 p-0 border-b-2 border-[--accent-soft]">
+                        <div className="p-8 animate-in slide-in-from-top-4 duration-300">
+                          <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-bold text-[--accent]">New Timeline Entry</h3>
+                            <button onClick={closeExpForm} className="text-[10px] uppercase font-bold text-[--muted] hover:text-red-500">Cancel</button>
+                          </div>
+                          <ExperienceForm
+                            form={expForm}
+                            setForm={setExpForm}
+                            onSubmit={handleExperienceSubmit}
+                            error={formError}
+                          />
+                        </div>
+                      </td>
+                    </tr>
                   )}
 
-                  <div className="mt-4 pt-4 border-t border-[--border]">
-                    <Button mode="primary" label="Update Timeline ☕" />
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
+                  {experiences.length > 0 ? experiences.sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).map((exp) => (
+                    <React.Fragment key={exp.id}>
+                    <tr className="hover:bg-[--accent-soft]/5 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="font-bold">{exp.title}</div>
+                        <div className="text-[10px] text-[--muted]">{exp.subtitle}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-[--border]">{exp.type}</span>
+                      </td>
+                      <td className="px-6 py-4 text-xs">{exp.year}</td>
+                      <td className="px-6 py-4 text-right">
+                        <button 
+                          onClick={() => openEditExperience(exp)}
+                          className="text-blue-500 hover:bg-blue-500/10 p-2 rounded-lg transition-colors mr-2"
+                        >
+                          <FiEdit2 size={14} />
+                        </button>
+                        <button 
+                          onClick={() => deleteExperience(exp.id)}
+                          className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
+                        >
+                          <FiTrash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                    {/* Inline Edit Row for Experience */}
+                    {editingExperienceId === exp.id && (
+                      <tr>
+                        <td colSpan={4} className="bg-[--bg-alt]/30 p-0 border-y-2 border-[--accent-soft]">
+                          <div className="p-8 animate-in slide-in-from-top-2 duration-300">
+                            <div className="flex justify-between items-center mb-6">
+                              <h3 className="font-bold text-[--accent]">Edit Entry</h3>
+                              <button onClick={closeExpForm} className="text-[10px] uppercase font-bold text-[--muted] hover:text-red-500">Cancel</button>
+                            </div>
+                            <ExperienceForm
+                              form={expForm}
+                              setForm={setExpForm}
+                              onSubmit={handleExperienceSubmit}
+                              error={formError}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </React.Fragment>
+                  )) : (
+                    <tr>
+                      <td colSpan={4} className="p-12 text-center text-[--muted]">No history recorded.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
+      </main>
     </div>
   );
 }
@@ -973,19 +1181,215 @@ function AccordionCategory({ id, label, icon: Icon, isOpen, onToggle, children, 
   );
 }
 
+/**
+ * Extracted Form Component for Experience/Education/Certificate
+ */
+function ExperienceForm({ form, setForm, onSubmit, error }: any) {
+  return (
+    <form onSubmit={onSubmit} className="form">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2 col-span-full">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Timeline</label>
+          <div className="flex items-center gap-4 flex-wrap">
+            <input type="month" value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} required className="w-auto" />
+            <span className="text-[--muted]">to</span>
+            {!form.isPresent && (
+              <input type="month" value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} required={!form.isPresent} className="w-auto" />
+            )}
+            <label className="flex items-center gap-2 cursor-pointer ml-2">
+              <input type="checkbox" checked={form.isPresent} onChange={e => setForm({...form, isPresent: e.target.checked})} className="w-4 h-4 rounded border-[--border]" />
+              <span className="text-xs font-bold uppercase tracking-wide text-[--text]">Current</span>
+            </label>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Entry Type</label>
+          <select
+            value={form.type}
+            onChange={e => setForm({...form, type: e.target.value as any})}
+            className="bg-[--input-bg] text-[--text] border border-[--input-border] rounded-xl p-3 text-sm"
+          >
+            <option value="work">Work Experience</option>
+            <option value="education">Education</option>
+            <option value="certificate">Certificate</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Title / Role</label>
+          <input type="text" placeholder="e.g. Senior Barista" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Company / School / Issuer</label>
+          <input type="text" placeholder="e.g. Mocha Tech" value={form.subtitle} onChange={e => setForm({...form, subtitle: e.target.value})} required />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Key Bullets (one per line)</label>
+        </div>
+        <textarea
+          rows={5}
+          className="resize-none"
+          placeholder="Developed the rich blend...&#10;Optimized the pour-over process..."
+          value={form.bullets}
+          onChange={e => setForm({...form, bullets: e.target.value})}
+          required
+        />
+      </div>
+
+      {error && (
+        <div className="message danger text-xs">{error}</div>
+      )}
+
+      <div className="mt-4 pt-4 border-t border-[--border]">
+        <Button mode="primary" label="Save Experience ☕" />
+      </div>
+    </form>
+  );
+}
+
+/**
+ * Tag Input Component with Pills and Suggestions
+ */
+function TagInput({ tags, onChange, suggestions }: { tags: string, onChange: (val: string) => void, suggestions: {name: string, count: number}[] }) {
+  const [inputValue, setInputValue] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const tagList = tags.split(',').map(t => t.trim()).filter(t => t !== "");
+
+  const addTag = (tag: string) => {
+    const trimmed = tag.trim();
+    if (trimmed && !tagList.includes(trimmed)) {
+      const newList = [...tagList, trimmed];
+      onChange(newList.join(', '));
+    }
+    setInputValue("");
+    setShowDropdown(false);
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    const newList = tagList.filter(t => t !== tagToRemove);
+    onChange(newList.join(', '));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag(inputValue);
+    } else if (e.key === 'Backspace' && inputValue === "" && tagList.length > 0) {
+      removeTag(tagList[tagList.length - 1]);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val.endsWith(',')) {
+      addTag(val.slice(0, -1));
+    } else {
+      setInputValue(val);
+      setShowDropdown(true);
+    }
+  };
+
+  const filteredSuggestions = suggestions.filter(s => 
+    s.name.toLowerCase().includes(inputValue.toLowerCase()) && 
+    !tagList.includes(s.name)
+  );
+
+  return (
+    <div className="relative">
+      <div className="flex flex-wrap gap-2 p-2 bg-[--bg-alt] border border-[--border] rounded-xl focus-within:border-[--accent] transition-all min-h-[42px]">
+        {tagList.map(tag => (
+          <span key={tag} className="group flex items-center gap-1.5 px-2.5 py-1 bg-[--accent-soft]/20 text-[--accent] rounded-full text-xs font-bold transition-all hover:bg-[--accent-soft]/30">
+            {tag}
+            <button type="button" onClick={() => removeTag(tag)} className="opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all flex items-center justify-center">
+              <FiX size={12} />
+            </button>
+          </span>
+        ))}
+        <input type="text" value={inputValue} onChange={handleInputChange} onKeyDown={handleKeyDown} onFocus={() => setShowDropdown(true)} onBlur={() => setTimeout(() => setShowDropdown(false), 200)} className="flex-1 bg-transparent border-none outline-none p-0 text-xs min-w-[80px]" placeholder={tagList.length === 0 ? "Add tags..." : ""} />
+      </div>
+      {showDropdown && (inputValue !== "" || filteredSuggestions.length > 0) && (
+        <div className="absolute left-0 right-0 mt-1 bg-[--bg] border border-[--border] rounded-xl shadow-xl max-h-48 overflow-y-auto z-[100] custom-scrollbar">
+          {filteredSuggestions.map(s => (
+            <button key={s.name} type="button" onClick={() => addTag(s.name)} className="w-full text-left px-4 py-2 text-xs hover:bg-[--accent-soft]/10 flex justify-between items-center transition-colors">
+              <span>{s.name}</span>
+              <span className="text-[10px] text-[--muted]">{s.count} used</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Cloudinary Upload Helper
+ */
+async function uploadToCloudinary(file: File) {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error("Cloudinary configuration missing in env.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error("Upload failed");
+  const data = await res.json();
+  return data.secure_url;
+}
+
 /** 
  * Extracted Form Component for reuse in inline table rows
  */
-function ProjectInlineForm({ form, setForm, onSubmit, error }: any) {
+function ProjectInlineForm({ form, setForm, onSubmit, error, availableTags }: any) {
+  const [isUploading, setIsUploading] = useState(false);
+  const hasUploadConfig = !!import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && !!import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const url = await uploadToCloudinary(file);
+      setForm({ ...form, thumbnail: url });
+    } catch (err) {
+      alert("Failed to upload image to Cloudinary.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <form onSubmit={onSubmit} className="form">
       <div className="flex flex-col gap-8">
         {/* Section 1: Core Info */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <h3 className="col-span-full text-xs font-bold uppercase text-[--accent] border-b border-[--border] pb-2">Core Fields</h3>
+          {/* Project ID */}
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Project ID</label>
             <input type="text" placeholder="Auto-generated" value={form.projectId} onChange={e => setForm({...form, projectId: e.target.value})} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Visibility</label>
+            <select value={form.isPublic ? "Public" : "Private"} onChange={e => setForm({...form, isPublic: e.target.value === "Public"})} className="bg-[--input-bg] text-[--text] border border-[--input-border] rounded-xl p-2.5 text-xs">
+              <option value="Public">Public (On Portfolio)</option>
+              <option value="Private">Private (Dashboard Only)</option>
+            </select>
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Project Name</label>
@@ -1001,12 +1405,48 @@ function ProjectInlineForm({ form, setForm, onSubmit, error }: any) {
             </select>
           </div>
           <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Project Type</label>
+            <select value={form.projectType} onChange={e => setForm({...form, projectType: e.target.value})} className="bg-[--input-bg] text-[--text] border border-[--input-border] rounded-xl p-2.5 text-xs">
+              <option value="Full-stack">Full-stack</option>
+              <option value="Consulting">Consulting</option>
+              <option value="Games">Games</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Client Name</label>
             <input type="text" value={form.clientName} onChange={e => setForm({...form, clientName: e.target.value})} />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Client Email</label>
             <input type="email" value={form.clientEmail} onChange={e => setForm({...form, clientEmail: e.target.value})} />
+          </div>
+          <div className="flex flex-col gap-2 col-span-full">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Project Thumbnail</label>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-xl bg-[--bg-alt] border border-[--border] overflow-hidden flex items-center justify-center shrink-0">
+                {form.thumbnail ? (
+                  <CloudinaryImage src={form.thumbnail} alt="Project Thumbnail Preview" transformations="w_200,h_200,c_fill,g_auto,q_auto,f_auto" className="w-full h-full object-cover" />
+                ) : (
+                  <FiImage className="text-[--muted]" size={24} />
+                )}
+              </div>
+              <div className="flex-1">
+                <label className={`
+                  flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-[--border] 
+                  transition-all
+                  ${!hasUploadConfig ? 'opacity-50 cursor-not-allowed bg-[--bg-alt]' : 'cursor-pointer hover:border-[--accent] hover:bg-[--accent-soft]/5'}
+                  ${isUploading ? 'opacity-50 pointer-events-none animate-pulse' : ''}
+                `}>
+                  <FiUploadCloud size={18} />
+                  <span className="text-xs font-bold uppercase tracking-wide">
+                    {isUploading ? 'Uploading...' : hasUploadConfig ? 'Upload to Cloudinary' : 'Upload Disabled (Missing Preset)'}
+                  </span>
+                  {hasUploadConfig && <input type="file" className="hidden" accept="image/*" onChange={onFileChange} />}
+                </label>
+                {!hasUploadConfig && <p className="text-[9px] text-amber-500 mt-1 italic">To enable: Create an "Unsigned Upload Preset" in Cloudinary Settings &gt; Upload.</p>}
+                <input type="text" placeholder="Or paste image URL..." className="mt-2 text-[10px]" value={form.thumbnail} onChange={e => setForm({...form, thumbnail: e.target.value})} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1058,7 +1498,7 @@ function ProjectInlineForm({ form, setForm, onSubmit, error }: any) {
           <h3 className="col-span-full text-xs font-bold uppercase text-[--accent] border-b border-[--border] pb-2">Timeline & Scope</h3>
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Start Date</label>
-            <input type="text" placeholder="Jan 12, 2025" value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} />
+            <input type="date" value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Deadline</label>
@@ -1096,7 +1536,7 @@ function ProjectInlineForm({ form, setForm, onSubmit, error }: any) {
 
         <div className="flex flex-col gap-2">
           <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Tags (Portfolio)</label>
-          <input type="text" value={form.tags} onChange={e => setForm({...form, tags: e.target.value})} />
+          <TagInput tags={form.tags} onChange={newTags => setForm({...form, tags: newTags})} suggestions={availableTags || []} />
         </div>
 
         {error && <div className="message danger text-xs">{error}</div>}

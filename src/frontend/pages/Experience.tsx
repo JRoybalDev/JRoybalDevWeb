@@ -8,10 +8,10 @@ export interface TimelineItem {
   title: string;
   subtitle: string;
   bullets: string[];
-  type: 'work' | 'education';
+  type: 'work' | 'education' | 'certificate';
 }
 
-const categories = ['All', 'Work', 'Education'];
+const categories = ['All', 'Work', 'Education', 'Certificate'];
 
 function Experience() {
   const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);

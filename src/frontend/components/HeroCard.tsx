@@ -5,14 +5,18 @@ interface Stat {
     label: string
 }
 
-const stats: Stat[] = [
+interface HeroCardProps {
+  projectCount?: number
+}
+
+export default function HeroCard({ projectCount = 0 }: HeroCardProps) {
+  const stats: Stat[] = [
     { value: '6+', label: 'Years exp.' },
-    { value: '15+', label: 'Projects' },
+    { value: `${projectCount}+`, label: 'Projects' },
     { value: '100%', label: 'Remote' },
     { value: '3', label: 'Services' },
-]
+  ]
 
-export default function HeroCard() {
   return (
     <div className="hero-card w-full">
       <div className="hero-card-inner bg-[--surface] theme-transition">

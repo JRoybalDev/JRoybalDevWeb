@@ -1,11 +1,13 @@
 import { FiGithub, FiExternalLink } from 'react-icons/fi'
 import type { IconType } from 'react-icons'
+import CloudinaryImage from './CloudinaryImage';
 
 interface ProjectCardProps {
     thumbnail?: string
     name: string
     description: string
     tags: string[] | string
+    projectType: string
     category: string
     githubUrl?: string
     liveUrl?: string
@@ -16,6 +18,7 @@ export default function ProjectCard({
     name,
     description,
     tags,
+    projectType,
     category,
     githubUrl,
     liveUrl,
@@ -24,14 +27,13 @@ export default function ProjectCard({
 
     return (
         <div className="feature-card flex flex-col gap-4 h-full">
-
             {/* Thumbnail */}
             <div
                 className="w-full h-40 rounded-2xl overflow-hidden flex items-center justify-center"
                 style={{ background: 'var(--foam)', border: '1px solid var(--card-border)' }}
             >
                 {thumbnail ? (
-                    <img
+                    <CloudinaryImage
                         src={thumbnail}
                         alt={name}
                         className="w-full h-full object-cover"
@@ -48,7 +50,7 @@ export default function ProjectCard({
                 className="text-xs font-bold uppercase tracking-[0.15em]"
                 style={{ color: 'var(--accent)' }}
             >
-                {category}
+                {projectType}
             </p>
 
             {/* Name & description */}

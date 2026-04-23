@@ -40,7 +40,11 @@ export interface Project {
   name: string
   description: string
   tags: string[]
+  startDate?: string
+  projectType: string
   category: string
+  isPublic: boolean
+  stack?: string
   githubUrl?: string
   liveUrl?: string
 }
@@ -73,7 +77,7 @@ export default function HomePage() {
       <CoffeeShopScene />
 
       {/* Hero & Hero Card Section */}
-      <div className="flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12 page-shell">
+      <div className="flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12">
         {/* Left: Hero copy */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -104,7 +108,7 @@ export default function HomePage() {
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           className="w-full max-w-[360px]"
         >
-          <HeroCard />
+          <HeroCard projectCount={projects.length} />
         </motion.div>
       </div>
 
@@ -144,7 +148,15 @@ export default function HomePage() {
           <p className="eyebrow">Featured Work</p>
           <h2 className="mb-8 font-medium">Recent Projects</h2>
           <div className="feature-grid">
-            {projects.map((project) => (
+            {[...projects]
+              .filter((project) => project.isPublic !== false)
+              .sort((a, b) => {
+                const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                return dateB - dateA;
+              })
+              .slice(0, 3)
+              .map((project) => (
               <ProjectCard key={project.name} {...project} />
             ))}
           </div>

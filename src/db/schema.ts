@@ -41,6 +41,7 @@ export const projects = pgTable("projects", {
   priority: text("priority").$type<"Low" | "Medium" | "High">().default("Medium"),
   internalNotes: text("internal_notes"),
   description: text("description").notNull(),
+  isPublic: boolean("is_public").default(true).notNull(),
   thumbnail: text("thumbnail"),
   tags: text("tags"), // Comma-separated list for the portfolio
   category: text("category"),
@@ -55,7 +56,8 @@ export const experience = pgTable("experience", {
   title: text("title").notNull(),
   subtitle: text("subtitle").notNull(),
   bullets: text("bullets").notNull(), // Stored as stringified JSON array
-  type: text("type").$type<"work" | "education">().notNull(),
+  type: text("type").$type<"work" | "education" | "certificate">().notNull(),
+  startDate: text("start_date"), // ISO string for sorting (e.g. 2023-01)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

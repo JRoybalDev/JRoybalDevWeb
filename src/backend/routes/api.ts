@@ -149,6 +149,31 @@ const adminOnly = async (c: Context, next: () => Promise<void>) => {
   await next();
 };
 
+// Admin Experience Routes
+app.get("/admin/experience", adminOnly, async (c) => {
+  const data = await db.select().from(experience);
+  return c.json(data.map((e) => ({ ...e, bullets: JSON.parse(e.bullets) })));
+});
+
+app.post("/admin/experience", adminOnly, async (c) => {
+  const entry = await c.req.json();
+  const [saved] = await db.insert(experience).values(entry).returning();
+  return c.json({ ...saved, bullets: JSON.parse(saved.bullets) });
+});
+
+app.put("/admin/experience/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const entry = await c.req.json();
+  const [updated] = await db.update(experience).set(entry).where(eq(experience.id, id)).returning();
+  return c.json(updated);
+});
+
+app.delete("/admin/experience/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(experience).where(eq(experience.id, id));
+  return c.json({ success: true });
+});
+
 // Admin Routes
 app.get("/admin/inquiries", adminOnly, async (c) => {
   const data = await db.select().from(contactInquiries);
