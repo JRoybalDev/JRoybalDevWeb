@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../providers/AuthProvider";
-import { Navigate, useLocation, Link, Form } from "react-router-dom";
+import { Navigate, useLocation, Link } from "react-router-dom";
 import { motion, AnimatePresence, Variants, LayoutGroup } from "framer-motion";
-import { FiMail, FiLogOut, FiX, FiPlus, FiSettings, FiClock, FiSearch, FiTrash2, FiEdit2, FiEye, FiGrid, FiPlusSquare, FiCircle, FiChevronDown, FiCheckSquare, FiXSquare, FiCreditCard, FiTrendingUp, FiUsers, FiMessageSquare, FiMenu, FiArrowLeft, FiChevronLeft, FiChevronRight, FiExternalLink, FiBell, FiAlertTriangle, FiCheck, FiUploadCloud, FiImage } from "react-icons/fi";
+import { FiMail, FiLogOut, FiX, FiPlus, FiSettings, FiClock, FiSearch, FiTrash2, FiEdit2, FiEye, FiGrid, FiPlusSquare, FiCircle, FiChevronDown, FiCheckSquare, FiXSquare, FiCreditCard, FiTrendingUp, FiUsers, FiMessageSquare, FiMenu, FiArrowLeft, FiChevronLeft, FiChevronRight, FiExternalLink, FiBell, FiAlertTriangle, FiCheck, FiUploadCloud, FiImage, FiChevronUp } from "react-icons/fi";
 import Button from "@frontend/components/Button";
 import CloudinaryImage from "@frontend/components/CloudinaryImage";
 
@@ -15,12 +15,32 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeNotification, setActiveDropdown] = useState<'overdue' | 'inquiries' | null>(null);
+  const [timeEntries, setTimeEntries] = useState<any[]>([]);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  // Client List Sorting
+  const [clientListStatusFilter, setClientListStatusFilter] = useState('All');
+  const [clientListSortColumn, setClientListSortColumn] = useState<string | null>(null);
+  const [clientListSortDirection, setClientListSortDirection] = useState<'asc' | 'desc'>('asc');
+  // Notes & Comms Filtering/Sorting
+  const [inquiryFilterReadStatus, setInquiryFilterReadStatus] = useState<'all' | 'unread' | 'read'>('all');
+  const [inquirySortColumn, setInquirySortColumn] = useState<string | null>('createdAt'); // Default sort by date
+  const [inquirySortDirection, setInquirySortDirection] = useState<'desc' | 'asc'>('desc'); // Default sort desc
   
   // Skill Usage State
   const [skillUsage, setSkillUsage] = useState<any[]>([]);
   // Available Tags State
   const [availableTags, setAvailableTags] = useState<{name: string, count: number}[]>([]);
+
+  // Time Tracking State
+  const [timeEntryForm, setTimeEntryForm] = useState({
+    projectId: '',
+    date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+    hours: '',
+    notes: ''
+  });
+  const [isLoggingTime, setIsLoggingTime] = useState(false);
 
   // Form State
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
@@ -101,6 +121,16 @@ export default function Dashboard() {
     resetExpForm();
   };
 
+  const resetTimeEntryForm = () => {
+    setTimeEntryForm({
+      projectId: '',
+      date: new Date().toISOString().split('T')[0],
+      hours: '',
+      notes: ''
+    });
+    setIsLoggingTime(false);
+    setFormError(null);
+  };
   // --- Data Fetching ---
 
   const fetchData = async () => {
@@ -111,11 +141,14 @@ export default function Dashboard() {
         fetch(`${apiBase}/api/admin/inquiries`, { credentials: 'include' }),
         fetch(`${apiBase}/api/projects`),
         fetch(`${apiBase}/api/admin/experience`, { credentials: 'include' })
+        // TODO: Add fetch for time entries once backend is ready
+        // fetch(`${apiBase}/api/admin/time-entries`, { credentials: 'include' })
       ]);
       
       if (inqRes.ok) setInquiries(await inqRes.json());
       if (projRes.ok) setProjects(await projRes.json());
       if (expRes.ok) setExperiences(await expRes.json());
+      // if (timeRes.ok) setTimeEntries(await timeRes.json());
     } catch (error) {
       console.error("Dashboard sync error:", error);
     }
@@ -443,6 +476,141 @@ export default function Dashboard() {
     }
   };
 
+  const handleTimeEntrySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!timeEntryForm.projectId) return setFormError("Please select a project.");
+    if (parseFloat(timeEntryForm.hours) <= 0) return setFormError("Hours must be greater than 0.");
+    if (!timeEntryForm.date) return setFormError("Please select a date.");
+
+    try {
+      // First, save the time entry
+      const timeEntryRes = await fetch(`${apiBase}/api/admin/time-entries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(timeEntryForm),
+        credentials: 'include'
+      });
+
+      if (!timeEntryRes.ok) throw new Error("Failed to save time entry.");
+
+      // Then, update the project's logged hours
+      const projectToUpdate = projects.find(p => p.id === parseInt(timeEntryForm.projectId));
+      if (projectToUpdate) {
+        const newLoggedHours = (parseFloat(projectToUpdate.loggedHours || '0') + parseFloat(timeEntryForm.hours)).toString();
+        
+        const updatedProject = {
+          ...projectToUpdate,
+          loggedHours: newLoggedHours,
+          // Recalculate amountOutstanding if contractType is Hourly
+          amountOutstanding: projectToUpdate.contractType === 'Hourly' 
+            ? (parseFloat(projectToUpdate.estHours || '0') * parseFloat(projectToUpdate.effectiveRate || '0') - parseFloat(newLoggedHours) * parseFloat(projectToUpdate.effectiveRate || '0')).toString()
+            : projectToUpdate.amountOutstanding // Keep existing for fixed-price
+        };
+
+        const projectUpdateRes = await fetch(`${apiBase}/api/admin/projects/${projectToUpdate.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedProject),
+          credentials: 'include'
+        });
+
+        if (!projectUpdateRes.ok) throw new Error("Failed to update project logged hours.");
+      }
+      resetTimeEntryForm();
+      fetchData(); // Re-fetch all data to update dashboard
+    } catch (err: any) {
+      setFormError(err.message || "Failed to log time.");
+    }
+  };
+
+  // --- Client List Sorting Logic ---
+  const handleClientListSort = (column: string) => {
+    if (clientListSortColumn === column) {
+      setClientListSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setClientListSortColumn(column);
+      setClientListSortDirection('asc');
+    }
+  };
+
+  const sortedClientProjects = useMemo(() => {
+    let sortableProjects = [...projects];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      sortableProjects = sortableProjects.filter(p => 
+        p.name?.toLowerCase().includes(term) ||
+        p.clientName?.toLowerCase().includes(term) ||
+        p.clientEmail?.toLowerCase().includes(term)
+      );
+    }
+
+    if (clientListStatusFilter !== 'All') {
+      sortableProjects = sortableProjects.filter(p => p.status === clientListStatusFilter);
+    }
+
+    if (clientListSortColumn) {
+      sortableProjects.sort((a, b) => {
+        const aValue = a[clientListSortColumn] || '';
+        const bValue = b[clientListSortColumn] || '';
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return clientListSortDirection === 'asc'
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+        // Fallback for other types or if values are not strings
+        if (aValue < bValue) return clientListSortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return clientListSortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableProjects;
+  }, [projects, clientListSortColumn, clientListSortDirection, searchTerm, clientListStatusFilter]);
+
+  // --- Notes & Comms Filtering/Sorting Logic ---
+  const handleInquirySort = (column: string) => {
+    if (inquirySortColumn === column) {
+      setInquirySortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setInquirySortColumn(column);
+      setInquirySortDirection('asc');
+    }
+  };
+
+  const filteredAndSortedInquiries = useMemo(() => {
+    let filtered = inquiries;
+    if (inquiryFilterReadStatus === 'unread') {
+      filtered = inquiries.filter(iq => !iq.isRead);
+    } else if (inquiryFilterReadStatus === 'read') {
+      filtered = inquiries.filter(iq => iq.isRead);
+    }
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(iq => 
+        iq.name?.toLowerCase().includes(term) ||
+        iq.email?.toLowerCase().includes(term) ||
+        iq.message?.toLowerCase().includes(term)
+      );
+    }
+
+    if (inquirySortColumn) {
+      filtered.sort((a, b) => {
+        const aValue = inquirySortColumn === 'createdAt' ? new Date(a[inquirySortColumn]).getTime() : a[inquirySortColumn] || '';
+        const bValue = inquirySortColumn === 'createdAt' ? new Date(b[inquirySortColumn]).getTime() : b[inquirySortColumn] || '';
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return inquirySortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+        }
+        return inquirySortDirection === 'asc' ? (aValue < bValue ? -1 : 1) : (aValue > bValue ? -1 : 1);
+      });
+    }
+    return filtered;
+  }, [inquiries, inquiryFilterReadStatus, inquirySortColumn, inquirySortDirection, searchTerm]);
+
   // Protect route and handle redirection back to target
   if (!user) {
     return <Navigate to="/" state={{ from: location }} replace />;
@@ -455,6 +623,13 @@ export default function Dashboard() {
 
   // Filter projects based on active sidebar tab
   const filteredProjects = projects.filter(p => {
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      if (!p.name?.toLowerCase().includes(term) && !p.description?.toLowerCase().includes(term)) {
+        return false;
+      }
+    }
+
     if (activeTab === 'projects-active') return p.status === 'Active';
     if (activeTab === 'projects-review') return p.status === 'Review';
     if (activeTab === 'projects-completed') return p.status === 'Completed';
@@ -686,7 +861,7 @@ export default function Dashboard() {
               {activeTab.startsWith('projects') && 'Projects'}
               {activeTab === 'finance-invoices' && 'Invoices'}
               {activeTab === 'finance-revenue' && 'Revenue'}
-              {activeTab === 'finance-time' && 'Time Tracking'}
+              {activeTab === 'finance-time' && 'Time Entries'}
               {activeTab === 'clients-list' && 'Clients'}
               {activeTab === 'experience-management' && 'Experience Management'}
               {activeTab === 'experience-list' && 'Timeline History'}
@@ -697,12 +872,23 @@ export default function Dashboard() {
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative flex-1 md:flex-none">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[--muted]" />
-              <input type="text" placeholder="Search data..." className="pl-10 pr-4 py-2 bg-[--bg] border border-[--border] rounded-full text-sm w-full md:w-64 focus:outline-none focus:border-[--accent]" />
+              <input 
+                type="text" 
+                placeholder="Search data..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-[--bg] border border-[--border] rounded-full text-sm w-full md:w-64 focus:outline-none focus:border-[--accent]" 
+              />
             </div>
             <Button mode="primary" label="+ Create" onClick={() => {
               if (activeTab === 'experience-list') {
                 closeExpForm();
                 setIsCreatingNew(true);
+                return;
+              } else if (activeTab === 'finance-time') {
+                resetTimeEntryForm();
+                setIsLoggingTime(true);
+                setFormError(null);
                 return;
               }
               closeProjectForm();
@@ -838,22 +1024,49 @@ export default function Dashboard() {
             exit={{ opacity: 0, x: -20 }}
           >
             <div className="bg-[--bg] border border-[--border] rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex justify-between items-center p-4 border-b border-[--border] flex-wrap gap-4">
+                <h3 className="text-sm font-bold">Inbox</h3>
+                <div className="flex gap-2">
+                  {(['all', 'unread', 'read'] as const).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => setInquiryFilterReadStatus(status)}
+                      className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                        inquiryFilterReadStatus === status
+                          ? 'bg-[--accent] text-[--bg]'
+                          : 'bg-[--bg-alt] text-[--muted] hover:text-[--text] border border-[--border]'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead className="bg-[--bg-alt]/50 text-[10px] font-bold uppercase tracking-widest border-b border-[--border]">
                     <tr>
-                      <th className="px-6 py-4">Sender</th>
-                      <th className="px-6 py-4">Type</th>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleInquirySort('name')}>
+                        <div className="flex items-center gap-1">Sender {inquirySortColumn === 'name' && (inquirySortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div>
+                      </th>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleInquirySort('projectType')}>
+                        <div className="flex items-center gap-1">Type {inquirySortColumn === 'projectType' && (inquirySortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div>
+                      </th>
                       <th className="px-6 py-4">Message</th>
-                      <th className="px-6 py-4">Date</th>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleInquirySort('createdAt')}>
+                        <div className="flex items-center gap-1">Date {inquirySortColumn === 'createdAt' && (inquirySortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div>
+                      </th>
                       <th className="px-6 py-4 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="text-sm divide-y divide-[--border]">
-                    {inquiries.length > 0 ? inquiries.map((iq) => (
-                      <tr key={iq.id} className="hover:bg-[--accent-soft]/5 transition-colors group">
+                    {filteredAndSortedInquiries.length > 0 ? filteredAndSortedInquiries.map((iq) => (
+                      <tr key={iq.id} className={`hover:bg-[--accent-soft]/5 transition-colors group ${!iq.isRead ? 'bg-[--accent-soft]/5 border-l-2 border-l-[--accent]' : ''}`}>
                         <td className="px-6 py-4">
-                          <div className="font-bold group-hover:text-[--accent] transition-colors">{iq.name}</div>
+                          <div className="flex items-center gap-2">
+                            {!iq.isRead && <div className="w-1.5 h-1.5 rounded-full bg-[--accent]" title="Unread" />}
+                            <div className="font-bold group-hover:text-[--accent] transition-colors">{iq.name}</div>
+                          </div>
                           <div className="text-[10px] text-[--muted]">{iq.email}</div>
                         </td>
                         <td className="px-6 py-4">
@@ -870,6 +1083,144 @@ export default function Dashboard() {
                       </tr>
                     )) : (
                       <tr><td colSpan={5} className="p-12 text-center text-[--muted]">No inquiries found.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'clients-list' && (
+          <motion.div 
+            key="clients-list"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <div className="bg-[--bg] border border-[--border] rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex justify-between items-center p-4 border-b border-[--border] flex-wrap gap-4">
+                <h3 className="text-sm font-bold">Project Leads & Contacts</h3>
+                <div className="flex gap-2">
+                  {['All', 'Active', 'Completed'].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => setClientListStatusFilter(status)}
+                      className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                        clientListStatusFilter === status
+                          ? 'bg-[--accent] text-[--bg]'
+                          : 'bg-[--bg-alt] text-[--muted] hover:text-[--text] border border-[--border]'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-[--bg-alt]/50 text-[10px] font-bold uppercase tracking-widest border-b border-[--border]">
+                    <tr>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleClientListSort('name')}><div className="flex items-center gap-1">Project Name {clientListSortColumn === 'name' && (clientListSortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div></th>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleClientListSort('status')}><div className="flex items-center gap-1">Status {clientListSortColumn === 'status' && (clientListSortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div></th>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleClientListSort('clientName')}><div className="flex items-center gap-1">Client Name {clientListSortColumn === 'clientName' && (clientListSortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div></th>
+                      <th className="px-6 py-4 cursor-pointer" onClick={() => handleClientListSort('clientEmail')}><div className="flex items-center gap-1">Client Email {clientListSortColumn === 'clientEmail' && (clientListSortDirection === 'asc' ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />)}</div></th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm divide-y divide-[--border]">
+                    {sortedClientProjects.length > 0 ? sortedClientProjects.map((p) => (
+                      <tr key={p.id} className="hover:bg-[--accent-soft]/5 transition-colors group">
+                        <td className="px-6 py-4 font-bold group-hover:text-[--accent] transition-colors">{p.name}</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                            p.status === 'Active' ? 'bg-green-500/10 text-green-500' :
+                            p.status === 'Review' ? 'bg-amber-500/10 text-amber-500' :
+                            'bg-[--border] text-[--muted]'
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">{p.clientName || <span className="text-[--muted] italic">N/A</span>}</td>
+                        <td className="px-6 py-4">{p.clientEmail || <span className="text-[--muted] italic">N/A</span>}</td>
+                      </tr>
+                    )) : (
+                      <tr><td colSpan={4} className="p-12 text-center text-[--muted]">No clients found in projects.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'finance-time' && (
+          <motion.div
+            key="finance-time"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <div className="bg-[--bg] border border-[--border] rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex justify-between items-center p-4 border-b border-[--border] flex-wrap gap-4">
+                <h3 className="text-sm font-bold">Time Entries</h3>
+                {/* Add filter/sort for time entries if needed later */}
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-[--bg-alt]/50 text-[10px] font-bold uppercase tracking-widest border-b border-[--border]">
+                    <tr>
+                      <th className="px-6 py-4">Project</th>
+                      <th className="px-6 py-4">Date</th>
+                      <th className="px-6 py-4">Hours</th>
+                      <th className="px-6 py-4">Notes</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm divide-y divide-[--border]">
+                    {isLoggingTime && (
+                      <tr>
+                        <td colSpan={5} className="bg-[--bg-alt]/30 p-0 border-b-2 border-[--accent-soft]">
+                          <div className="p-8 animate-in slide-in-from-top-4 duration-300">
+                            <div className="flex justify-between items-center mb-6">
+                              <h3 className="font-bold text-[--accent]">Log New Time Entry</h3>
+                              <button onClick={resetTimeEntryForm} className="text-[10px] uppercase font-bold text-[--muted] hover:text-red-500">Cancel</button>
+                            </div>
+                            <TimeEntryForm
+                              form={timeEntryForm}
+                              setForm={setTimeEntryForm}
+                              onSubmit={handleTimeEntrySubmit}
+                              error={formError}
+                              projects={projects} // Pass projects for selection
+                              onCancel={resetTimeEntryForm}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    {timeEntries.length > 0 ? timeEntries.map((entry) => (
+                      <tr key={entry.id} className="hover:bg-[--accent-soft]/5 transition-colors">
+                        <td className="px-6 py-4 font-bold">{projects.find(p => p.id === entry.projectId)?.name || 'N/A'}</td>
+                        <td className="px-6 py-4">{new Date(entry.date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">{entry.hours}</td>
+                        <td className="px-6 py-4 text-[--muted] max-w-[400px] break-words">{entry.notes}</td>
+                        <td className="px-6 py-4 text-right">
+                          {/* Add edit/delete for time entries if needed */}
+                          <button
+                            onClick={() => console.log('Edit time entry', entry.id)} // Placeholder
+                            className="p-2 text-[--muted] hover:text-blue-500 transition-colors"
+                          >
+                            <FiEdit2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => console.log('Delete time entry', entry.id)} // Placeholder
+                            className="p-2 text-[--muted] hover:text-red-500 transition-colors"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr><td colSpan={5} className="p-12 text-center text-[--muted]">No time entries found.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -1252,6 +1603,51 @@ function ExperienceForm({ form, setForm, onSubmit, error }: any) {
   );
 }
 
+// New component: TimeEntryForm
+function TimeEntryForm({ form, setForm, onSubmit, error, projects, onCancel }: any) {
+  return (
+    <form onSubmit={onSubmit} className="form">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Project</label>
+          <select
+            value={form.projectId}
+            onChange={e => setForm({...form, projectId: e.target.value})}
+            required
+            className="bg-[--input-bg] text-[--text] border border-[--input-border] rounded-xl p-2.5 text-xs"
+          >
+            <option value="">Select a Project</option>
+            {projects.map((p: any) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Date</label>
+          <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required />
+        </div>
+        <div className="flex flex-col gap-2 col-span-full">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Hours Logged</label>
+          <input type="number" step="0.01" value={form.hours} onChange={e => setForm({...form, hours: e.target.value})} required />
+        </div>
+        <div className="flex flex-col gap-2 col-span-full">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Notes</label>
+          <textarea rows={3} className="resize-none" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
+        </div>
+      </div>
+
+      {error && (
+        <div className="message danger text-xs">{error}</div>
+      )}
+
+      <div className="mt-4 pt-4 border-t border-[--border] flex justify-end gap-2">
+        <Button mode="secondary" label="Cancel" onClick={onCancel} />
+        <Button mode="primary" label="Log Hours" />
+      </div>
+    </form>
+  );
+}
+
 /**
  * Tag Input Component with Pills and Suggestions
  */
@@ -1455,6 +1851,7 @@ function ProjectInlineForm({ form, setForm, onSubmit, error, availableTags }: an
           <h3 className="col-span-full text-xs font-bold uppercase text-[--accent] border-b border-[--border] pb-2">Business & Finance</h3>
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Contract Type</label>
+            {/* Added Hourly option */}
             <select value={form.contractType} onChange={e => setForm({...form, contractType: e.target.value})} className="bg-[--input-bg] text-[--text] border border-[--input-border] rounded-xl p-2.5 text-xs">
               <option>Fixed-price</option>
               <option>Hourly</option>
@@ -1463,8 +1860,9 @@ function ProjectInlineForm({ form, setForm, onSubmit, error, availableTags }: an
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Contract Value ($)</label>
-            <input type="number" value={form.contractValue} onChange={e => setForm({...form, contractValue: e.target.value})} />
-          </div>
+            <input type="number" value={form.contractType === 'Hourly' ? (parseFloat(form.estHours || '0') * parseFloat(form.effectiveRate || '0')).toFixed(2) : form.contractValue} onChange={e => setForm({...form, contractValue: e.target.value})} disabled={form.contractType === 'Hourly'} className={form.contractType === 'Hourly' ? 'opacity-70 cursor-not-allowed' : ''} />
+            {form.contractType === 'Hourly' && <p className="text-[9px] text-[--muted] italic mt-1">Calculated from Est. Hours * Effective Rate</p>}
+          </div>          
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Amount Invoiced ($)</label>
             <input type="number" value={form.amountInvoiced} onChange={e => setForm({...form, amountInvoiced: e.target.value})} />
@@ -1508,6 +1906,12 @@ function ProjectInlineForm({ form, setForm, onSubmit, error, availableTags }: an
             <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Est. Hours</label>
             <input type="number" value={form.estHours} onChange={e => setForm({...form, estHours: e.target.value})} />
           </div>
+          {form.contractType === 'Hourly' && (
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[--muted]">Effective Rate ($/hr)</label>
+              <input type="number" step="0.01" value={form.effectiveRate} onChange={e => setForm({...form, effectiveRate: e.target.value})} />
+            </div>
+          )}
         </section>
 
         {/* Section 4: Details & Notes */}

@@ -74,7 +74,7 @@ export default function HomePage() {
   return (
     <div className="">
       {/* Coffee Shop Animation */}
-      <CoffeeShopScene />
+      {/* <CoffeeShopScene /> */}
 
       {/* Hero & Hero Card Section */}
       <div className="flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12">
