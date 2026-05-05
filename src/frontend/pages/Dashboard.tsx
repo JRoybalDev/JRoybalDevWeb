@@ -276,6 +276,17 @@ function numberValue(value: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function dateInputValue(value: string | null | undefined) {
+  if (!value) return "";
+
+  const isoDate = value.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  if (isoDate) return isoDate;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
 function dateLabel(value: string | null | undefined) {
   if (!value) return "Not set";
   const date = new Date(value);
@@ -335,8 +346,8 @@ function projectToForm(project: Project): ProjectFormState {
     amountInvoiced: project.amountInvoiced || "",
     paymentTerms: project.paymentTerms || "Net-30",
     depositPaid: project.depositPaid || "No",
-    startDate: project.startDate || "",
-    deadline: project.deadline || "",
+    startDate: dateInputValue(project.startDate),
+    deadline: dateInputValue(project.deadline),
     estHours: project.estHours || "",
     loggedHours: project.loggedHours || "",
     effectiveRate: project.effectiveRate || "",

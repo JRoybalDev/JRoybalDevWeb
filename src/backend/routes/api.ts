@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
 import { db } from "../../db/client"; // Assuming client.ts is in src/db
 import { users, projects, experience, contactInquiries } from "../../db/schema";
@@ -42,7 +42,23 @@ async function parseSessionToken(c: Context) {
 
 // Public Data Fetching
 app.get("/projects", async (c) => {
-  const data = await db.select().from(projects);
+  const data = await db
+    .select({
+      id: projects.id,
+      name: projects.name,
+      description: projects.description,
+      thumbnail: projects.thumbnail,
+      tags: projects.tags,
+      projectType: projects.projectType,
+      category: projects.category,
+      githubUrl: projects.githubUrl,
+      liveUrl: projects.liveUrl,
+      startDate: projects.startDate,
+      createdAt: projects.createdAt,
+    })
+    .from(projects)
+    .where(eq(projects.isPublic, true))
+    .orderBy(desc(projects.startDate), desc(projects.createdAt));
   return c.json(data.map((p) => ({ ...p, tags: p.tags?.split(',') || [] })));
 });
 

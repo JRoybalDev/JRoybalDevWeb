@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from './HomePage';
 import ProjectCard from '@frontend/components/ProjectCard';
 import Button from '@frontend/components/Button';
 
 const categories = ['All', 'Full-stack', 'Consulting', 'Games'];
+
+function getProjectStartTime(project: Project) {
+  if (!project.startDate) return 0;
+
+  const time = Date.parse(project.startDate);
+  return Number.isNaN(time) ? 0 : time;
+}
 
 function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -18,15 +25,16 @@ function Projects() {
       .catch(console.error);
   }, []);
 
-  const sortedProjects = [...projects].sort((a, b) => {
-    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
-    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-    return dateB - dateA;
-  });
+  const filteredProjects = useMemo(() => {
+    const recentFirstProjects = [...projects].sort((a, b) => {
+      const dateDifference = getProjectStartTime(b) - getProjectStartTime(a);
+      return dateDifference || a.name.localeCompare(b.name);
+    });
 
-  const filteredProjects = activeFilter === 'All'
-    ? sortedProjects
-    : sortedProjects.filter(p => p.projectType === activeFilter);
+    return activeFilter === 'All'
+      ? recentFirstProjects
+      : recentFirstProjects.filter(p => p.projectType === activeFilter);
+  }, [activeFilter, projects]);
 
   return (
     <div className="page-shell">
