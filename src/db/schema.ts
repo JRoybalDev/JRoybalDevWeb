@@ -1,4 +1,5 @@
-import { pgTable, serial, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { relations, type InferSelectModel } from "drizzle-orm";
+import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -70,3 +71,56 @@ export const contactInquiries = pgTable("contact_inquiries", {
   isRead: boolean("is_read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const invoices = pgTable("invoices", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  amount: text("amount").notNull(),
+  status: text("status").$type<"Pending" | "Paid" | "Overdue" | "Cancelled">().default("Pending").notNull(),
+  dueDate: timestamp("due_date").notNull(),
+  notes: text("notes"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const timeEntries = pgTable("time_entries", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  date: timestamp("date").notNull(),
+  hours: text("hours").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const projectsRelations = relations(projects, ({ many }) => ({
+  invoices: many(invoices),
+  timeEntries: many(timeEntries),
+}));
+
+export const invoicesRelations = relations(invoices, ({ one }) => ({
+  project: one(projects, {
+    fields: [invoices.projectId],
+    references: [projects.id],
+  }),
+}));
+
+export const timeEntriesRelations = relations(timeEntries, ({ one }) => ({
+  project: one(projects, {
+    fields: [timeEntries.projectId],
+    references: [projects.id],
+  }),
+}));
+
+export type User = InferSelectModel<typeof users>;
+export type Project = InferSelectModel<typeof projects>;
+export type Experience = InferSelectModel<typeof experience>;
+export type ContactInquiry = InferSelectModel<typeof contactInquiries>;
+export type Invoice = InferSelectModel<typeof invoices>;
+export type TimeEntry = InferSelectModel<typeof timeEntries>;
+export type Profile = null;

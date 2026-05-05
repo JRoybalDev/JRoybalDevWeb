@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import authRoutes from "./routes/auth";
 import apiRoutes from "./routes/api";
+import { invoicesRoutes } from "./routes/invoices";
+import { timeEntriesRoutes } from "./routes/timeEntries";
 
 
 const app = new Hono();
@@ -10,9 +12,9 @@ const app = new Hono();
 app.use(
   "/api/*",
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://jroybal.dev"],
     credentials: true,
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -21,6 +23,8 @@ app.use(
 const api = new Hono();
 api.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 api.route("/auth", authRoutes);
+api.route("/admin/invoices", invoicesRoutes);
+api.route("/admin/time-entries", timeEntriesRoutes);
 api.route("/", apiRoutes);
 
 app.route("/api", api);

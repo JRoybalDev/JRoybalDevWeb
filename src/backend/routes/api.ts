@@ -180,14 +180,25 @@ app.get("/admin/inquiries", adminOnly, async (c) => {
   return c.json(data);
 });
 
+app.get("/admin/projects", adminOnly, async (c) => {
+  const data = await db.select().from(projects);
+  return c.json(data);
+});
+
 // Create Project
 app.post("/admin/projects", adminOnly, async (c) => {
   const project = await c.req.json();
+  if (!project.name || String(project.name).trim().length < 2) {
+    return c.json({ error: "Project name must be at least 2 characters." }, 400);
+  }
+  if (!project.description || String(project.description).trim().length < 10) {
+    return c.json({ error: "Project description must be at least 10 characters." }, 400);
+  }
   
   // Financial Auto-calc
   const val = parseFloat(project.contractValue) || 0;
   const inv = parseFloat(project.amountInvoiced) || 0;
-  project.amountOutstanding = (val - inv).toString();
+  project.amountOutstanding = Math.max(0, val - inv).toFixed(2);
 
   // Auto-generate Project ID if missing
   if (!project.projectId) {
@@ -201,19 +212,28 @@ app.post("/admin/projects", adminOnly, async (c) => {
 // Update Project
 app.put("/admin/projects/:id", adminOnly, async (c) => {
   const id = Number(c.req.param("id"));
+  if (Number.isNaN(id)) return c.json({ error: "Invalid project ID" }, 400);
   const project = await c.req.json();
+  if (!project.name || String(project.name).trim().length < 2) {
+    return c.json({ error: "Project name must be at least 2 characters." }, 400);
+  }
+  if (!project.description || String(project.description).trim().length < 10) {
+    return c.json({ error: "Project description must be at least 10 characters." }, 400);
+  }
   
   const val = parseFloat(project.contractValue) || 0;
   const inv = parseFloat(project.amountInvoiced) || 0;
-  project.amountOutstanding = (val - inv).toString();
+  project.amountOutstanding = Math.max(0, val - inv).toFixed(2);
 
   const [updated] = await db.update(projects).set(project).where(eq(projects.id, id)).returning();
+  if (!updated) return c.json({ error: "Project not found" }, 404);
   return c.json(updated);
 });
 
 // Delete Project
 app.delete("/admin/projects/:id", adminOnly, async (c) => {
   const id = Number(c.req.param("id"));
+  if (Number.isNaN(id)) return c.json({ error: "Invalid project ID" }, 400);
   await db.delete(projects).where(eq(projects.id, id));
   return c.json({ success: true });
 });
