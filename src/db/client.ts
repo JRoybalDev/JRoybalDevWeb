@@ -21,7 +21,18 @@ async function createDatabase() {
   }
 
   if (typeof (globalThis as { Bun?: unknown }).Bun === "undefined") {
-    throw new Error("DATABASE_URL is required when running outside Bun.");
+    const message = "A Postgres connection string is required when running outside Bun. Set DATABASE_URL, POSTGRES_URL, or POSTGRES_PRISMA_URL in Vercel.";
+    return Object.assign(
+      new Proxy(
+        {},
+        {
+          get() {
+            throw new Error(message);
+          },
+        }
+      ),
+      { $client: null }
+    );
   }
 
   // Fallback to SQLite for local development if no Postgres URL is provided

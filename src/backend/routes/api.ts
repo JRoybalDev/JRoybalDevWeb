@@ -43,24 +43,29 @@ async function parseSessionToken(c: Context) {
 
 // Public Data Fetching
 app.get("/projects", async (c) => {
-  const data = await db
-    .select({
-      id: projects.id,
-      name: projects.name,
-      description: projects.description,
-      thumbnail: projects.thumbnail,
-      tags: projects.tags,
-      projectType: projects.projectType,
-      category: projects.category,
-      githubUrl: projects.githubUrl,
-      liveUrl: projects.liveUrl,
-      startDate: projects.startDate,
-      createdAt: projects.createdAt,
-    })
-    .from(projects)
-    .where(eq(projects.isPublic, true))
-    .orderBy(desc(projects.startDate), desc(projects.createdAt));
-  return c.json(data.map((p) => ({ ...p, tags: p.tags?.split(',') || [] })));
+  try {
+    const data = await db
+      .select({
+        id: projects.id,
+        name: projects.name,
+        description: projects.description,
+        thumbnail: projects.thumbnail,
+        tags: projects.tags,
+        projectType: projects.projectType,
+        category: projects.category,
+        githubUrl: projects.githubUrl,
+        liveUrl: projects.liveUrl,
+        startDate: projects.startDate,
+        createdAt: projects.createdAt,
+      })
+      .from(projects)
+      .where(eq(projects.isPublic, true))
+      .orderBy(desc(projects.startDate), desc(projects.createdAt));
+    return c.json(data.map((p) => ({ ...p, tags: p.tags?.split(',') || [] })));
+  } catch (error) {
+    console.error("Failed to fetch public projects", error);
+    return c.json({ error: "Projects could not be loaded." }, 500);
+  }
 });
 
 app.get("/experience", async (c) => {
