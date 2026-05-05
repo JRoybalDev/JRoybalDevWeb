@@ -6,6 +6,7 @@ import { db } from "../../db/client"; // Assuming client.ts is in src/db
 import { users, projects, experience, contactInquiries } from "../../db/schema";
 import { jwtVerify } from "jose";
 import { Resend } from "resend";
+import { getEnv } from "../env";
 
 const app = new Hono();
 
@@ -14,8 +15,8 @@ app.use("*", cors({
   credentials: true,
 }));
 
-const jwtKey = new TextEncoder().encode(Bun.env.JWT_SECRET ?? "dev-secret");
-const resend = new Resend(Bun.env.RESEND_API_KEY);
+const jwtKey = new TextEncoder().encode(getEnv("JWT_SECRET") ?? "dev-secret");
+const resend = new Resend(getEnv("RESEND_API_KEY"));
 
 function escapeHtml(str: string) {
   return str
@@ -112,7 +113,7 @@ app.post("/contact", async (c) => {
       return c.json({ error: "Message must be between 50 and 2000 characters (excluding spaces)." }, 400);
     }
 
-    if (!Bun.env.RESEND_API_KEY) {
+    if (!getEnv("RESEND_API_KEY")) {
       console.error("Missing RESEND_API_KEY in environment variables.");
       return c.json({ error: "Email service not configured." }, 500);
     }

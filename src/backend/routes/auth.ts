@@ -6,6 +6,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { getCookie, setCookie } from "hono/cookie"; // Assuming client.ts is in src/db
 import { db } from "../../db/client"; 
 import { users } from "../../db/schema"; // profiles table removed
+import { getEnv } from "../env";
 
 const app = new Hono();
 
@@ -15,8 +16,8 @@ app.use("*", cors({
 }));
 
 const COOKIE_NAME = "session";
-const jwtKey = new TextEncoder().encode(Bun.env.JWT_SECRET ?? "dev-secret");
-const isProduction = Bun.env.NODE_ENV === "production";
+const jwtKey = new TextEncoder().encode(getEnv("JWT_SECRET") ?? "dev-secret");
+const isProduction = getEnv("NODE_ENV") === "production";
 
 function buildCookieOptions() {
   return {

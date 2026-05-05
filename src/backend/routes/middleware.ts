@@ -4,8 +4,9 @@ import { getCookie } from 'hono/cookie';
 import { jwtVerify } from 'jose';
 import { db } from '../../db/client';
 import { users } from '../../db/schema';
+import { getEnv } from '../env';
 
-const jwtKey = new TextEncoder().encode(Bun.env.JWT_SECRET ?? 'dev-secret');
+const jwtKey = new TextEncoder().encode(getEnv('JWT_SECRET') ?? 'dev-secret');
 
 export async function parseSessionToken(c: Context) {
   const token = getCookie(c, 'session');

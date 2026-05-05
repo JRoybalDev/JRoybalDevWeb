@@ -1,12 +1,12 @@
 import { drizzle as drizzlePg, type NodePgDatabase } from "drizzle-orm/node-postgres";
-import { drizzle as drizzleSqlite } from "drizzle-orm/bun-sqlite";
 import { Pool } from "pg";
-import { Database } from "bun:sqlite";
 import * as schema from "./schema";
+import { getEnv } from "../backend/env";
 
-const databaseUrl = Bun.env.DATABASE_URL;
+const databaseUrl = getEnv("DATABASE_URL");
+const runtimeImport = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
 
-function createDatabase() {
+async function createDatabase() {
   if (databaseUrl) {
     const pool = new Pool({ 
       connectionString: databaseUrl,
@@ -20,7 +20,15 @@ function createDatabase() {
     return Object.assign(drizzlePg(pool, { schema }), { $client: pool });
   }
 
+  if (typeof (globalThis as { Bun?: unknown }).Bun === "undefined") {
+    throw new Error("DATABASE_URL is required when running outside Bun.");
+  }
+
   // Fallback to SQLite for local development if no Postgres URL is provided
+  const [{ drizzle: drizzleSqlite }, { Database }] = await Promise.all([
+    runtimeImport<typeof import("drizzle-orm/bun-sqlite")>("drizzle-orm/bun-sqlite"),
+    runtimeImport<typeof import("bun:sqlite")>("bun:sqlite"),
+  ]);
   const sqlite = new Database("sqlite.db");
   return Object.assign(drizzleSqlite(sqlite, { schema }), { $client: sqlite });
 }
@@ -32,4 +40,4 @@ function createDatabase() {
  * in schema.ts. This resolves TypeScript errors caused by the union of different 
  * Drizzle drivers when calling methods like .select() or .insert().
  */
-export const db = createDatabase() as unknown as NodePgDatabase<typeof schema> & { $client: Pool | Database };
+export const db = await createDatabase() as unknown as NodePgDatabase<typeof schema> & { $client: Pool | unknown };
