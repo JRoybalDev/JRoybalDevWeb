@@ -10,7 +10,7 @@ import { Resend } from "resend";
 const app = new Hono();
 
 app.use("*", cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://jroybal.dev"],
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://jroybal.dev", "https://www.jroybal.dev"],
   credentials: true,
 }));
 

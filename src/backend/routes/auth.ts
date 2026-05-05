@@ -10,7 +10,7 @@ import { users } from "../../db/schema"; // profiles table removed
 const app = new Hono();
 
 app.use("*", cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://jroybal.dev", "https://www.jroybal.dev"],
   credentials: true,
 }));
 
