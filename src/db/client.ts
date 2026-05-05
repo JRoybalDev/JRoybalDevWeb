@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import * as schema from "./schema";
 import { getEnv } from "../backend/env";
 
-const databaseUrl = getEnv("DATABASE_URL");
+const databaseUrl = getEnv("DATABASE_URL") ?? getEnv("POSTGRES_URL") ?? getEnv("POSTGRES_PRISMA_URL");
 const runtimeImport = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
 
 async function createDatabase() {
