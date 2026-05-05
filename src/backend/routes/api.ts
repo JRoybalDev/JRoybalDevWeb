@@ -16,7 +16,6 @@ app.use("*", cors({
 }));
 
 const jwtKey = new TextEncoder().encode(getEnv("JWT_SECRET") ?? "dev-secret");
-const resend = new Resend(getEnv("RESEND_API_KEY"));
 
 function escapeHtml(str: string) {
   return str
@@ -131,6 +130,7 @@ app.post("/contact", async (c) => {
       message: message.trim(),
     });
 
+    const resend = new Resend(getEnv("RESEND_API_KEY"));
     const { error } = await resend.emails.send({
       from: "JRoybalDev <contact@jroybal.dev>",// Update this to your verified domain in production
       to: ["contact@jroybal.dev"], // The recipient
