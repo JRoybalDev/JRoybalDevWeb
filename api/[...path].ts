@@ -1,7 +1,7 @@
 import app from "../src/backend/app";
 
 export default function handler(request: Request) {
-  const url = new URL(request.url);
+  const url = new URL(request.url, "https://www.jroybal.dev");
 
   if (url.pathname === "/api/[...path]") {
     const path = url.searchParams.get("path") ?? "";
