@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from './HomePage';
 import ProjectCard from '@frontend/components/ProjectCard';
 import Button from '@frontend/components/Button';
+import ProjectLoadingGrid from '@frontend/components/ProjectLoadingGrid';
 
 const categories = ['All', 'Full-stack', 'Consulting', 'Games'];
 
@@ -16,13 +17,15 @@ function getProjectStartTime(project: Project) {
 function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const apiBase = import.meta.env.DEV ? "http://localhost:3000" : "";
 
   useEffect(() => {
     fetch(`${apiBase}/api/projects`)
       .then(res => res.json())
       .then(data => setProjects(data))
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setIsLoadingProjects(false));
   }, []);
 
   const filteredProjects = useMemo(() => {
@@ -61,23 +64,27 @@ function Projects() {
           ))}
         </div>
 
-        <motion.div layout className="project-grid">
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                key={project.name}
-                className="h-full"
-              >
-                <ProjectCard {...project} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        {isLoadingProjects ? (
+          <ProjectLoadingGrid className="project-grid" count={6} />
+        ) : (
+          <motion.div layout className="project-grid">
+            <AnimatePresence mode="popLayout">
+              {filteredProjects.map((project) => (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4 }}
+                  key={project.name}
+                  className="h-full"
+                >
+                  <ProjectCard {...project} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );

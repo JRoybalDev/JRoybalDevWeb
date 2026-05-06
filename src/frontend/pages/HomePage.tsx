@@ -9,6 +9,7 @@ import { FiCode, FiBriefcase, FiTarget } from 'react-icons/fi'
 import ServiceCard from '@frontend/components/ServiceCard'
 import type { IconType } from 'react-icons'
 import ProjectCard from "@frontend/components/ProjectCard";
+import ProjectLoadingGrid from "@frontend/components/ProjectLoadingGrid";
 
 interface Service {
   icon: IconType
@@ -55,12 +56,14 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
   useEffect(() => {
     fetch(`${apiBase}/api/projects`)
       .then(res => res.json())
       .then(setProjects)
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setIsLoadingProjects(false));
   }, []);
 
   const handleViewMyWork = () => {
@@ -74,7 +77,7 @@ export default function HomePage() {
   return (
     <div className="">
       {/* Coffee Shop Animation */}
-      {/* <CoffeeShopScene /> */}
+      <CoffeeShopScene />
 
       {/* Hero & Hero Card Section */}
       <div className="flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12">
@@ -147,19 +150,23 @@ export default function HomePage() {
         <div className="page-shell flex flex-col">
           <p className="eyebrow">Featured Work</p>
           <h2 className="mb-8 font-medium">Recent Projects</h2>
-          <div className="feature-grid">
-            {[...projects]
-              .filter((project) => project.isPublic !== false)
-              .sort((a, b) => {
-                const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
-                const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-                return dateB - dateA;
-              })
-              .slice(0, 3)
-              .map((project) => (
-              <ProjectCard key={project.name} {...project} />
-            ))}
-          </div>
+          {isLoadingProjects ? (
+            <ProjectLoadingGrid />
+          ) : (
+            <div className="feature-grid">
+              {[...projects]
+                .filter((project) => project.isPublic !== false)
+                .sort((a, b) => {
+                  const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                  const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                  return dateB - dateA;
+                })
+                .slice(0, 3)
+                .map((project) => (
+                <ProjectCard key={project.name} {...project} />
+              ))}
+            </div>
+          )}
         </div>
       </motion.section>
 
