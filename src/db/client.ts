@@ -10,6 +10,9 @@ async function createDatabase() {
   if (databaseUrl) {
     const pool = new Pool({ 
       connectionString: databaseUrl,
+      connectionTimeoutMillis: 5000,
+      idleTimeoutMillis: 10000,
+      max: 1,
       // Many cloud providers require SSL. This config explicitly handles it
       // while avoiding the warning for local vs production environments.
       ssl: databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1") 

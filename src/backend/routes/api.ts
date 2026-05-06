@@ -28,6 +28,19 @@ function escapeHtml(str: string) {
 
 const contactRateLimit = new Map<string, number>();
 
+async function withTimeout<T>(work: Promise<T>, label: string, timeoutMs = 8000) {
+  let timeout: ReturnType<typeof setTimeout>;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([work, timeoutPromise]);
+  } finally {
+    clearTimeout(timeout!);
+  }
+}
+
 async function parseSessionToken(c: Context) {
   const token = getCookie(c, "session");
   if (!token) return null;
@@ -43,23 +56,26 @@ async function parseSessionToken(c: Context) {
 // Public Data Fetching
 app.get("/projects", async (c) => {
   try {
-    const data = await db
-      .select({
-        id: projects.id,
-        name: projects.name,
-        description: projects.description,
-        thumbnail: projects.thumbnail,
-        tags: projects.tags,
-        projectType: projects.projectType,
-        category: projects.category,
-        githubUrl: projects.githubUrl,
-        liveUrl: projects.liveUrl,
-        startDate: projects.startDate,
-        createdAt: projects.createdAt,
-      })
-      .from(projects)
-      .where(eq(projects.isPublic, true))
-      .orderBy(desc(projects.startDate), desc(projects.createdAt));
+    const data = await withTimeout(
+      db
+        .select({
+          id: projects.id,
+          name: projects.name,
+          description: projects.description,
+          thumbnail: projects.thumbnail,
+          tags: projects.tags,
+          projectType: projects.projectType,
+          category: projects.category,
+          githubUrl: projects.githubUrl,
+          liveUrl: projects.liveUrl,
+          startDate: projects.startDate,
+          createdAt: projects.createdAt,
+        })
+        .from(projects)
+        .where(eq(projects.isPublic, true))
+        .orderBy(desc(projects.startDate), desc(projects.createdAt)),
+      "Public projects query"
+    );
     return c.json(data.map((p) => ({ ...p, tags: p.tags?.split(',') || [] })));
   } catch (error) {
     console.error("Failed to fetch public projects", error);
