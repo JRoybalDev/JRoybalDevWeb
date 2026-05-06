@@ -42,23 +42,22 @@ export default async function handler(request: Request) {
     );
   }
 
-  const pool = new Pool({
-    connectionString: databaseUrl,
-    connectionTimeoutMillis: 5000,
-    idleTimeoutMillis: 10000,
-    max: 1,
-    ssl: databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1")
-      ? false
-      : { rejectUnauthorized: false },
-  });
-
+  const pool = createPool();
   try {
-    const result = await Promise.race([
-      pool.query("select 1 as ok"),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("DB ping timed out after 5000ms")), 5000)),
+    const client = await Promise.race([
+      pool.connect(),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("DB connect timed out after 3000ms")), 3000)),
     ]);
 
-    return Response.json({ ok: true, result: result.rows[0] });
+    try {
+      const result = await Promise.race([
+        client.query("select 1 as ok"),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("DB query timed out after 3000ms")), 3000)),
+      ]);
+      return Response.json({ ok: true, result: result.rows[0] });
+    } finally {
+      client.release(true);
+    }
   } catch (error) {
     return Response.json(
       { ok: false, error: error instanceof Error ? error.message : "Unknown database error" },
@@ -67,4 +66,16 @@ export default async function handler(request: Request) {
   } finally {
     await pool.end().catch(() => undefined);
   }
+}
+
+function createPool() {
+  return new Pool({
+    connectionString: databaseUrl,
+    connectionTimeoutMillis: 3000,
+    idleTimeoutMillis: 1000,
+    max: 1,
+    ssl: databaseUrl!.includes("localhost") || databaseUrl!.includes("127.0.0.1")
+      ? false
+      : { rejectUnauthorized: false },
+  });
 }

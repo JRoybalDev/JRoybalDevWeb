@@ -5,25 +5,31 @@ import { getEnv } from "../backend/env.ts";
 
 const databaseUrl = getEnv("DATABASE_URL") ?? getEnv("POSTGRES_URL") ?? getEnv("POSTGRES_PRISMA_URL");
 const runtimeImport = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;
+let pool: Pool | null = null;
+
+export function createPostgresPool() {
+  if (!databaseUrl) return null;
+
+  const parsedUrl = new URL(databaseUrl);
+  if (!["postgres:", "postgresql:"].includes(parsedUrl.protocol)) {
+    throw new Error(`Unsupported database URL protocol "${parsedUrl.protocol}". Drizzle with pg requires a direct postgres:// or postgresql:// Prisma Postgres URL.`);
+  }
+
+  return new Pool({
+    connectionString: databaseUrl,
+    connectionTimeoutMillis: 3000,
+    idleTimeoutMillis: 1000,
+    max: 1,
+    ssl: databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1")
+      ? false
+      : { rejectUnauthorized: false },
+  });
+}
 
 async function createDatabase() {
   if (databaseUrl) {
-    const parsedUrl = new URL(databaseUrl);
-    if (!["postgres:", "postgresql:"].includes(parsedUrl.protocol)) {
-      throw new Error(`Unsupported database URL protocol "${parsedUrl.protocol}". Drizzle with pg requires a direct postgres:// or postgresql:// Prisma Postgres URL.`);
-    }
-
-    const pool = new Pool({ 
-      connectionString: databaseUrl,
-      connectionTimeoutMillis: 5000,
-      idleTimeoutMillis: 10000,
-      max: 1,
-      // Many cloud providers require SSL. This config explicitly handles it
-      // while avoiding the warning for local vs production environments.
-      ssl: databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1") 
-        ? false 
-        : { rejectUnauthorized: false }
-    });
+    pool ??= createPostgresPool();
+    if (!pool) throw new Error("Unable to create Postgres pool.");
     // Attach the pool to $client so it matches the migration script's expectations
     return Object.assign(drizzlePg(pool, { schema }), { $client: pool });
   }
