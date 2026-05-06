@@ -1,4 +1,4 @@
-import { Context } from 'hono';
+import type { Context } from 'hono';
 import { eq } from 'drizzle-orm';
 import { getCookie } from 'hono/cookie';
 import { jwtVerify } from 'jose';

@@ -1,4 +1,5 @@
-import { Context, Hono } from "hono";
+import { Hono } from "hono";
+import type { Context } from "hono";
 import { cors } from "hono/cors";
 import { desc, eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
