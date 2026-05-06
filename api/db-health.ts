@@ -2,6 +2,16 @@ import { Pool } from "pg";
 
 const databaseUrl = process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? process.env.POSTGRES_PRISMA_URL;
 
+type VercelRequest = {
+  url?: string;
+  headers: Record<string, string | string[] | undefined>;
+};
+
+type VercelResponse = {
+  status: (statusCode: number) => VercelResponse;
+  json: (body: unknown) => void;
+};
+
 function getDatabaseUrlInfo() {
   if (!databaseUrl) return { configured: false };
 
@@ -20,25 +30,33 @@ function getDatabaseUrlInfo() {
   }
 }
 
-export default async function handler(request: Request) {
+function json(response: VercelResponse, body: unknown, status = 200) {
+  response.status(status).json(body);
+}
+
+export default async function handler(request: VercelRequest, response: VercelResponse) {
   if (!databaseUrl) {
-    return Response.json({ ok: false, error: "Missing database URL" }, { status: 500 });
+    return json(response, { ok: false, error: "Missing database URL" }, 500);
   }
 
-  const url = new URL(request.url, "https://www.jroybal.dev");
+  const host = request.headers.host;
+  const protocol = request.headers["x-forwarded-proto"] ?? "https";
+  const origin = `${Array.isArray(protocol) ? protocol[0] : protocol}://${Array.isArray(host) ? host[0] : host ?? "www.jroybal.dev"}`;
+  const url = new URL(request.url ?? "/api/db-health", origin);
   const databaseUrlInfo = getDatabaseUrlInfo();
   if (url.searchParams.get("inspect") === "1") {
-    return Response.json({ ok: true, databaseUrl: databaseUrlInfo });
+    return json(response, { ok: true, databaseUrl: databaseUrlInfo });
   }
 
   if (!databaseUrlInfo.isDirectPostgresUrl) {
-    return Response.json(
+    return json(
+      response,
       {
         ok: false,
         error: "The configured database URL is not a direct Postgres URL. Drizzle with pg requires postgres:// or postgresql:// with sslmode=require.",
         databaseUrl: databaseUrlInfo,
       },
-      { status: 500 }
+      500
     );
   }
 
@@ -54,14 +72,15 @@ export default async function handler(request: Request) {
         client.query("select 1 as ok"),
         new Promise<never>((_, reject) => setTimeout(() => reject(new Error("DB query timed out after 3000ms")), 3000)),
       ]);
-      return Response.json({ ok: true, result: result.rows[0] });
+      return json(response, { ok: true, result: result.rows[0] });
     } finally {
       client.release(true);
     }
   } catch (error) {
-    return Response.json(
+    return json(
+      response,
       { ok: false, error: error instanceof Error ? error.message : "Unknown database error" },
-      { status: 500 }
+      500
     );
   } finally {
     await pool.end().catch(() => undefined);
