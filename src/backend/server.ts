@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import app from "./app";
+import app from "./app.ts";
 
 serve({
   port: 3000,

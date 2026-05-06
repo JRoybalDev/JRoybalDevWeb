@@ -1,4 +1,4 @@
-import app from "../src/backend/app";
+import app from "../src/backend/app.ts";
 
 export default function handler(request: Request) {
   const url = new URL(request.url, "https://www.jroybal.dev");

@@ -2,11 +2,11 @@ import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { desc, eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
-import { db } from "../../db/client"; // Assuming client.ts is in src/db
-import { users, projects, experience, contactInquiries } from "../../db/schema";
+import { db } from "../../db/client.ts"; // Assuming client.ts is in src/db
+import { users, projects, experience, contactInquiries } from "../../db/schema.ts";
 import { jwtVerify } from "jose";
 import { Resend } from "resend";
-import { getEnv } from "../env";
+import { getEnv } from "../env.ts";
 
 const app = new Hono();
 

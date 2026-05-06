@@ -4,9 +4,9 @@ import { eq } from "drizzle-orm";
 import { compareSync, hashSync } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { getCookie, setCookie } from "hono/cookie"; // Assuming client.ts is in src/db
-import { db } from "../../db/client"; 
-import { users } from "../../db/schema"; // profiles table removed
-import { getEnv } from "../env";
+import { db } from "../../db/client.ts"; 
+import { users } from "../../db/schema.ts"; // profiles table removed
+import { getEnv } from "../env.ts";
 
 const app = new Hono();
 

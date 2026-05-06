@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import authRoutes from "./routes/auth";
-import apiRoutes from "./routes/api";
-import { invoicesRoutes } from "./routes/invoices";
-import { timeEntriesRoutes } from "./routes/timeEntries";
+import authRoutes from "./routes/auth.ts";
+import apiRoutes from "./routes/api.ts";
+import { invoicesRoutes } from "./routes/invoices.ts";
+import { timeEntriesRoutes } from "./routes/timeEntries.ts";
 
 const app = new Hono();
 

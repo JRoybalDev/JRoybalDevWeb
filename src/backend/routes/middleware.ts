@@ -2,9 +2,9 @@ import { Context } from 'hono';
 import { eq } from 'drizzle-orm';
 import { getCookie } from 'hono/cookie';
 import { jwtVerify } from 'jose';
-import { db } from '../../db/client';
-import { users } from '../../db/schema';
-import { getEnv } from '../env';
+import { db } from '../../db/client.ts';
+import { users } from '../../db/schema.ts';
+import { getEnv } from '../env.ts';
 
 const jwtKey = new TextEncoder().encode(getEnv('JWT_SECRET') ?? 'dev-secret');
 

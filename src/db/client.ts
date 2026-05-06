@@ -1,7 +1,7 @@
 import { drizzle as drizzlePg, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import * as schema from "./schema";
-import { getEnv } from "../backend/env";
+import * as schema from "./schema.ts";
+import { getEnv } from "../backend/env.ts";
 
 const databaseUrl = getEnv("DATABASE_URL") ?? getEnv("POSTGRES_URL") ?? getEnv("POSTGRES_PRISMA_URL");
 const runtimeImport = new Function("specifier", "return import(specifier)") as <T>(specifier: string) => Promise<T>;

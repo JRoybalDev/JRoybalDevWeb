@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import { db } from "../../db/client";
-import { invoices, projects } from "../../db/schema";
-import { adminOnly } from "./middleware";
+import { db } from "../../db/client.ts";
+import { invoices, projects } from "../../db/schema.ts";
+import { adminOnly } from "./middleware.ts";
 
 export const invoicesRoutes = new Hono();
 
