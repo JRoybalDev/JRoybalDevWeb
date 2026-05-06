@@ -95,7 +95,10 @@ app.get("/profile", async (c) => {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const [user] = await db.select().from(users).where(eq(users.id, Number(payload.sub))).limit(1);
+  const [user] = await withTimeout(
+    db.select().from(users).where(eq(users.id, Number(payload.sub))).limit(1),
+    "Profile user query"
+  );
   if (!user) {
     return c.json({ error: "Unauthorized" }, 401);
   }
