@@ -31,12 +31,19 @@ api.route("/", apiRoutes);
 
 app.route("/api", api);
 
+function bunFile(path: string) {
+  return (globalThis as { Bun?: { file: (path: string) => unknown } }).Bun?.file(path);
+}
+
 app.get("/assets/*", (c) => {
-  return c.body(Bun.file(`./dist${c.req.path}`) as any);
+  const file = bunFile(`./dist${c.req.path}`);
+  if (!file) return c.notFound();
+  return c.body(file as any);
 });
 
 app.get("/*", (c) => {
-  const file = Bun.file("./dist/index.html");
+  const file = bunFile("./dist/index.html");
+  if (!file) return c.notFound();
   return c.body(file as any);
 });
 
