@@ -8,6 +8,11 @@ const runtimeImport = new Function("specifier", "return import(specifier)") as <
 
 async function createDatabase() {
   if (databaseUrl) {
+    const parsedUrl = new URL(databaseUrl);
+    if (!["postgres:", "postgresql:"].includes(parsedUrl.protocol)) {
+      throw new Error(`Unsupported database URL protocol "${parsedUrl.protocol}". Drizzle with pg requires a direct postgres:// or postgresql:// Prisma Postgres URL.`);
+    }
+
     const pool = new Pool({ 
       connectionString: databaseUrl,
       connectionTimeoutMillis: 5000,

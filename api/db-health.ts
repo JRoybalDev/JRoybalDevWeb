@@ -2,9 +2,44 @@ import { Pool } from "pg";
 
 const databaseUrl = process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? process.env.POSTGRES_PRISMA_URL;
 
-export default async function handler() {
+function getDatabaseUrlInfo() {
+  if (!databaseUrl) return { configured: false };
+
+  try {
+    const parsedUrl = new URL(databaseUrl);
+    return {
+      configured: true,
+      protocol: parsedUrl.protocol,
+      host: parsedUrl.host,
+      database: parsedUrl.pathname.replace(/^\//, "") || null,
+      sslmode: parsedUrl.searchParams.get("sslmode"),
+      isDirectPostgresUrl: ["postgres:", "postgresql:"].includes(parsedUrl.protocol),
+    };
+  } catch {
+    return { configured: true, invalid: true };
+  }
+}
+
+export default async function handler(request: Request) {
   if (!databaseUrl) {
     return Response.json({ ok: false, error: "Missing database URL" }, { status: 500 });
+  }
+
+  const url = new URL(request.url, "https://www.jroybal.dev");
+  const databaseUrlInfo = getDatabaseUrlInfo();
+  if (url.searchParams.get("inspect") === "1") {
+    return Response.json({ ok: true, databaseUrl: databaseUrlInfo });
+  }
+
+  if (!databaseUrlInfo.isDirectPostgresUrl) {
+    return Response.json(
+      {
+        ok: false,
+        error: "The configured database URL is not a direct Postgres URL. Drizzle with pg requires postgres:// or postgresql:// with sslmode=require.",
+        databaseUrl: databaseUrlInfo,
+      },
+      { status: 500 }
+    );
   }
 
   const pool = new Pool({
