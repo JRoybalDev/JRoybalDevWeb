@@ -61,6 +61,18 @@ function CoffeeShopScene() {
           <span />
         </div>
         <div className="pixel-shop-body">
+          <span className="pixel-wall-trim" />
+          <span className="pixel-wall-sconce pixel-wall-sconce-left" />
+          <span className="pixel-wall-sconce pixel-wall-sconce-right" />
+          <span className="pixel-wall-brick pixel-wall-brick-one" />
+          <span className="pixel-wall-brick pixel-wall-brick-two" />
+          <span className="pixel-wall-brick pixel-wall-brick-three" />
+          <span className="pixel-wall-brick pixel-wall-brick-four" />
+          <span className="pixel-wall-brick pixel-wall-brick-five" />
+          <span className="pixel-wall-menu" />
+          <span className="pixel-wall-vine pixel-wall-vine-left" />
+          <span className="pixel-wall-vine pixel-wall-vine-door-left" />
+          <span className="pixel-wall-vine pixel-wall-vine-right" />
           <div className="pixel-window pixel-window-left">
             <span className="pixel-window-shine" />
             <span className="pixel-window-cup" />
@@ -97,8 +109,18 @@ function CoffeeShopScene() {
           <span className="pixel-chair pixel-chair-left" />
           <span className="pixel-chair pixel-chair-right" />
         </div>
+        {/* Back path walks behind the patio umbrellas and menu board. */}
         <span className="pixel-menu-board" />
-        <span className="pixel-bike" />
+        <svg className="pixel-bike" viewBox="0 0 72 38" role="presentation" focusable="false">
+          <g fill="none" stroke="#3f2a20" strokeWidth="6" strokeLinecap="square" strokeLinejoin="miter">
+            <circle cx="14" cy="26" r="9" />
+            <circle cx="58" cy="26" r="9" />
+            <path d="M14 26 L30 12 L42 26 L24 26 L34 12 L48 12 L58 26" />
+            <path d="M30 12 L27 7 M48 12 L54 7" />
+          </g>
+          <path d="M22 7 H33" stroke="#3f2a20" strokeWidth="5" strokeLinecap="square" />
+          <path d="M54 7 H64" stroke="#3f2a20" strokeWidth="5" strokeLinecap="square" />
+        </svg>
         <span className="pixel-streetlamp pixel-streetlamp-left" />
         <span className="pixel-streetlamp pixel-streetlamp-right" />
         <span className="pixel-bench pixel-bench-left" />
@@ -107,14 +129,23 @@ function CoffeeShopScene() {
         <span className="pixel-potted-tree pixel-potted-tree-one" />
         <span className="pixel-potted-tree pixel-potted-tree-two" />
         <span className="pixel-potted-tree pixel-potted-tree-three" />
-        <span className="pixel-person pixel-person-one" />
-        <span className="pixel-person pixel-person-two" />
-        <span className="pixel-person pixel-person-three" />
-        <span className="pixel-person pixel-person-four" />
-        <span className="pixel-person pixel-person-five" />
-        <span className="pixel-person pixel-person-six" />
-        <span className="pixel-person pixel-person-seven" />
-        <span className="pixel-person pixel-person-eight" />
+        {/* Behind every street decoration, including the menu board. */}
+        <div className="pixel-people-path pixel-people-path-back">
+          <span className="pixel-person pixel-person-three" />
+          <span className="pixel-person pixel-person-six" />
+          <span className="pixel-person pixel-person-eight" />
+        </div>
+        {/* Behind lamps, benches, plants, and bike; in front of umbrellas and menu board. */}
+        <div className="pixel-people-path pixel-people-path-middle">
+          <span className="pixel-person pixel-person-two" />
+          <span className="pixel-person pixel-person-four" />
+          <span className="pixel-person pixel-person-seven" />
+        </div>
+        {/* In front of all street decorations. */}
+        <div className="pixel-people-path pixel-people-path-front">
+          <span className="pixel-person pixel-person-one" />
+          <span className="pixel-person pixel-person-five" />
+        </div>
         <span className="pixel-planter pixel-planter-left" />
         <span className="pixel-planter pixel-planter-right" />
         <span className="pixel-tile pixel-tile-one" />
