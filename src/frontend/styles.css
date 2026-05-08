@@ -57,6 +57,8 @@
   --selection: rgba(170, 130, 90, 0.35);
   --foam: #fffdfa;
   --foam: #fffcf7;
+  --page-max: 1120px;
+  --page-gutter: clamp(1rem, 4vw, 2.5rem);
 }
 
 html.dark,
@@ -112,9 +114,9 @@ body::selection {
 }
 
 .page-shell {
-  width: min(1120px, 100%);
+  width: min(100%, calc(var(--page-max) + (var(--page-gutter) * 2)));
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+  padding: 3rem var(--page-gutter) 4rem;
 }
 
 .hero-panel {
@@ -1572,14 +1574,23 @@ html[data-theme='jrcoffee-dark'] .pixel-city-window.is-lit {
   }
 }
 
+@media (max-width: 1100px) {
+  .pixel-bike,
+  .pixel-streetlamp,
+  .pixel-newsstand {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .pixel-coffee-scene {
     min-height: 15rem;
   }
 
   .pixel-shop {
-    width: 23rem;
-    height: 9.75rem;
+    bottom: 4.05rem;
+    width: min(21rem, calc(100vw - 2.5rem));
+    height: 9.2rem;
   }
 
   .pixel-shop-side-wing,
@@ -1590,66 +1601,149 @@ html[data-theme='jrcoffee-dark'] .pixel-city-window.is-lit {
   .pixel-streetlamp,
   .pixel-bench,
   .pixel-newsstand,
-  .pixel-potted-tree-two {
+  .pixel-potted-tree-one,
+  .pixel-potted-tree-two,
+  .pixel-planter-left,
+  .pixel-person-three,
+  .pixel-person-five,
+  .pixel-person-six,
+  .pixel-person-seven {
     display: none;
   }
 
   .pixel-shop-roof,
   .pixel-awning {
-    left: 1rem;
-    width: calc(100% - 2rem);
+    left: 0.75rem;
+    width: calc(100% - 1.5rem);
+  }
+
+  .pixel-shop-roof {
+    left: 0.1rem;
+    width: calc(100% - 0.1rem);
+    height: 1.85rem;
+    box-shadow:
+      -0.65rem 0.75rem 0 #3f2a20,
+      0.65rem 0.75rem 0 #3f2a20;
+  }
+
+  .pixel-awning {
+    left: 0.35rem;
+    width: calc(100% - 0.7rem);
+    top: 1.85rem;
+    height: 1.85rem;
   }
 
   .pixel-shop-body {
-    left: 1.5rem;
-    right: 1.5rem;
-    height: 6rem;
+    left: 1rem;
+    right: 1rem;
+    height: 5.75rem;
   }
 
   .pixel-window {
-    width: 3.55rem;
-    height: 2.75rem;
+    bottom: 1.35rem;
+    width: 3.15rem;
+    height: 2.45rem;
+  }
+
+  .pixel-window-left {
+    left: 3.65rem;
+  }
+
+  .pixel-window-right {
+    right: 4.05rem;
+    width: 3rem;
   }
 
   .pixel-door {
-    width: 3.35rem;
-    height: 4.65rem;
+    left: 50%;
+    width: 3rem;
+    height: 4.35rem;
   }
 
   .pixel-door-window {
-    left: 0.58rem;
-    width: 1.35rem;
+    left: 0.5rem;
+    width: 1.25rem;
+    height: 1.05rem;
+  }
+
+  .pixel-door-knob {
+    top: 2.55rem;
+  }
+
+  .pixel-door-mat {
+    width: 3.75rem;
+  }
+
+  .pixel-logo-sign {
+    right: 0.25rem;
+    top: 1.35rem;
+    width: 2.55rem;
+    height: 2.55rem;
+  }
+
+  .pixel-logo-sign::before {
+    left: 0.45rem;
+    width: 1.5rem;
+  }
+
+  .pixel-logo-cup {
+    left: 0.55rem;
+    top: 0.75rem;
+    transform: scale(0.78);
+    transform-origin: top left;
+  }
+
+  .pixel-counter {
+    left: 50%;
+    width: 5.8rem;
+  }
+
+  .pixel-cup,
+  .pixel-steam {
+    display: none;
+  }
+
+  .pixel-menu-board,
+  .pixel-patio-left,
+  .pixel-potted-tree-three,
+  .pixel-planter-right {
+    transform: scale(0.82);
+    transform-origin: bottom center;
+  }
+
+  .pixel-menu-board {
+    left: auto;
+    right: 2.2rem;
   }
 
   .pixel-wall-sconce-left {
-    left: 5.2rem;
+    left: 1.3rem;
   }
 
   .pixel-wall-sconce-right {
-    right: 5.2rem;
+    display: none;
   }
 
   .pixel-wall-brick-one,
+  .pixel-wall-brick-two,
   .pixel-wall-brick-three,
+  .pixel-wall-brick-four,
   .pixel-wall-vine-right {
     display: none;
   }
 
   .pixel-wall-menu {
-    left: auto;
-    right: 4.25rem;
-    width: 1.7rem;
-    height: 2.15rem;
+    display: none;
   }
 
   .pixel-wall-vine-left {
-    
-    left: 0.45rem;
+    left: 0.8rem;
+    height: 3.85rem;
   }
 
   .pixel-wall-vine-door-left {
-    left: 38%;
-    height: 2.35rem;
+    left: 14%;
+    height: 2.2rem;
   }
 }
 

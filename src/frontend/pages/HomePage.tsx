@@ -80,7 +80,7 @@ export default function HomePage() {
       <CoffeeShopScene />
 
       {/* Hero & Hero Card Section */}
-      <div className="flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12">
+      <div className="page-shell flex flex-col md:flex-row gap-12 justify-center items-center mb-16 mt-12">
         {/* Left: Hero copy */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -92,7 +92,8 @@ export default function HomePage() {
             Full-stack · Freelance · Consulting
           </div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[--text] mb-4 leading-[1.1] tracking-tight max-w-2xl mx-auto md:mx-0">
-            Crafted full-stack solutions — rich, smooth, and delivered.
+            Crafted full-stack solutions.
+            <span className="block">Rich. Smooth. Delivered.</span>
           </h1>
           <p className="hero-sub text-md md:text-lg text-[--muted-soft] mb-8 max-w-lg mx-auto md:mx-0">
             JRoybalDev brews professional web products for clients who need results.

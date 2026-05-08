@@ -29,6 +29,11 @@ function escapeHtml(str: string) {
 
 const contactRateLimit = new Map<string, number>();
 
+function getOptionalEnv(name: string) {
+  const value = getEnv(name)?.trim();
+  return value || undefined;
+}
+
 async function withTimeout<T>(work: Promise<T>, label: string, timeoutMs = 8000) {
   let timeout: ReturnType<typeof setTimeout>;
   const timeoutPromise = new Promise<never>((_, reject) => {
@@ -187,9 +192,27 @@ const adminOnly = async (c: Context, next: () => Promise<void>) => {
 
   const [user] = await db.select().from(users).where(eq(users.id, Number(payload.sub))).limit(1);
   if (!user || user.role !== 'admin') return c.json({ error: "Forbidden" }, 403);
-  
+
   await next();
 };
+
+app.get("/admin/resume-contact", adminOnly, async (c) => {
+  const payload = await parseSessionToken(c);
+  const [adminUser] = payload?.sub
+    ? await db.select({ email: users.email }).from(users).where(eq(users.id, Number(payload.sub))).limit(1)
+    : [];
+
+  return c.json({
+    name: getOptionalEnv("RESUME_NAME"),
+    title: getOptionalEnv("RESUME_TITLE"),
+    email: getOptionalEnv("RESUME_EMAIL") ?? adminUser?.email,
+    phone: getOptionalEnv("RESUME_PHONE"),
+    location: getOptionalEnv("RESUME_LOCATION"),
+    website: getOptionalEnv("RESUME_WEBSITE"),
+    linkedin: getOptionalEnv("RESUME_LINKEDIN"),
+    github: getOptionalEnv("RESUME_GITHUB"),
+  });
+});
 
 // Admin Experience Routes
 app.get("/admin/experience", adminOnly, async (c) => {

@@ -75,7 +75,7 @@ function CoffeeShopScene() {
           <span className="pixel-wall-vine pixel-wall-vine-right" />
           <div className="pixel-window pixel-window-left">
             <span className="pixel-window-shine" />
-            <span className="pixel-window-cup" />
+            {/* <span className="pixel-window-cup" /> */}
           </div>
           <div className="pixel-door">
             <span className="pixel-door-window" />
@@ -84,7 +84,7 @@ function CoffeeShopScene() {
           </div>
           <div className="pixel-window pixel-window-right">
             <span className="pixel-window-shine" />
-            <span className="pixel-window-plant" />
+            {/* <span className="pixel-window-plant" /> */}
           </div>
           <div className="pixel-logo-sign">
             <span className="pixel-logo-cup" />
