@@ -952,7 +952,7 @@ html[data-theme='jrcoffee-dark'] .pixel-city-window.is-lit {
 .pixel-logo-sign::before {
   content: "";
   left: 0.55rem;
-  top: -0.75rem;
+  top: -0.67rem;
   width: 2rem;
   height: 0.35rem;
   background: #3f2a20;
