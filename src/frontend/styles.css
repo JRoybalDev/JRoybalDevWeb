@@ -1627,9 +1627,41 @@ html[data-theme='jrcoffee-dark'] .pixel-city-window.is-lit {
     height: 9.2rem;
   }
 
+  .pixel-city-skyline {
+    bottom: 4.85rem;
+    height: 5.75rem;
+    opacity: 0.62;
+  }
+
+  .pixel-city-building {
+    transform-origin: bottom center;
+  }
+
+  .pixel-city-building-one,
+  .pixel-city-building-six {
+    transform: scale(0.82);
+  }
+
+  .pixel-city-building-two,
+  .pixel-city-building-four,
+  .pixel-city-building-seven,
+  .pixel-city-building-eight {
+    transform: scale(0.9);
+  }
+
+  .pixel-city-building-three,
+  .pixel-city-building-five,
+  .pixel-city-building-nine {
+    transform: scale(0.86);
+  }
+
+  .pixel-city-window.is-lit {
+    background: #ffe19b;
+    box-shadow: 0 0 0.28rem rgba(255, 225, 155, 0.42);
+    opacity: 0.95;
+  }
+
   .pixel-shop-side-wing,
-  .pixel-chimney,
-  .pixel-string-lights,
   .pixel-patio-right,
   .pixel-bike,
   .pixel-streetlamp,
@@ -1660,11 +1692,55 @@ html[data-theme='jrcoffee-dark'] .pixel-city-window.is-lit {
       0.65rem 0.75rem 0 #3f2a20;
   }
 
+  .pixel-chimney {
+    right: 2.15rem;
+    top: -1.2rem;
+    width: 1.2rem;
+    height: 1.75rem;
+    border-width: 3px;
+    z-index: 0;
+  }
+
+  .pixel-chimney-smoke {
+    width: 0.45rem;
+    height: 0.45rem;
+  }
+
+  .pixel-chimney-smoke-one {
+    left: 0;
+    top: -0.8rem;
+  }
+
+  .pixel-chimney-smoke-two {
+    left: 0.5rem;
+    top: -1.15rem;
+  }
+
   .pixel-awning {
     left: 0.35rem;
     width: calc(100% - 0.7rem);
     top: 1.85rem;
     height: 1.85rem;
+  }
+
+  .pixel-string-lights {
+    left: 0.35rem;
+    right: 0.35rem;
+    top: 1.85rem;
+    height: 1rem;
+    z-index: 4;
+  }
+
+  .pixel-string-lights::before {
+    top: 0.16rem;
+    height: 3px;
+  }
+
+  .pixel-string-lights span {
+    top: 0.32rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-width: 2px;
   }
 
   .pixel-shop-body {
