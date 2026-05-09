@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
+    "api/auth/*.ts": {
+      "includeFiles": "src/**"
+    },
     "api/[...path].ts": {
       "includeFiles": "src/**"
     }
