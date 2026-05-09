@@ -16,17 +16,25 @@ function About() {
         <h1>Hi, I'm Jack!</h1>
           <div className="hero-text flex flex-col gap-6 mt-6">
             <p>
-              I'm a versatile Software Engineer and Frontend Developer passionate about creating exceptional user experiences while 
-              maintaining a keen eye on the entire application ecosystem. My approach to problem-solving is holistic—I bridge the 
-              gap between the user interface and the database to brew seamless digital products.
+              I'm a 24-year-old software engineer from Los Angeles, California. I started programming when I was 14,
+              and what began as curiosity has grown into a craft I have spent the last decade sharpening across
+              frontend, backend, and full-stack product work.
             </p>
             <blockquote className="italic border-l-4 border-[--accent] pl-4 my-2 text-[--text]">
               "That brain of mine is something more than merely mortal; as time will show." — Ada Lovelace
             </blockquote>
             <p>
-              Beyond standard development, my background in cybersecurity ensures that I design and implement secure, 
-              resilient solutions that protect valuable data. Whether it's a custom freelance mod or a large-scale 
-              non-profit platform, I focus on delivering code that is as rich and smooth as a perfect roast.
+              I care about building software that feels useful, thoughtful, and reliable. Whether I am shaping a clean
+              interface, wiring up an API, or thinking through the database behind it, I like connecting the whole
+              system so the final product feels smooth for the people using it. My priorities are simple: build with
+              purpose, communicate clearly, and leave every project stronger than I found it. I want the software I
+              create to solve real problems, respect the people using it, and give clients confidence that their product
+              is secure, maintainable, and ready to grow.
+            </p>
+            <p>
+              Outside of code, I find a lot of inspiration in nature, movies, games, and the community around me. I
+              believe in continual learning, sharing what I know, and using technology to help people feel more capable
+              in the work they are trying to do.
             </p>
           </div>
         </motion.div>

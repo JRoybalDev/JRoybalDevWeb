@@ -95,7 +95,7 @@ export default function HomePage() {
             Crafted full-stack solutions.
             <span className="block">Rich. Smooth. Delivered.</span>
           </h1>
-          <p className="hero-sub text-md md:text-lg text-[--muted-soft] mb-8 max-w-lg mx-auto md:mx-0">
+          <p className="hero-sub text-md md:text-lg text-[--muted-soft] mb-8 max-w-sm md:max-w-lg mx-auto md:mx-0">
             JRoybalDev brews professional web products for clients who need results.
             From solo contracts to full consulting engagements.
           </p>
@@ -110,7 +110,7 @@ export default function HomePage() {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="w-full max-w-[360px]"
+          className="pb-10 pt-2 w-full max-w-[360px]"
         >
           <HeroCard projectCount={projects.length} />
         </motion.div>
@@ -122,7 +122,7 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="py-10 border-t border-[--border]"
+        className="pt-10 border-t border-[--border]"
       >
         <div className="page-shell flex flex-col">
           <p className="eyebrow">What I brew</p>

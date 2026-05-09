@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { FiAlertTriangle, FiHome, FiRefreshCcw } from "react-icons/fi";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -27,20 +28,35 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   render() {
     if (this.state.hasError) {
       return (
-        <div className="app-shell">
-          <div className="card">
-            <div className="brand">
-              <h1>Oops!</h1>
-              <p>An unexpected error occurred.</p>
+        <section className="page-shell status-page">
+          <div className="status-panel status-panel-error">
+            <div className="status-art status-art-error" aria-hidden="true">
+              <div className="status-cup">
+                <FiAlertTriangle size={34} />
+              </div>
+              <div className="status-ripple status-ripple-one" />
+              <div className="status-ripple status-ripple-two" />
             </div>
-            <div className="panel">
-              <p className="text-red-400 text-sm mb-4">{this.state.error?.message}</p>
+
+            <div className="status-copy">
+              <p className="eyebrow">Brew interrupted</p>
+              <h1>Oops</h1>
+              <h2>An unexpected error occurred.</h2>
+              <p>{this.state.error?.message ?? "The page hit an unexpected issue."}</p>
+            </div>
+
+            <div className="status-actions">
+              <button className="button button-alt" onClick={() => { window.location.href = "/"; }}>
+                <FiHome size={16} />
+                Back to home
+              </button>
               <button className="button" onClick={() => window.location.reload()}>
+                <FiRefreshCcw size={16} />
                 Reload page
               </button>
             </div>
           </div>
-        </div>
+        </section>
       );
     }
 

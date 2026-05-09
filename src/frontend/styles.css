@@ -119,6 +119,12 @@ body::selection {
   padding: 3rem var(--page-gutter) 4rem;
 }
 
+@media (max-width: 680px) {
+  .page-shell {
+    padding: 1rem var(--page-gutter) 1rem;
+  }
+}
+
 .hero-panel {
   display: grid;
   gap: 2rem;
@@ -2091,6 +2097,136 @@ html.dark .message.danger {
   color: #f87171;
 }
 
+.status-page {
+  min-height: min(38rem, calc(100vh - 8rem));
+  display: grid;
+  place-items: center;
+}
+
+.status-panel {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 54rem);
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.72fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-radius: 28px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background:
+    radial-gradient(circle at 17% 25%, rgba(196, 151, 110, 0.18), transparent 34%),
+    linear-gradient(135deg, var(--surface-strong), var(--surface));
+  box-shadow: var(--shadow);
+}
+
+
+html.dark .status-panel,
+html[data-theme="jrcoffee-dark"] .status-panel {
+  background:
+    radial-gradient(circle at 17% 25%, rgba(232, 192, 157, 0.12), transparent 34%),
+    linear-gradient(135deg, var(--surface-strong), var(--surface));
+}
+
+.status-panel-error::before {
+  background: rgba(212, 182, 159, 0.22);
+}
+
+.status-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 16rem;
+}
+
+.status-cup {
+  position: relative;
+  z-index: 2;
+  width: 6.75rem;
+  height: 6.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  color: var(--foam);
+  background: linear-gradient(135deg, #b07850, #7b5134);
+  box-shadow: 0 24px 50px rgba(35, 25, 18, 0.2);
+  transform: rotate(-7deg);
+}
+
+.status-art-error .status-cup {
+  background: linear-gradient(135deg, #b07850, #5d3827);
+}
+
+.status-cup::before,
+.status-cup::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 252, 247, 0.68);
+}
+
+.status-cup::before {
+  top: -2.1rem;
+  left: 2.1rem;
+  width: 0.6rem;
+  height: 1.8rem;
+  box-shadow: 1.2rem 0.45rem 0 rgba(255, 252, 247, 0.44);
+}
+
+.status-cup::after {
+  right: -1.1rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0.45rem solid rgba(123, 81, 52, 0.38);
+  background: transparent;
+}
+
+.status-ripple {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 10rem;
+  height: 4rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(196, 151, 110, 0.28);
+  transform: translate(-50%, -8%) rotate(-7deg);
+}
+
+.status-ripple-two {
+  width: 13rem;
+  height: 5.3rem;
+  border-color: rgba(143, 196, 194, 0.28);
+  transform: translate(-50%, 6%) rotate(-7deg);
+}
+
+.status-copy {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.status-copy h1 {
+  color: var(--accent-strong);
+  font-size: clamp(3.25rem, 12vw, 6.5rem);
+  line-height: 0.9;
+}
+
+.status-copy h2 {
+  max-width: 24rem;
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
+}
+
+.status-copy p:not(.eyebrow) {
+  max-width: 32rem;
+  color: var(--muted-soft);
+}
+
+.status-actions {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
 .site-footer {
   background: var(--color-background-primary);
     border-top: 0.5px solid var(--color-border-tertiary);
@@ -2099,9 +2235,96 @@ html.dark .message.danger {
 
 @media (max-width: 680px) {
   .hero-actions,
-  .callout-actions,
-  .hero-stats {
+  .callout-actions {
     grid-template-columns: 1fr;
+  }
+
+  .hero-card {
+    max-width: 22.5rem;
+    margin-inline: auto;
+    padding: 1rem;
+    border-radius: 20px;
+  }
+
+  .hero-card-inner {
+    gap: 0.75rem;
+  }
+
+  .hero-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .hero-stat {
+    padding: 0.625rem;
+    border-radius: 14px;
+  }
+
+  .hero-stat span:first-child {
+    font-size: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+  }
+
+  .hero-status {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.6875rem;
+  }
+
+  .status-page {
+    min-height: auto;
+    align-items: start;
+  }
+
+  .status-panel {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    border-radius: 20px;
+    padding: 1.25rem;
+  }
+
+  .status-art {
+    min-height: 9.5rem;
+  }
+
+  .status-cup {
+    width: 4.75rem;
+    height: 4.75rem;
+    border-radius: 18px;
+  }
+
+  .status-ripple {
+    width: 7rem;
+    height: 3rem;
+  }
+
+  .status-ripple-two {
+    width: 9rem;
+    height: 3.8rem;
+  }
+
+  .status-copy {
+    gap: 0.65rem;
+    text-align: center;
+  }
+
+  .status-copy h2,
+  .status-copy p:not(.eyebrow) {
+    max-width: none;
+  }
+
+  .status-actions {
+    grid-column: auto;
+    justify-content: center;
   }
 }
 

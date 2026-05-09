@@ -44,7 +44,7 @@ export default function HeroCard({ projectCount = 0 }: HeroCardProps) {
           {stats.map(({ value, label }) => (
             <div
               key={label}
-              className="flex flex-col gap-0.5 p-3 rounded-2xl theme-transition"
+              className="hero-stat flex flex-col gap-0.5 p-3 rounded-2xl theme-transition"
               style={{
                 background: 'var(--foam)',
                 border: '1px solid var(--card-border)',
@@ -63,7 +63,7 @@ export default function HeroCard({ projectCount = 0 }: HeroCardProps) {
 
         {/* Availability indicator */}
         <div
-          className="flex items-center gap-2 text-xs rounded-full px-3 py-1.5 w-fit theme-transition"
+          className="hero-status flex items-center gap-2 text-xs rounded-full px-3 py-1.5 w-fit theme-transition"
           style={{ background: 'rgba(156, 114, 75, 0.10)', color: 'var(--muted)' }}
         >
           <span
