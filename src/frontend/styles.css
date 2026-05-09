@@ -89,6 +89,34 @@ html[data-theme="jrcoffee-dark"] {
   box-sizing: border-box;
 }
 
+html {
+  scrollbar-color: var(--accent) var(--bg-alt);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg-alt);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+  border: 3px solid var(--bg-alt);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent-soft), var(--accent-strong));
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--bg-alt);
+}
+
 html,
 body,
 #root {

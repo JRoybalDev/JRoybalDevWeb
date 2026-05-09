@@ -1,5 +1,5 @@
 import { TbCoffee } from "react-icons/tb";
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from "framer-motion";
 import { NavLink } from "react-router-dom";
 import { CgMenuRightAlt, CgClose } from "react-icons/cg";
@@ -71,6 +71,7 @@ function Navbar() {
         typeof document !== 'undefined' ? document.documentElement.classList.contains("dark") : false
     );
     const [isOpen, setIsOpen] = useState(false);
+    const shouldRestoreScrollRef = useRef(true);
 
     const {user, signOut} = useAuth();
 
@@ -93,6 +94,33 @@ function Navbar() {
         return () => observer.disconnect();
     }, []);
 
+    useEffect(() => {
+        const scrollY = window.scrollY;
+        const originalBodyOverflow = document.body.style.overflow;
+        const originalBodyPosition = document.body.style.position;
+        const originalBodyTop = document.body.style.top;
+        const originalBodyWidth = document.body.style.width;
+
+        if (isOpen) {
+            shouldRestoreScrollRef.current = true;
+            document.body.style.overflow = "hidden";
+            document.body.style.position = "fixed";
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = "100%";
+        }
+
+        return () => {
+            document.body.style.overflow = originalBodyOverflow;
+            document.body.style.position = originalBodyPosition;
+            document.body.style.top = originalBodyTop;
+            document.body.style.width = originalBodyWidth;
+
+            if (isOpen && shouldRestoreScrollRef.current) {
+                window.scrollTo(0, scrollY);
+            }
+        };
+    }, [isOpen]);
+
     const toggleTheme = () => {
         const newDark = !isDark;
         document.documentElement.classList.toggle("dark", newDark);
@@ -100,9 +128,20 @@ function Navbar() {
         setIsDark(newDark);
     };
 
+    const handleMobileNavClick = () => {
+        shouldRestoreScrollRef.current = false;
+        setIsOpen(false);
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        });
+    };
+
     return (
         <>
-            <nav className='sticky top-0 bg-[--bg-alt] w-full shadow-md border-b border-[--border] z-50'>
+            <nav
+                className={`${isOpen ? "fixed" : "sticky"} top-0 w-full shadow-md border-b border-[--border] z-[100]`}
+                style={{ backgroundColor: "var(--bg-alt)" }}
+            >
                 <div className="page-shell !py-0 flex justify-between items-center h-14 relative transition-colors duration-[1000ms] ease-coffee">
                     {/* Left Section */}
                     <div className='flex items-center gap-2'>
@@ -156,6 +195,7 @@ function Navbar() {
                     </div>
                 </div>
             </nav>
+            {isOpen && <div className="h-14 md:hidden" aria-hidden="true" />}
 
             {/* Mobile Popup Modal Redesign */}
             <AnimatePresence>
@@ -176,7 +216,8 @@ function Navbar() {
                             animate={{ y: 0 }}
                             exit={{ y: "100%" }}
                             transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
-                            className="fixed inset-x-0 bottom-0 top-14 bg-[--bg] z-40 flex flex-col md:hidden shadow-2xl overflow-hidden border-t border-[--border] transition-colors duration-[1000ms] ease-coffee"
+                            className="fixed inset-x-0 bottom-0 top-14 z-40 flex flex-col md:hidden shadow-2xl overflow-hidden border-t border-[--border] transition-colors duration-[1000ms] ease-coffee"
+                            style={{ backgroundColor: "var(--bg)" }}
                         >
                             <div className="flex-1 flex flex-col items-center justify-center gap-2 p-8">
                                 {navLinks.map((link, index) => (
@@ -192,7 +233,7 @@ function Navbar() {
                                         className="w-full text-center"
                                     >
                                         <NavLink
-                                            onClick={() => setIsOpen(false)}
+                                            onClick={handleMobileNavClick}
                                             className={({ isActive }) =>
                                                 `block py-4 text-2xl tracking-tight transition-all duration-[1000ms] ease-coffee`
                                             }
