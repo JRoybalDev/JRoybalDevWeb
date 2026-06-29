@@ -4,8 +4,16 @@ import authRoutes from "./routes/auth.ts";
 import apiRoutes from "./routes/api.ts";
 import { invoicesRoutes } from "./routes/invoices.ts";
 import { timeEntriesRoutes } from "./routes/timeEntries.ts";
+import { runMigrations } from "../db/migrate.ts";
+
+const migrationsRan = runMigrations().catch(err => console.error("[startup] migration error:", err));
 
 const app = new Hono();
+
+app.use("*", async (c, next) => {
+  await migrationsRan;
+  return next();
+});
 
 app.onError((error, c) => {
   console.error(`[${c.req.method}] ${c.req.path}`, error);
