@@ -22,7 +22,7 @@ export function createPostgresPool() {
     max: 1,
     ssl: databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1")
       ? false
-      : { rejectUnauthorized: false },
+      : { rejectUnauthorized: true },
   });
 }
 
