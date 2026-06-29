@@ -47,6 +47,7 @@ type DashboardTab =
   | "revenue"
   | "clients"
   | "notes-comms"
+  | "intakes"
   | "settings";
 
 type ProjectStatus = "Active" | "Review" | "Completed" | "Archived";
@@ -101,6 +102,17 @@ type Inquiry = {
   email: string;
   projectType: string;
   message: string;
+  isRead: boolean;
+  createdAt: string;
+};
+
+type ClientIntake = {
+  id: number;
+  projectId: number | null;
+  name: string;
+  email: string;
+  company: string | null;
+  payload: Record<string, unknown>;
   isRead: boolean;
   createdAt: string;
 };
@@ -189,6 +201,7 @@ const tabRoutes: Record<DashboardTab, string> = {
   revenue: "/dashboard/revenue",
   clients: "/dashboard/clients",
   "notes-comms": "/dashboard/notes-comms",
+  intakes: "/dashboard/intakes",
   settings: "/dashboard/settings",
 };
 
@@ -404,6 +417,7 @@ export default function Dashboard() {
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [intakes, setIntakes] = useState<ClientIntake[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -437,11 +451,12 @@ export default function Dashboard() {
     setSyncError(null);
 
     try {
-      const [projectRes, inquiryRes, invoiceRes, timeRes] = await Promise.all([
+      const [projectRes, inquiryRes, invoiceRes, timeRes, intakeRes] = await Promise.all([
         fetch(`${apiBase}/api/admin/projects`, { credentials: "include" }),
         fetch(`${apiBase}/api/admin/inquiries`, { credentials: "include" }),
         fetch(`${apiBase}/api/admin/invoices`, { credentials: "include" }),
         fetch(`${apiBase}/api/admin/time-entries`, { credentials: "include" }),
+        fetch(`${apiBase}/api/admin/intakes`, { credentials: "include" }),
       ]);
 
       if (!projectRes.ok || !inquiryRes.ok) throw new Error("Dashboard data could not be synced.");
@@ -450,6 +465,7 @@ export default function Dashboard() {
       setInquiries(await inquiryRes.json());
       setInvoices(invoiceRes.ok ? await invoiceRes.json() : []);
       setTimeEntries(timeRes.ok ? await timeRes.json() : []);
+      setIntakes(intakeRes.ok ? await intakeRes.json() : []);
     } catch (error) {
       setSyncError(error instanceof Error ? error.message : "Dashboard data could not be synced.");
     } finally {
@@ -783,6 +799,7 @@ export default function Dashboard() {
               >
                 <NavButton icon={Users} label="Client List" active={activeTab === "clients"} onClick={() => go("clients")} compact collapsed={desktopSidebarCollapsed} />
                 <NavButton icon={MessageSquareText} label="Notes & Comms" active={activeTab === "notes-comms"} onClick={() => go("notes-comms")} compact collapsed={desktopSidebarCollapsed} />
+                <NavButton icon={Inbox} label="Intake Forms" active={activeTab === "intakes"} onClick={() => go("intakes")} compact collapsed={desktopSidebarCollapsed} />
               </NavGroup>
               <NavButton icon={Settings} label="Settings" active={activeTab === "settings"} onClick={() => go("settings")} collapsed={desktopSidebarCollapsed} />
             </nav>
@@ -933,6 +950,14 @@ export default function Dashboard() {
                     onRead={markInquiryRead}
                   />
                 )}
+                {activeTab === "intakes" && (
+                  <IntakesView
+                    intakes={intakes}
+                    projects={projects}
+                    apiBase={apiBase}
+                    onRefresh={() => void fetchData()}
+                  />
+                )}
                 {activeTab === "settings" && (
                   <SettingsView
                     user={user}
@@ -988,6 +1013,7 @@ const pageMeta: Record<DashboardTab, { kicker: string; title: string }> = {
   revenue: { kicker: "Finances", title: "Revenue" },
   clients: { kicker: "Clients", title: "Client List" },
   "notes-comms": { kicker: "Clients", title: "Notes & Comms" },
+  intakes: { kicker: "Clients", title: "Intake Forms" },
   settings: { kicker: "Admin", title: "Settings" },
 };
 
@@ -2149,4 +2175,303 @@ function DetailBlock({ label, value, wide = false }: { label: string; value: str
 
 function EmptyState({ label }: { label: string }) {
   return <div className="p-8 text-center text-sm font-semibold text-[--muted]">{label}</div>;
+}
+
+/* ── IntakesView ─────────────────────────────────────────────────────────── */
+function IntakesView({
+  intakes,
+  projects,
+  apiBase,
+  onRefresh,
+}: {
+  intakes: ClientIntake[];
+  projects: Project[];
+  apiBase: string;
+  onRefresh: () => void;
+}) {
+  const [selected, setSelected] = useState<ClientIntake | null>(null);
+  const [linkingId, setLinkingId] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filtered = intakes.filter(i =>
+    `${i.name} ${i.email} ${i.company ?? ""}`.toLowerCase().includes(search.toLowerCase())
+  );
+
+  async function markRead(intake: ClientIntake) {
+    if (intake.isRead) return;
+    await fetch(`${apiBase}/api/admin/intakes/${intake.id}/read`, { method: "PATCH", credentials: "include" });
+    onRefresh();
+  }
+
+  async function open(intake: ClientIntake) {
+    setSelected(intake);
+    await markRead(intake);
+  }
+
+  async function del(intake: ClientIntake) {
+    if (!window.confirm(`Delete intake from ${intake.name}?`)) return;
+    await fetch(`${apiBase}/api/admin/intakes/${intake.id}`, { method: "DELETE", credentials: "include" });
+    if (selected?.id === intake.id) setSelected(null);
+    onRefresh();
+  }
+
+  async function linkProject(intakeId: number, projectId: number | null) {
+    await fetch(`${apiBase}/api/admin/intakes/${intakeId}/link`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId }),
+    });
+    setLinkingId(null);
+    onRefresh();
+    if (selected?.id === intakeId) setSelected(s => s ? { ...s, projectId } : s);
+  }
+
+  const unread = intakes.filter(i => !i.isRead).length;
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Intake Submissions</h2>
+          <p className="text-xs text-[--muted] mt-0.5">{intakes.length} total · {unread} unread</p>
+        </div>
+        <input
+          type="text"
+          placeholder="Search by name or email…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full sm:w-64 text-sm rounded-xl border border-[--input-border] bg-[--input-bg] px-3 py-2"
+        />
+      </div>
+
+      {filtered.length === 0 ? (
+        <EmptyState label="No intake submissions yet." />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {filtered.map(intake => {
+            const p = intake.payload as Record<string, unknown>;
+            const linkedProject = projects.find(proj => proj.id === intake.projectId);
+            return (
+              <div
+                key={intake.id}
+                onClick={() => void open(intake)}
+                className={`flex items-start gap-4 rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:border-[--accent-soft] ${
+                  intake.isRead ? "border-[--border] bg-[--surface]" : "border-[--accent-soft] bg-[--foam]"
+                }`}
+              >
+                {/* Unread dot */}
+                <div className="mt-1.5 flex-shrink-0">
+                  {!intake.isRead
+                    ? <div className="w-2 h-2 rounded-full bg-[--accent]" />
+                    : <div className="w-2 h-2 rounded-full bg-transparent" />}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm">{intake.name}</span>
+                    {intake.company && <span className="text-xs text-[--muted]">· {intake.company}</span>}
+                    {linkedProject && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[--accent]/15 text-[--accent]">
+                        {linkedProject.projectId ?? linkedProject.name}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-[--muted] mt-0.5">{intake.email}</div>
+                  <div className="flex flex-wrap gap-3 mt-2 text-[11px] text-[--muted-soft]">
+                    {!!p.project_type && <span>🏗 {String(p.project_type)}</span>}
+                    {!!p.budget && <span>💰 {String(p.budget)}</span>}
+                    {!!p.launch_date && <span>📅 {String(p.launch_date)}</span>}
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0 text-[10px] text-[--muted] whitespace-nowrap">
+                  {new Date(intake.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Detail drawer */}
+      <AnimatePresence>
+        {selected && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-40"
+              onClick={() => setSelected(null)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 260 }}
+              className="fixed right-0 top-0 bottom-0 w-full max-w-lg bg-[--foam] border-l border-[--border] z-50 overflow-y-auto flex flex-col"
+            >
+              {/* Drawer header */}
+              <div className="flex items-center justify-between p-5 border-b border-[--border] sticky top-0 bg-[--foam] z-10">
+                <div>
+                  <div className="font-semibold">{selected.name}</div>
+                  <div className="text-xs text-[--muted]">{selected.email}{selected.company ? ` · ${selected.company}` : ""}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setLinkingId(linkingId === selected.id ? null : selected.id)}
+                    className="text-[10px] font-semibold px-3 py-1.5 rounded-full border border-[--border] text-[--muted] hover:text-[--text] hover:border-[--accent-soft] transition-all cursor-pointer"
+                  >
+                    {selected.projectId ? "Re-link project" : "Link to project"}
+                  </button>
+                  <button onClick={() => void del(selected)}
+                    className="p-2 rounded-lg text-[--muted] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all cursor-pointer">
+                    <Trash2 size={15} />
+                  </button>
+                  <button onClick={() => setSelected(null)}
+                    className="p-2 rounded-lg text-[--muted] hover:text-[--text] transition-all cursor-pointer">
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Link to project panel */}
+              <AnimatePresence>
+                {linkingId === selected.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden border-b border-[--border] bg-[--surface]"
+                  >
+                    <div className="p-4">
+                      <p className="text-xs font-semibold text-[--muted] mb-2 uppercase tracking-widest">Link to project</p>
+                      <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
+                        {selected.projectId && (
+                          <button onClick={() => void linkProject(selected.id, null)}
+                            className="text-left px-3 py-2 rounded-lg text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors cursor-pointer">
+                            ✕ Remove link
+                          </button>
+                        )}
+                        {projects.map(p => (
+                          <button key={p.id} onClick={() => void linkProject(selected.id, p.id)}
+                            className={`text-left px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
+                              selected.projectId === p.id
+                                ? "bg-[--accent] text-[--bg] font-semibold"
+                                : "hover:bg-[--surface-muted] text-[--text]"
+                            }`}>
+                            {p.projectId ? `${p.projectId} — ` : ""}{p.name}
+                            {p.clientName ? ` (${p.clientName})` : ""}
+                          </button>
+                        ))}
+                        {projects.length === 0 && <p className="text-xs text-[--muted] px-3 py-2">No projects yet.</p>}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Payload fields */}
+              <div className="p-5 flex flex-col gap-5">
+                <IntakeSection title="About" payload={selected.payload} fields={[
+                  ["Name", "name"], ["Email", "email"], ["Phone", "phone"],
+                  ["Company", "company"], ["Industry", "industry"],
+                  ["Existing URL", "existing_url"], ["Social links", "social_links"],
+                ]} />
+                <IntakeSection title="Project" payload={selected.payload} fields={[
+                  ["Type", "project_type"], ["Description", "project_description"],
+                  ["Goal", "project_goal"], ["Budget", "budget"],
+                  ["Launch date", "launch_date"], ["Competitors", "competitors"],
+                ]} />
+                <IntakeSection title="Audience" payload={selected.payload} fields={[
+                  ["Audience", "audience_description"], ["Geography", "geography"],
+                  ["Device focus", "device_focus"], ["Languages", "languages"],
+                  ["Accessibility", "accessibility"],
+                ]} />
+                <IntakeSection title="Design" payload={selected.payload} fields={[
+                  ["Brand assets", "brand_assets"], ["Tone", "design_tone"],
+                  ["Colors", "color_direction"], ["References", "design_references"],
+                  ["Avoid", "design_avoid"], ["Dark mode", "dark_mode"],
+                  ["Page count", "page_count_estimate"], ["Pages", "pages_list"],
+                ]} />
+                <IntakeSection title="Features" payload={selected.payload} fields={[
+                  ["Core features", "core_features"], ["E-commerce", "ecommerce"],
+                  ["Integrations", "integrations"], ["Third-party tools", "third_party_tools"],
+                  ["Custom features", "custom_features"], ["Mobile app", "mobile_app"],
+                ]} />
+                <IntakeUserStories payload={selected.payload} />
+                <IntakeSection title="Content" payload={selected.payload} fields={[
+                  ["Copywriting", "copywriting"], ["Photography", "photography"],
+                  ["Video", "video_content"], ["CMS", "cms"],
+                  ["SEO", "seo"], ["Legal pages", "legal_pages"],
+                ]} />
+                <IntakeSection title="Tech & Hosting" payload={selected.payload} fields={[
+                  ["Domain status", "domain_status"], ["Domain name", "domain_name"],
+                  ["Hosting", "hosting_platform"], ["Tech stack", "tech_stack"],
+                  ["Staging", "staging"], ["Security", "security"],
+                  ["Post-launch", "post_launch_support"], ["Extra notes", "extra_notes"],
+                ]} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function IntakeSection({
+  title,
+  payload,
+  fields,
+}: {
+  title: string;
+  payload: Record<string, unknown>;
+  fields: [string, string][];
+}) {
+  const rows = fields.filter(([, key]) => {
+    const v = payload[key];
+    if (v === null || v === undefined || v === "") return false;
+    if (Array.isArray(v) && v.length === 0) return false;
+    return true;
+  });
+  if (rows.length === 0) return null;
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-[--muted] mb-2">{title}</p>
+      <div className="rounded-xl border border-[--border] bg-[--surface] overflow-hidden">
+        {rows.map(([label, key]) => {
+          const v = payload[key];
+          const display = Array.isArray(v) ? v.join(", ") : String(v);
+          return (
+            <div key={key} className="flex gap-3 px-4 py-2.5 border-b border-[--border] last:border-0 text-xs">
+              <span className="text-[--muted] whitespace-nowrap min-w-[110px]">{label}</span>
+              <span className="text-[--text] break-words">{display}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function IntakeUserStories({ payload }: { payload: Record<string, unknown> }) {
+  const stories = payload.user_stories as Array<{ role: string; action: string; benefit: string; priority: string }> | undefined;
+  if (!stories?.length) return null;
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-[--muted] mb-2">User Stories</p>
+      <div className="flex flex-col gap-2">
+        {stories.map((s, i) => (
+          <div key={i} className="rounded-xl border border-[--border] bg-[--surface] px-4 py-3 text-xs">
+            <span className="font-semibold text-[--accent] mr-2">[{s.priority}]</span>
+            As a <em>{s.role || "…"}</em>, I want to <em>{s.action || "…"}</em>
+            {s.benefit ? <>, so that <em>{s.benefit}</em></> : ""}.
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

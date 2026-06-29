@@ -1,5 +1,5 @@
 import { relations, type InferSelectModel } from "drizzle-orm";
-import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -98,6 +98,17 @@ export const timeEntries = pgTable("time_entries", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const clientIntakes = pgTable("client_intakes", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").references(() => projects.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  company: text("company"),
+  payload: jsonb("payload").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const projectsRelations = relations(projects, ({ many }) => ({
   invoices: many(invoices),
   timeEntries: many(timeEntries),
@@ -121,6 +132,7 @@ export type User = InferSelectModel<typeof users>;
 export type Project = InferSelectModel<typeof projects>;
 export type Experience = InferSelectModel<typeof experience>;
 export type ContactInquiry = InferSelectModel<typeof contactInquiries>;
+export type ClientIntake = InferSelectModel<typeof clientIntakes>;
 export type Invoice = InferSelectModel<typeof invoices>;
 export type TimeEntry = InferSelectModel<typeof timeEntries>;
 export type Profile = null;

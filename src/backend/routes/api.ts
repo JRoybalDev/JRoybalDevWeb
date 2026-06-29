@@ -4,7 +4,7 @@ import { cors } from "hono/cors";
 import { desc, eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
 import { db } from "../../db/client.ts"; // Assuming client.ts is in src/db
-import { users, projects, experience, contactInquiries } from "../../db/schema.ts";
+import { users, projects, experience, contactInquiries, clientIntakes } from "../../db/schema.ts";
 import { jwtVerify } from "jose";
 import { Resend } from "resend";
 import { getEnv } from "../env.ts";
@@ -300,6 +300,61 @@ app.delete("/admin/projects/:id", adminOnly, async (c) => {
   const id = Number(c.req.param("id"));
   if (Number.isNaN(id)) return c.json({ error: "Invalid project ID" }, 400);
   await db.delete(projects).where(eq(projects.id, id));
+  return c.json({ success: true });
+});
+
+// ── Public intake submission ──────────────────────────────────────────────
+app.post("/intake", async (c) => {
+  try {
+    const body = await c.req.json();
+    const name = String(body?.name ?? "").trim();
+    const email = String(body?.email ?? "").trim();
+    const company = String(body?.company ?? "").trim();
+
+    if (name.length < 2) return c.json({ error: "Name is required." }, 400);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return c.json({ error: "Valid email is required." }, 400);
+
+    const [saved] = await db.insert(clientIntakes).values({
+      name,
+      email,
+      company: company || null,
+      payload: body,
+    }).returning();
+
+    return c.json({ success: true, id: saved.id });
+  } catch (err) {
+    console.error("[intake] submission error:", err);
+    return c.json({ error: "Failed to save intake. Please try again." }, 500);
+  }
+});
+
+// ── Admin intake routes ───────────────────────────────────────────────────
+app.get("/admin/intakes", adminOnly, async (c) => {
+  const data = await db.select().from(clientIntakes).orderBy(desc(clientIntakes.createdAt));
+  return c.json(data);
+});
+
+app.patch("/admin/intakes/:id/read", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.update(clientIntakes).set({ isRead: true }).where(eq(clientIntakes.id, id));
+  return c.json({ success: true });
+});
+
+app.patch("/admin/intakes/:id/link", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  const { projectId } = await c.req.json();
+  const pid = projectId ? Number(projectId) : null;
+  const [updated] = await db.update(clientIntakes)
+    .set({ projectId: pid })
+    .where(eq(clientIntakes.id, id))
+    .returning();
+  if (!updated) return c.json({ error: "Intake not found" }, 404);
+  return c.json(updated);
+});
+
+app.delete("/admin/intakes/:id", adminOnly, async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(clientIntakes).where(eq(clientIntakes.id, id));
   return c.json({ success: true });
 });
 

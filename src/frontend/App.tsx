@@ -10,6 +10,7 @@ import Contact from "./pages/Contact";
 import Experience from "./pages/Experience";
 import About from "./pages/About";
 import SignIn from "./pages/SignIn";
+import Intake from "./pages/Intake";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/experience" element={<Experience />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/intake" element={<Intake />} />
           <Route path="/signin" element={<SignIn />} />
           <Route
             path="/dashboard/*"

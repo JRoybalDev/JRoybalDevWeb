@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Project Intake Form</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg:            #f8f8f6;
+      --color-surface:       #ffffff;
+      --color-surface-muted: #f3f2ef;
+      --color-border:        rgba(0,0,0,0.10);
+      --color-border-strong: rgba(0,0,0,0.18);
+      --color-accent:        #2563eb;
+      --color-accent-bg:     #eff6ff;
+      --color-accent-border: #93c5fd;
+      --color-accent-text:   #1d4ed8;
+      --color-success-bg:    #f0fdf4;
+      --color-success-border:#86efac;
+      --color-success-text:  #166534;
+      --color-danger:        #dc2626;
+      --color-danger-bg:     #fef2f2;
+      --color-danger-border: #fca5a5;
+      --color-danger-text:   #991b1b;
+      --color-text:          #1a1a18;
+      --color-text-secondary:#4b4b47;
+      --color-text-muted:    #8a8a84;
+      --radius:              8px;
+      --radius-lg:           12px;
+      --shadow-sm:           0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:           0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg:            #111110;
+        --color-surface:       #1e1e1c;
+        --color-surface-muted: #2a2a28;
+        --color-border:        rgba(255,255,255,0.10);
+        --color-border-strong: rgba(255,255,255,0.18);
+        --color-accent:        #3b82f6;
+        --color-accent-bg:     #1e3a5f;
+        --color-accent-border: #1d4ed8;
+        --color-accent-text:   #93c5fd;
+        --color-success-bg:    #052e16;
+        --color-success-border:#166534;
+        --color-success-text:  #86efac;
+        --color-danger-bg:     #450a0a;
+        --color-danger-border: #991b1b;
+        --color-danger-text:   #fca5a5;
+        --color-text:          #f0efec;
+        --color-text-secondary:#b0b0aa;
+        --color-text-muted:    #6b6b65;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── Layout ────────────────────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    .form-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .form-header {
+      padding: 2rem 2rem 1.5rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .form-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .form-header p {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+    }
+
+    .form-body {
+      padding: 2rem;
+    }
+
+    /* ─── Progress ──────────────────────────────────────────────────────── */
+    .progress-wrap {
+      margin-bottom: 2rem;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    .progress-meta strong {
+      color: var(--color-text);
+    }
+
+    .progress-track {
+      height: 6px;
+      background: var(--color-surface-muted);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* ─── Step navigation pills ─────────────────────────────────────────── */
+    .step-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-pill {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--color-border-strong);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      background: transparent;
+      transition: all 0.15s;
+    }
+
+    .step-pill:hover { border-color: var(--color-border-strong); background: var(--color-surface-muted); }
+    .step-pill.done  { border-color: var(--color-success-border); color: var(--color-success-text); background: var(--color-success-bg); }
+    .step-pill.cur   { border-color: var(--color-accent-border); color: var(--color-accent-text); background: var(--color-accent-bg); }
+
+    /* ─── Step visibility ───────────────────────────────────────────────── */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* ─── Section header ────────────────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 1.75rem;
+    }
+
+    .section-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius);
+      background: var(--color-accent-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-accent-text);
+      flex-shrink: 0;
+    }
+
+    .section-icon i { font-size: 20px; }
+    .section-title  { font-size: 18px; font-weight: 600; }
+    .section-desc   { font-size: 13px; color: var(--color-text-muted); margin-top: 2px; }
+
+    /* ─── Form fields ───────────────────────────────────────────────────── */
+    .field-group { margin-bottom: 1.25rem; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 540px) {
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+
+    label.field-label .req { color: var(--color-danger); }
+
+    .hint {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="url"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-bg);
+    }
+
+    textarea { resize: vertical; min-height: 82px; line-height: 1.55; }
+    select   { cursor: pointer; }
+
+    /* ─── Chip multi-select ─────────────────────────────────────────────── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      padding: 5px 13px;
+      border-radius: 99px;
+      border: 1px solid var(--color-border-strong);
+      font-size: 13px;
+      cursor: pointer;
+      background: var(--color-surface);
+      color: var(--color-text);
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .chip:hover:not(.sel)  { background: var(--color-surface-muted); }
+    .chip.sel {
+      background: var(--color-accent-bg);
+      border-color: var(--color-accent-border);
+      color: var(--color-accent-text);
+      font-weight: 500;
+    }
+
+    /* ─── Card option grid ──────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .card-opt {
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      padding: 13px 10px;
+      cursor: pointer;
+      text-align: center;
+      background: var(--color-surface);
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .card-opt i         { font-size: 24px; color: var(--color-text-muted); display: block; margin-bottom: 6px; }
+    .card-opt .co-title { font-size: 13px; font-weight: 600; }
+    .card-opt .co-sub   { font-size: 11px; color: var(--color-text-muted); margin-top: 2px; }
+    .card-opt:hover:not(.sel) { background: var(--color-surface-muted); }
+
+    .card-opt.sel {
+      background: var(--color-accent-bg);
+      border-color: var(--color-accent-border);
+    }
+    .card-opt.sel i, .card-opt.sel .co-title { color: var(--color-accent-text); }
+
+    /* ─── Radio options ─────────────────────────────────────────────────── */
+    .radio-group { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+
+    .radio-opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 13px;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: var(--color-surface);
+      transition: all 0.15s;
+    }
+
+    .radio-opt:hover { background: var(--color-surface-muted); }
+    .radio-opt.sel   { background: var(--color-accent-bg); border-color: var(--color-accent-border); }
+    .radio-opt input { margin-top: 3px; accent-color: var(--color-accent); flex-shrink: 0; }
+    .ro-label        { font-size: 13px; font-weight: 500; }
+    .ro-sub          { font-size: 12px; color: var(--color-text-muted); margin-top: 1px; }
+    .radio-opt.sel .ro-sub { color: var(--color-accent-text); opacity: 0.8; }
+
+    /* ─── Scale slider ──────────────────────────────────────────────────── */
+    .scale-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .scale-row input[type="range"] { flex: 1; accent-color: var(--color-accent); }
+    .scale-end   { font-size: 12px; color: var(--color-text-muted); white-space: nowrap; }
+    .scale-val   { font-size: 14px; font-weight: 600; color: var(--color-accent); min-width: 36px; text-align: center; }
+
+    /* ─── Sub-headings ──────────────────────────────────────────────────── */
+    .sub-head {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin: 1.4rem 0 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .sub-head i { font-size: 15px; }
+
+    /* ─── Divider ───────────────────────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--color-border); margin: 1.5rem 0; }
+
+    /* ─── Info box ──────────────────────────────────────────────────────── */
+    .info-box {
+      background: var(--color-accent-bg);
+      border-left: 3px solid var(--color-accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 11px 14px;
+      margin-bottom: 1.25rem;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .info-box strong { color: var(--color-text); }
+
+    /* ─── User story builder ────────────────────────────────────────────── */
+    .us-template-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .us-template {
+      padding: 5px 12px;
+      border-radius: 99px;
+      border: 1px dashed var(--color-border-strong);
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .us-template:hover,
+    .us-template.used {
+      background: var(--color-accent-bg);
+      color: var(--color-accent-text);
+      border-color: var(--color-accent-border);
+      border-style: solid;
+    }
+
+    .us-story {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: start;
+      padding: 12px;
+      background: var(--color-surface-muted);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .us-story { grid-template-columns: 1fr; }
+    }
+
+    .us-story .us-col-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .us-story input, .us-story select { font-size: 13px; padding: 7px 10px; }
+
+    .us-remove {
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 22px;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .us-remove:hover {
+      background: var(--color-danger-bg);
+      border-color: var(--color-danger-border);
+      color: var(--color-danger-text);
+    }
+
+    .us-preview-row {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .us-preview {
+      flex: 1;
+      background: var(--color-accent-bg);
+      border: 1px solid var(--color-accent-border);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--color-accent-text);
+      font-style: italic;
+      min-height: 36px;
+      line-height: 1.5;
+    }
+
+    .us-add-btn {
+      width: 100%;
+      border: 1px dashed var(--color-border-strong);
+      border-radius: var(--radius);
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .us-add-btn:hover {
+      background: var(--color-surface-muted);
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    /* ─── Footer nav ────────────────────────────────────────────────────── */
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-surface-muted);
+    }
+
+    .btn {
+      padding: 9px 22px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      color: var(--color-text);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn:hover    { background: var(--color-surface-muted); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
+
+    .btn-primary:hover { filter: brightness(1.1); }
+
+    .step-counter { font-size: 13px; color: var(--color-text-muted); }
+
+    /* ─── Summary / Review ──────────────────────────────────────────────── */
+    .summary-section {
+      background: var(--color-surface-muted);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .summary-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 13px;
+    }
+
+    .summary-row:last-child { border-bottom: none; }
+    .summary-key   { color: var(--color-text-muted); white-space: nowrap; }
+    .summary-val   { color: var(--color-text); font-weight: 500; text-align: right; max-width: 65%; white-space: pre-wrap; word-break: break-word; }
+
+    /* ─── Copy / action buttons ─────────────────────────────────────────── */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .btn-sm:hover { background: var(--color-surface-muted); color: var(--color-text); }
+
+    /* ─── Toast notification ────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--color-text);
+      color: var(--color-bg);
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.25s;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ─── Loading overlay (for form submit) ─────────────────────────────── */
+    .submit-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .submit-overlay.visible { display: flex; }
+
+    .submit-spinner {
+      background: var(--color-surface);
+      padding: 2rem 2.5rem;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--color-border-strong);
+      border-top-color: var(--color-accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ─── Toast ────────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ─── Submit overlay ───────────────────────────────────────────────────── -->
+<div class="submit-overlay" id="submit-overlay">
+  <div class="submit-spinner">
+    <div class="spinner"></div>
+    <p style="font-size:14px;color:var(--color-text-secondary)">Submitting your project details…</p>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <div class="form-card">
+
+    <!-- Header -->
+    <div class="form-header">
+      <h1>Project intake form</h1>
+      <p>Fill this out so your developer and designer can bring your vision to life. No jargon needed — just answer as best you can.</p>
+    </div>
+
+    <div class="form-body">
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="step-label">Step 1 of 9 — About you</span>
+          <strong id="step-pct">11%</strong>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="pbar" style="width:11.1%"></div>
+        </div>
+      </div>
+
+      <!-- Step Pills -->
+      <div class="step-pills" id="pill-nav">
+        <button type="button" class="step-pill cur" data-s="0">1 · About you</button>
+        <button type="button" class="step-pill" data-s="1">2 · Project</button>
+        <button type="button" class="step-pill" data-s="2">3 · Audience</button>
+        <button type="button" class="step-pill" data-s="3">4 · Design</button>
+        <button type="button" class="step-pill" data-s="4">5 · Features</button>
+        <button type="button" class="step-pill" data-s="5">6 · User stories</button>
+        <button type="button" class="step-pill" data-s="6">7 · Content</button>
+        <button type="button" class="step-pill" data-s="7">8 · Tech &amp; hosting</button>
+        <button type="button" class="step-pill" data-s="8">9 · Review</button>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 0 — ABOUT YOU                                                  -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step active" id="step-0" data-title="About you">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-user" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">About you</div>
+            <div class="section-desc">Your contact info and business basics</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="f-name">Full name <span class="req">*</span></label>
+            <input type="text" id="f-name" name="name" placeholder="Jane Smith" autocomplete="name" required>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="f-email">Email address <span class="req">*</span></label>
+            <input type="email" id="f-email" name="email" placeholder="jane@company.com" autocomplete="email" required>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="f-phone">Phone (optional)</label>
+            <input type="text" id="f-phone" name="phone" placeholder="+1 (555) 000-0000" autocomplete="tel">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="f-company">Company / brand name <span class="req">*</span></label>
+            <input type="text" id="f-company" name="company" placeholder="Acme Inc." autocomplete="organization" required>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-industry">What industry are you in?</label>
+          <select id="f-industry" name="industry">
+            <option value="">Select one…</option>
+            <option>E-commerce / retail</option>
+            <option>Healthcare / wellness</option>
+            <option>Finance / legal</option>
+            <option>Technology / SaaS</option>
+            <option>Education / e-learning</option>
+            <option>Hospitality / travel</option>
+            <option>Real estate</option>
+            <option>Non-profit / NGO</option>
+            <option>Creative / agency</option>
+            <option>Food &amp; beverage</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-existing">Existing website URL (if any)</label>
+          <input type="url" id="f-existing" name="existing_url" placeholder="https://yoursite.com">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-social">Social media or reference links</label>
+          <textarea id="f-social" name="social_links" placeholder="LinkedIn, Instagram, competitor sites, brands you admire…" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 1 — PROJECT OVERVIEW                                           -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-1" data-title="Project overview">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-bulb" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Project overview</div>
+            <div class="section-desc">The big picture — what you want to build and why</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">What are we building? <span class="req">*</span></label>
+          <div class="card-grid" id="proj-type">
+            <div class="card-opt sel" data-v="Marketing website"><i class="ti ti-home-2" aria-hidden="true"></i><div class="co-title">Marketing site</div><div class="co-sub">Brand / info pages</div></div>
+            <div class="card-opt" data-v="E-commerce store"><i class="ti ti-shopping-cart" aria-hidden="true"></i><div class="co-title">E-commerce</div><div class="co-sub">Sell products</div></div>
+            <div class="card-opt" data-v="Web application"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><div class="co-title">Web app</div><div class="co-sub">Tool / platform</div></div>
+            <div class="card-opt" data-v="Blog / content site"><i class="ti ti-news" aria-hidden="true"></i><div class="co-title">Blog / content</div><div class="co-sub">Articles / media</div></div>
+            <div class="card-opt" data-v="Portfolio"><i class="ti ti-photo" aria-hidden="true"></i><div class="co-title">Portfolio</div><div class="co-sub">Showcase work</div></div>
+            <div class="card-opt" data-v="Directory / marketplace"><i class="ti ti-list-search" aria-hidden="true"></i><div class="co-title">Directory</div><div class="co-sub">Listings / marketplace</div></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-desc">Describe your project in your own words <span class="req">*</span></label>
+          <textarea id="f-desc" name="project_description" placeholder="What does it do? Who is it for? What problem does it solve?" rows="4"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-goal">What's the main goal — what do you want visitors to do?</label>
+          <textarea id="f-goal" name="project_goal" placeholder="e.g. buy a product, book a call, sign up for a free trial…" rows="3"></textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="f-budget">Estimated budget</label>
+            <select id="f-budget" name="budget">
+              <option value="">Select a range…</option>
+              <option>Under $1,000</option>
+              <option>$1,000 – $5,000</option>
+              <option>$5,000 – $15,000</option>
+              <option>$15,000 – $50,000</option>
+              <option>$50,000+</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="f-launch">Target launch date</label>
+            <input type="date" id="f-launch" name="launch_date">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-comp">Top competitors or sites you admire</label>
+          <textarea id="f-comp" name="competitors" placeholder="Links or names — what do you like or dislike about them?" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 2 — TARGET AUDIENCE                                            -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-2" data-title="Target audience">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Target audience</div>
+            <div class="section-desc">Who is this site for?</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-audience">Describe your ideal visitor / user</label>
+          <textarea id="f-audience" name="audience_description" placeholder="Age range, job title, interests, technical skill level…" rows="3"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Where are your users located?</label>
+          <div class="chips" id="chips-geo">
+            <div class="chip sel" data-v="Local">Local / city</div>
+            <div class="chip" data-v="National">National</div>
+            <div class="chip" data-v="International">International</div>
+            <div class="chip" data-v="Specific regions">Specific regions</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">What device do your users mostly use?</label>
+          <div class="card-grid" id="device-type">
+            <div class="card-opt sel" data-v="Mobile-first"><i class="ti ti-device-mobile" aria-hidden="true"></i><div class="co-title">Mobile-first</div><div class="co-sub">50%+ mobile</div></div>
+            <div class="card-opt" data-v="Desktop-first"><i class="ti ti-device-desktop" aria-hidden="true"></i><div class="co-title">Desktop-first</div><div class="co-sub">Mostly desk/laptop</div></div>
+            <div class="card-opt" data-v="Balanced"><i class="ti ti-devices" aria-hidden="true"></i><div class="co-title">Balanced</div><div class="co-sub">Mix of devices</div></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-lang">What languages should the site support?</label>
+          <input type="text" id="f-lang" name="languages" placeholder="e.g. English only, or English + Spanish">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Do you need accessibility support (WCAG / ADA)?</label>
+          <div class="radio-group">
+            <label class="radio-opt sel">
+              <input type="radio" name="accessibility" value="Yes, required" checked>
+              <div><div class="ro-label">Yes, required</div><div class="ro-sub">WCAG 2.1 AA or higher</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="accessibility" value="Nice to have">
+              <div><div class="ro-label">Nice to have</div><div class="ro-sub">Best effort</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="accessibility" value="Not needed">
+              <div><div class="ro-label">Not needed</div><div class="ro-sub">No specific requirement</div></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 3 — DESIGN & BRANDING                                          -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-3" data-title="Design &amp; branding">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-palette" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Design &amp; branding</div>
+            <div class="section-desc">Look, feel, and visual identity</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Do you have existing brand assets?</label>
+          <div class="chips" id="chips-assets">
+            <div class="chip" data-v="Logo">Logo</div>
+            <div class="chip" data-v="Color palette">Color palette</div>
+            <div class="chip" data-v="Typography">Typography</div>
+            <div class="chip" data-v="Brand guidelines">Brand guidelines</div>
+            <div class="chip" data-v="Photography">Photography</div>
+            <div class="chip" data-v="Icons / illustrations">Icons / illustrations</div>
+            <div class="chip" data-v="None yet">None yet</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">What tone should the design have?</label>
+          <div class="chips" id="chips-tone">
+            <div class="chip" data-v="Professional">Professional</div>
+            <div class="chip" data-v="Friendly">Friendly</div>
+            <div class="chip" data-v="Bold">Bold</div>
+            <div class="chip" data-v="Minimal">Minimal</div>
+            <div class="chip" data-v="Luxury">Luxury</div>
+            <div class="chip" data-v="Playful">Playful</div>
+            <div class="chip" data-v="Technical">Technical</div>
+            <div class="chip" data-v="Warm">Warm</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-colors">Preferred color direction</label>
+          <textarea id="f-colors" name="color_direction" placeholder="e.g. earthy greens and cream, dark blue and gold — or paste brand hex codes" rows="2"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-design-ref">Design references you love</label>
+          <textarea id="f-design-ref" name="design_references" placeholder="URLs + what specifically appeals to you about each one" rows="3"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-avoid">Anything you specifically want to avoid?</label>
+          <textarea id="f-avoid" name="design_avoid" placeholder="Styles, colors, layouts, UI patterns you dislike" rows="2"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Do you need a dark mode?</label>
+          <div class="chips chips-single" id="chips-darkmode">
+            <div class="chip" data-v="Yes, required">Yes, required</div>
+            <div class="chip" data-v="Nice to have">Nice to have</div>
+            <div class="chip sel" data-v="No">No</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">How many pages / screens do you expect?</label>
+          <div class="scale-row">
+            <span class="scale-end">1–3</span>
+            <input type="range" min="1" max="5" step="1" value="2" id="page-scale" name="page_scale">
+            <span class="scale-end">20+</span>
+            <span class="scale-val" id="page-scale-val">5–10</span>
+          </div>
+          <p class="hint">Rough estimate — list them below</p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-pages">List the pages / screens you know you need</label>
+          <textarea id="f-pages" name="pages_list" placeholder="e.g. Home, About, Services, Blog, Contact, Privacy policy…" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 4 — FEATURES                                                   -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-4" data-title="Features &amp; functionality">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-tool" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Features &amp; functionality</div>
+            <div class="section-desc">What the site needs to do</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-plug" aria-hidden="true"></i>Core features</div>
+        <div class="field-group">
+          <div class="chips" id="chips-features">
+            <div class="chip" data-v="Contact form">Contact form</div>
+            <div class="chip" data-v="User auth">User login / auth</div>
+            <div class="chip" data-v="User profiles">User profiles</div>
+            <div class="chip" data-v="Admin dashboard">Admin dashboard</div>
+            <div class="chip" data-v="CMS / blog">CMS / blog</div>
+            <div class="chip" data-v="Search">Search</div>
+            <div class="chip" data-v="Filters / sorting">Filters / sorting</div>
+            <div class="chip" data-v="Booking / scheduling">Booking / scheduling</div>
+            <div class="chip" data-v="Maps / location">Maps / location</div>
+            <div class="chip" data-v="Chat / messaging">Chat / messaging</div>
+            <div class="chip" data-v="Notifications">Notifications</div>
+            <div class="chip" data-v="File uploads">File uploads</div>
+            <div class="chip" data-v="Video / audio">Video / audio</div>
+            <div class="chip" data-v="Analytics dashboard">Analytics dashboard</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-credit-card" aria-hidden="true"></i>E-commerce &amp; payments</div>
+        <div class="field-group">
+          <div class="chips" id="chips-ecomm">
+            <div class="chip" data-v="Product catalogue">Product catalogue</div>
+            <div class="chip" data-v="Shopping cart">Shopping cart</div>
+            <div class="chip" data-v="Payment gateway">Payment gateway</div>
+            <div class="chip" data-v="Subscriptions">Subscriptions</div>
+            <div class="chip" data-v="Invoicing">Invoicing</div>
+            <div class="chip" data-v="Coupons / discounts">Coupons / discounts</div>
+            <div class="chip" data-v="Digital downloads">Digital downloads</div>
+            <div class="chip sel" data-v="None needed">None needed</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-api" aria-hidden="true"></i>Integrations</div>
+        <div class="field-group">
+          <div class="chips" id="chips-integrations">
+            <div class="chip" data-v="Email marketing">Email marketing</div>
+            <div class="chip" data-v="CRM">CRM</div>
+            <div class="chip" data-v="Analytics (GA)">Analytics (GA)</div>
+            <div class="chip" data-v="Social login">Social login</div>
+            <div class="chip" data-v="Live chat widget">Live chat widget</div>
+            <div class="chip" data-v="API to existing system">API to existing system</div>
+            <div class="chip" data-v="SSO">Single sign-on (SSO)</div>
+            <div class="chip" data-v="Push notifications">Push notifications</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-tools">Specific third-party tools you already use?</label>
+          <textarea id="f-tools" name="third_party_tools" placeholder="e.g. HubSpot, Mailchimp, Stripe, Salesforce, Zapier…" rows="2"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-custom">Describe any custom or complex feature in detail</label>
+          <textarea id="f-custom" name="custom_features" placeholder="Walk us through the user flow step by step" rows="4"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Do you need a mobile app too?</label>
+          <div class="chips chips-single" id="chips-mobile">
+            <div class="chip sel" data-v="Web only">Web only</div>
+            <div class="chip" data-v="Web + mobile app">Web + mobile app</div>
+            <div class="chip" data-v="Not sure yet">Not sure yet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 5 — USER STORIES                                               -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-5" data-title="User stories">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-route" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">User stories</div>
+            <div class="section-desc">What your visitors expect to see and do on the site</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <strong>What is a user story?</strong> A simple sentence describing what a visitor wants to do and why.
+          Format: <em>"As a [type of user], I want to [do something], so that [I get a benefit]."</em>
+          Think of each page or feature from your visitor's perspective.
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Quick-start templates — click any to add it</label>
+          <div class="us-template-row" id="us-templates">
+            <button type="button" class="us-template" data-role="visitor" data-action="see what your business offers" data-benefit="I know if you can help me">Visitor browsing</button>
+            <button type="button" class="us-template" data-role="potential customer" data-action="easily find your contact details" data-benefit="I can get in touch quickly">Contact info</button>
+            <button type="button" class="us-template" data-role="new user" data-action="create an account" data-benefit="I can save my preferences and history">Sign up</button>
+            <button type="button" class="us-template" data-role="returning customer" data-action="log back in easily" data-benefit="I can access my previous orders">Login</button>
+            <button type="button" class="us-template" data-role="shopper" data-action="browse and filter products" data-benefit="I can find what I'm looking for quickly">Product browsing</button>
+            <button type="button" class="us-template" data-role="shopper" data-action="add items to a cart and check out" data-benefit="I can complete my purchase smoothly">Checkout</button>
+            <button type="button" class="us-template" data-role="mobile user" data-action="navigate the site easily on my phone" data-benefit="I don't have to pinch and zoom">Mobile nav</button>
+            <button type="button" class="us-template" data-role="admin" data-action="update site content without a developer" data-benefit="I can keep information current">CMS / admin</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Your user stories <span class="req">*</span></label>
+          <p class="hint" style="margin-bottom:10px">Aim for at least one story per major page or feature.</p>
+          <div id="us-list"></div>
+          <button type="button" class="us-add-btn" id="us-add-btn">
+            <i class="ti ti-plus" aria-hidden="true"></i> Add a user story
+          </button>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-us-never">What should never happen from a user's perspective?</label>
+          <textarea id="f-us-never" name="user_story_never" placeholder="e.g. users should never see someone else's private data, users should never hit a dead-end with no next step…" rows="3"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-us-journey">Any specific user journey to pay extra attention to?</label>
+          <textarea id="f-us-journey" name="user_story_key_journey" placeholder="e.g. the path from landing page → product → checkout → confirmation should feel effortless" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 6 — CONTENT & MEDIA                                            -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-6" data-title="Content &amp; media">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Content &amp; media</div>
+            <div class="section-desc">What goes on the site and who's supplying it</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Who is writing the copy (text)?</label>
+          <div class="radio-group">
+            <label class="radio-opt sel">
+              <input type="radio" name="copywriting" value="We'll provide all copy" checked>
+              <div><div class="ro-label">We'll provide all copy</div><div class="ro-sub">You write it, we format it</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="copywriting" value="We need copywriting help">
+              <div><div class="ro-label">We need copywriting help</div><div class="ro-sub">Add to project scope</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="copywriting" value="Mix — some ready, need help with rest">
+              <div><div class="ro-label">Mix — some ready, some needed</div><div class="ro-sub">We'll align on what's missing</div></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Who is providing images and photography?</label>
+          <div class="radio-group">
+            <label class="radio-opt sel">
+              <input type="radio" name="photography" value="We have our own" checked>
+              <div><div class="ro-label">We have our own</div><div class="ro-sub">We'll supply files</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="photography" value="Use stock photography">
+              <div><div class="ro-label">Use stock photography</div><div class="ro-sub">Sourced by dev / designer</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="photography" value="Mix">
+              <div><div class="ro-label">Mix of the above</div></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Will the site have video content?</label>
+          <div class="chips" id="chips-video">
+            <div class="chip" data-v="Hero/background video">Hero video</div>
+            <div class="chip" data-v="Embedded YouTube/Vimeo">Embedded YouTube / Vimeo</div>
+            <div class="chip" data-v="Self-hosted videos">Self-hosted videos</div>
+            <div class="chip sel" data-v="No video">No video</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Do you need a CMS so you can update content yourself?</label>
+          <div class="radio-group">
+            <label class="radio-opt">
+              <input type="radio" name="cms" value="Yes — fully editable by client">
+              <div><div class="ro-label">Yes — fully editable by us</div><div class="ro-sub">We want to update pages and blogs ourselves</div></div>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="cms" value="Yes — just for blog / news">
+              <div><div class="ro-label">Yes — just for blog / news</div></div>
+            </label>
+            <label class="radio-opt sel">
+              <input type="radio" name="cms" value="No — dev updates for us" checked>
+              <div><div class="ro-label">No — you update it for us</div></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">SEO requirements</label>
+          <div class="chips" id="chips-seo">
+            <div class="chip" data-v="Basic SEO setup">Basic SEO setup</div>
+            <div class="chip" data-v="Blog / content SEO">Blog / content SEO</div>
+            <div class="chip" data-v="Local SEO">Local SEO</div>
+            <div class="chip" data-v="Technical SEO audit">Technical SEO audit</div>
+            <div class="chip sel" data-v="Not a priority">Not a priority right now</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Legal pages needed</label>
+          <div class="chips" id="chips-legal">
+            <div class="chip" data-v="Privacy policy">Privacy policy</div>
+            <div class="chip" data-v="Terms of service">Terms of service</div>
+            <div class="chip" data-v="Cookie policy / banner">Cookie banner</div>
+            <div class="chip" data-v="GDPR compliance">GDPR compliance</div>
+            <div class="chip" data-v="Not sure">Not sure</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 7 — TECH & HOSTING                                             -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-7" data-title="Tech &amp; hosting">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-server" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Tech, hosting &amp; launch</div>
+            <div class="section-desc">Infrastructure, go-live, and ongoing support</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-world" aria-hidden="true"></i>Domain &amp; hosting</div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Do you own a domain?</label>
+            <div class="chips chips-single" id="chips-domain">
+              <div class="chip sel" data-v="Yes — already owned">Yes — owned</div>
+              <div class="chip" data-v="No — need to buy one">No — need to buy</div>
+              <div class="chip" data-v="Not sure">Not sure</div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="f-domain">Domain name (if known)</label>
+            <input type="text" id="f-domain" name="domain_name" placeholder="example.com">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Preferred cloud / hosting platform</label>
+          <div class="chips" id="chips-cloud">
+            <div class="chip" data-v="Vercel">Vercel</div>
+            <div class="chip" data-v="Netlify">Netlify</div>
+            <div class="chip" data-v="AWS">AWS</div>
+            <div class="chip" data-v="Google Cloud">Google Cloud</div>
+            <div class="chip" data-v="DigitalOcean">DigitalOcean</div>
+            <div class="chip" data-v="Shared hosting">Shared hosting</div>
+            <div class="chip sel" data-v="No preference">No preference</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-code" aria-hidden="true"></i>Technical preferences</div>
+        <div class="field-group">
+          <label class="field-label">Any preferred tech stack or CMS?</label>
+          <div class="chips" id="chips-stack">
+            <div class="chip" data-v="WordPress">WordPress</div>
+            <div class="chip" data-v="Webflow">Webflow</div>
+            <div class="chip" data-v="Shopify">Shopify</div>
+            <div class="chip" data-v="Next.js">Next.js</div>
+            <div class="chip" data-v="React">React</div>
+            <div class="chip" data-v="Vue / Nuxt">Vue / Nuxt</div>
+            <div class="chip" data-v="Laravel / PHP">Laravel / PHP</div>
+            <div class="chip sel" data-v="No preference">No preference — your call</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Do you need a staging environment before going live?</label>
+          <div class="chips chips-single" id="chips-staging">
+            <div class="chip sel" data-v="Yes — staging required">Yes — staging required</div>
+            <div class="chip" data-v="No — direct to production">No — direct to production</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-shield-lock" aria-hidden="true"></i>Security &amp; compliance</div>
+        <div class="field-group">
+          <div class="chips" id="chips-sec">
+            <div class="chip" data-v="GDPR">GDPR</div>
+            <div class="chip" data-v="HIPAA">HIPAA</div>
+            <div class="chip" data-v="PCI-DSS">PCI-DSS</div>
+            <div class="chip" data-v="2FA / MFA">2FA / MFA</div>
+            <div class="chip" data-v="Regular backups">Regular backups</div>
+            <div class="chip sel" data-v="Standard security">Standard security</div>
+          </div>
+        </div>
+
+        <div class="sub-head"><i class="ti ti-tools" aria-hidden="true"></i>Post-launch support</div>
+        <div class="field-group">
+          <div class="chips" id="chips-support">
+            <div class="chip" data-v="Monthly maintenance">Monthly maintenance</div>
+            <div class="chip" data-v="Bug fixes only">Bug fixes only</div>
+            <div class="chip" data-v="Content updates">Content updates</div>
+            <div class="chip" data-v="Training for our team">Training for our team</div>
+            <div class="chip sel" data-v="None needed">None needed</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-extra">Anything else we should know?</label>
+          <textarea id="f-extra" name="extra_notes" placeholder="Constraints, existing relationships, decisions already made…" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- STEP 8 — REVIEW                                                     -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <div class="step" id="step-8" data-title="Review &amp; submit">
+        <div class="section-header">
+          <div class="section-icon"><i class="ti ti-check" aria-hidden="true"></i></div>
+          <div>
+            <div class="section-title">Review &amp; submit</div>
+            <div class="section-desc">Check everything looks right before sending it over</div>
+          </div>
+        </div>
+        <div id="summary-content"></div>
+        <div class="action-row">
+          <button type="button" class="btn-sm" id="copy-btn">
+            <i class="ti ti-copy" aria-hidden="true"></i> Copy as text
+          </button>
+          <button type="button" class="btn-sm" id="json-btn">
+            <i class="ti ti-code" aria-hidden="true"></i> Copy as JSON
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /form-body -->
+
+    <!-- Footer nav -->
+    <div class="form-footer">
+      <button type="button" class="btn" id="btn-back" disabled>← Back</button>
+      <span class="step-counter" id="step-counter">Step 1 of 9</span>
+      <button type="button" class="btn btn-primary" id="btn-next">Continue →</button>
+    </div>
+
+  </div><!-- /form-card -->
+</div><!-- /page-wrap -->
+
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────────
+   CONFIGURATION
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const CONFIG = {
+  TOTAL_STEPS: 9,
+
+  /*
+   * ── SUBMISSION ENDPOINT ──────────────────────────────────────────────────
+   * Replace this URL with your own backend endpoint, e.g.:
+   *   '/api/intake'              → your own server route
+   *   'https://formspree.io/f/YOUR_ID' → Formspree (free tier available)
+   *   'https://api.netlify.com/build_hooks/YOUR_HOOK' → Netlify form
+   *   'https://hooks.zapier.com/hooks/catch/YOUR_ID/' → Zapier webhook
+   *
+   * The form POSTs a JSON body with all collected fields (see collectData()).
+   * ─────────────────────────────────────────────────────────────────────────
+   */
+  SUBMIT_ENDPOINT: '/api/intake',
+
+  /*
+   * ── AUTOSAVE ─────────────────────────────────────────────────────────────
+   * Set to true to auto-save form state to localStorage so the client can
+   * return later and pick up where they left off.
+   * ─────────────────────────────────────────────────────────────────────────
+   */
+  AUTOSAVE: true,
+  AUTOSAVE_KEY: 'intake_form_draft',
+
+  /*
+   * ── PAGE SCALE LABELS ────────────────────────────────────────────────────
+   */
+  PAGE_SCALE_LABELS: ['1–3', '3–5', '5–10', '10–20', '20+'],
+
+  /*
+   * ── STEP TITLES ──────────────────────────────────────────────────────────
+   */
+  STEP_TITLES: [
+    'About you', 'Project overview', 'Target audience', 'Design & branding',
+    'Features & functionality', 'User stories', 'Content & media',
+    'Tech & hosting', 'Review & submit'
+  ]
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   STATE
+   ─────────────────────────────────────────────────────────────────────────── */
+let currentStep = 0;
+let storyIdCounter = 0;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CHIP INTERACTION
+   ─────────────────────────────────────────────────────────────────────────── */
+
+// Multi-select chips (toggle on/off)
+document.querySelectorAll('.chips:not(.chips-single) .chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('sel'));
+});
+
+// Single-select chips (radio-like)
+document.querySelectorAll('.chips-single .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.closest('.chips-single').querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+    chip.classList.add('sel');
+  });
+});
+
+// Card grids — single select
+['proj-type', 'device-type'].forEach(id => {
+  const grid = document.getElementById(id);
+  if (!grid) return;
+  grid.querySelectorAll('.card-opt').forEach(card => {
+    card.addEventListener('click', () => {
+      grid.querySelectorAll('.card-opt').forEach(c => c.classList.remove('sel'));
+      card.classList.add('sel');
+    });
+  });
+});
+
+// Radio options — visual selection sync
+document.querySelectorAll('.radio-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const radio = opt.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+    opt.closest('.radio-group').querySelectorAll('.radio-opt').forEach(o => o.classList.remove('sel'));
+    opt.classList.add('sel');
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PAGE SCALE SLIDER
+   ─────────────────────────────────────────────────────────────────────────── */
+const pageScale = document.getElementById('page-scale');
+const pageScaleVal = document.getElementById('page-scale-val');
+pageScale.addEventListener('input', () => {
+  pageScaleVal.textContent = CONFIG.PAGE_SCALE_LABELS[+pageScale.value - 1];
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   USER STORY BUILDER
+   ─────────────────────────────────────────────────────────────────────────── */
+function addStory(role = '', action = '', benefit = '', priority = 'Must have') {
+  const id = storyIdCounter++;
+  const div = document.createElement('div');
+  div.className = 'us-story';
+  div.id = 'us-row-' + id;
+  div.innerHTML = `
+    <div>
+      <div class="us-col-label">As a…</div>
+      <input type="text" class="us-role" placeholder="visitor, customer, admin…" value="${escHtml(role)}">
+    </div>
+    <div>
+      <div class="us-col-label">I want to…</div>
+      <input type="text" class="us-action" placeholder="browse products, log in, book…" value="${escHtml(action)}">
+    </div>
+    <div>
+      <div class="us-col-label">So that… (optional)</div>
+      <input type="text" class="us-benefit" placeholder="I can save time, feel confident…" value="${escHtml(benefit)}">
+    </div>
+    <button type="button" class="us-remove" aria-label="Remove story" data-id="${id}">
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+    <div class="us-preview-row">
+      <div class="us-preview" id="us-prev-${id}">Fill in the fields above to preview your story.</div>
+      <select class="us-pri" aria-label="Priority">
+        <option ${priority === 'Must have'   ? 'selected' : ''}>Must have</option>
+        <option ${priority === 'Should have' ? 'selected' : ''}>Should have</option>
+        <option ${priority === 'Could have'  ? 'selected' : ''}>Could have</option>
+      </select>
+    </div>`;
+
+  document.getElementById('us-list').appendChild(div);
+
+  ['us-role', 'us-action', 'us-benefit'].forEach(cls => {
+    div.querySelector('.' + cls).addEventListener('input', () => updatePreview(id));
+  });
+
+  div.querySelector('.us-remove').addEventListener('click', () => div.remove());
+
+  if (role || action) updatePreview(id);
+}
+
+function updatePreview(id) {
+  const row = document.getElementById('us-row-' + id);
+  if (!row) return;
+  const role    = row.querySelector('.us-role').value.trim();
+  const action  = row.querySelector('.us-action').value.trim();
+  const benefit = row.querySelector('.us-benefit').value.trim();
+  const prev    = document.getElementById('us-prev-' + id);
+  if (role || action) {
+    prev.textContent = `As a ${role || '…'}, I want to ${action || '…'}${benefit ? ', so that ' + benefit : ''}.`;
+  } else {
+    prev.textContent = 'Fill in the fields above to preview your story.';
+  }
+}
+
+document.getElementById('us-add-btn').addEventListener('click', () => addStory());
+
+document.querySelectorAll('.us-template').forEach(btn => {
+  btn.addEventListener('click', () => {
+    addStory(btn.dataset.role, btn.dataset.action, btn.dataset.benefit);
+    btn.classList.add('used');
+  });
+});
+
+// Seed one starter story
+addStory('visitor', 'understand what this site is about at a glance', 'I can decide if it\'s relevant to me');
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DATA COLLECTION
+   All collected fields output as a flat JS object — easy to serialize to JSON
+   or POST to any backend.
+   ─────────────────────────────────────────────────────────────────────────── */
+function collectData() {
+  const get       = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const getChips  = id => [...document.querySelectorAll(`#${id} .chip.sel`)].map(c => c.dataset.v || c.textContent.trim());
+  const getCard   = id => { const s = document.querySelector(`#${id} .card-opt.sel`); return s ? (s.dataset.v || s.querySelector('.co-title')?.textContent || '') : ''; };
+  const getRadio  = name => { const c = document.querySelector(`input[name="${name}"]:checked`); return c ? c.value : ''; };
+
+  const stories = [...document.querySelectorAll('.us-story')].map(row => ({
+    role:     row.querySelector('.us-role').value.trim(),
+    action:   row.querySelector('.us-action').value.trim(),
+    benefit:  row.querySelector('.us-benefit').value.trim(),
+    priority: row.querySelector('.us-pri').value,
+    sentence: document.getElementById('us-prev-' + row.id.replace('us-row-', ''))?.textContent || ''
+  }));
+
+  return {
+    /* Contact */
+    name:                get('f-name'),
+    email:               get('f-email'),
+    phone:               get('f-phone'),
+    company:             get('f-company'),
+    industry:            get('f-industry'),
+    existing_url:        get('f-existing'),
+    social_links:        get('f-social'),
+
+    /* Project */
+    project_type:        getCard('proj-type'),
+    project_description: get('f-desc'),
+    project_goal:        get('f-goal'),
+    budget:              get('f-budget'),
+    launch_date:         get('f-launch'),
+    competitors:         get('f-comp'),
+
+    /* Audience */
+    audience_description: get('f-audience'),
+    geography:           getChips('chips-geo'),
+    device_focus:        getCard('device-type'),
+    languages:           get('f-lang'),
+    accessibility:       getRadio('accessibility'),
+
+    /* Design */
+    brand_assets:        getChips('chips-assets'),
+    design_tone:         getChips('chips-tone'),
+    color_direction:     get('f-colors'),
+    design_references:   get('f-design-ref'),
+    design_avoid:        get('f-avoid'),
+    dark_mode:           getChips('chips-darkmode')[0] || '',
+    page_count_estimate: CONFIG.PAGE_SCALE_LABELS[+document.getElementById('page-scale').value - 1],
+    pages_list:          get('f-pages'),
+
+    /* Features */
+    core_features:       getChips('chips-features'),
+    ecommerce:           getChips('chips-ecomm'),
+    integrations:        getChips('chips-integrations'),
+    third_party_tools:   get('f-tools'),
+    custom_features:     get('f-custom'),
+    mobile_app:          getChips('chips-mobile')[0] || '',
+
+    /* User Stories */
+    user_stories:        stories,
+    user_story_never:    get('f-us-never'),
+    user_story_journey:  get('f-us-journey'),
+
+    /* Content */
+    copywriting:         getRadio('copywriting'),
+    photography:         getRadio('photography'),
+    video_content:       getChips('chips-video'),
+    cms:                 getRadio('cms'),
+    seo:                 getChips('chips-seo'),
+    legal_pages:         getChips('chips-legal'),
+
+    /* Tech */
+    domain_status:       getChips('chips-domain')[0] || '',
+    domain_name:         get('f-domain'),
+    hosting_platform:    getChips('chips-cloud'),
+    tech_stack:          getChips('chips-stack'),
+    staging:             getChips('chips-staging')[0] || '',
+    security:            getChips('chips-sec'),
+    post_launch_support: getChips('chips-support'),
+    extra_notes:         get('f-extra'),
+
+    /* Meta */
+    submitted_at: new Date().toISOString()
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   AUTOSAVE
+   ─────────────────────────────────────────────────────────────────────────── */
+function autosave() {
+  if (!CONFIG.AUTOSAVE) return;
+  try {
+    localStorage.setItem(CONFIG.AUTOSAVE_KEY, JSON.stringify(collectData()));
+  } catch (e) { /* localStorage may be unavailable */ }
+}
+
+// Autosave on any input change
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('change', autosave);
+});
+
+document.getElementById('us-list').addEventListener('input', autosave);
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   REVIEW / SUMMARY
+   ─────────────────────────────────────────────────────────────────────────── */
+function buildSummary() {
+  const d = collectData();
+
+  const sections = [
+    { title: 'About you', rows: [
+      ['Name',    d.name],  ['Email',   d.email],
+      ['Company', d.company], ['Industry', d.industry]
+    ]},
+    { title: 'Project overview', rows: [
+      ['Type',        d.project_type],  ['Budget',     d.budget],
+      ['Launch date', d.launch_date],   ['Goal',        d.project_goal]
+    ]},
+    { title: 'Target audience', rows: [
+      ['Device focus',    d.device_focus],        ['Geography',     d.geography.join(', ')],
+      ['Languages',       d.languages],           ['Accessibility', d.accessibility]
+    ]},
+    { title: 'Design & branding', rows: [
+      ['Brand assets', d.brand_assets.join(', ')], ['Tone',       d.design_tone.join(', ')],
+      ['Dark mode',    d.dark_mode],               ['Page count', d.page_count_estimate]
+    ]},
+    { title: 'Features', rows: [
+      ['Core features', d.core_features.join(', ')], ['E-commerce',   d.ecommerce.join(', ')],
+      ['Integrations',  d.integrations.join(', ')],  ['Mobile app',   d.mobile_app]
+    ]},
+    { title: 'User stories', rows: [
+      ...d.user_stories.map((s, i) => [
+        `Story ${i + 1} [${s.priority}]`,
+        `As a ${s.role || '…'}, I want to ${s.action || '…'}${s.benefit ? ', so that ' + s.benefit : ''}.`
+      ]),
+      ['Never do',    d.user_story_never],
+      ['Key journey', d.user_story_journey]
+    ]},
+    { title: 'Content & media', rows: [
+      ['Copywriting', d.copywriting], ['Photography', d.photography],
+      ['CMS',         d.cms],         ['SEO',         d.seo.join(', ')]
+    ]},
+    { title: 'Tech & hosting', rows: [
+      ['Domain',       `${d.domain_status} — ${d.domain_name || 'not specified'}`],
+      ['Hosting',      d.hosting_platform.join(', ')],
+      ['Tech stack',   d.tech_stack.join(', ')],
+      ['Security',     d.security.join(', ')],
+      ['Post-launch',  d.post_launch_support.join(', ')]
+    ]}
+  ];
+
+  let html = '';
+  sections.forEach(s => {
+    html += `<div class="summary-section"><div class="summary-section-title">${s.title}</div>`;
+    s.rows.forEach(([k, v]) => {
+      const display = (v || '—').toString();
+      html += `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${escHtml(display) || '—'}</span></div>`;
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('summary-content').innerHTML = html;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FORM SUBMISSION
+   ─────────────────────────────────────────────────────────────────────────── */
+async function submitForm() {
+  const data = collectData();
+
+  /* Show loading overlay */
+  document.getElementById('submit-overlay').classList.add('visible');
+
+  try {
+    /*
+     * ── POST TO YOUR ENDPOINT ──────────────────────────────────────────────
+     * The body is JSON. Your server should:
+     *   1. Parse the JSON body
+     *   2. Save to DB / send email / push to CRM
+     *   3. Return { success: true } or { success: false, message: '...' }
+     *
+     * Common integrations:
+     *   • Formspree: change method to POST and set action to your Formspree URL;
+     *     Formspree accepts both JSON and FormData.
+     *   • Netlify forms: add netlify attribute and use FormData instead.
+     *   • Supabase: use supabase-js client and insert to a 'submissions' table.
+     *   • Airtable: POST to https://api.airtable.com/v0/YOUR_BASE/Submissions
+     *     with your API key in the Authorization header.
+     *   • EmailJS: call emailjs.send() here instead of fetch.
+     * ──────────────────────────────────────────────────────────────────────
+     */
+    const res = await fetch(CONFIG.SUBMIT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+    /* ── ON SUCCESS ──────────────────────────────────────────────────────── */
+    document.getElementById('submit-overlay').classList.remove('visible');
+    showToast('Submitted! We\'ll be in touch shortly.');
+
+    if (CONFIG.AUTOSAVE) localStorage.removeItem(CONFIG.AUTOSAVE_KEY);
+
+    /* Optional: redirect to a thank-you page */
+    /* window.location.href = '/thank-you'; */
+
+  } catch (err) {
+    /* ── ON ERROR ────────────────────────────────────────────────────────── */
+    document.getElementById('submit-overlay').classList.remove('visible');
+    showToast('Submission failed — please try again or copy your answers.');
+    console.error('[Intake form] Submission error:', err);
+
+    /*
+     * FALLBACK: log data to console so nothing is lost even if the
+     * endpoint is not yet configured.
+     */
+    console.log('[Intake form] Collected data:', JSON.stringify(data, null, 2));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   NAVIGATION
+   ─────────────────────────────────────────────────────────────────────────── */
+function navigateTo(target) {
+  const prev = currentStep;
+  document.getElementById(`step-${prev}`).classList.remove('active');
+  document.querySelectorAll('.step-pill')[prev].classList.remove('cur');
+  if (target > prev) document.querySelectorAll('.step-pill')[prev].classList.add('done');
+  if (target < prev) document.querySelectorAll('.step-pill')[prev].classList.remove('done');
+
+  currentStep = target;
+
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  const pills = document.querySelectorAll('.step-pill');
+  pills[currentStep].classList.remove('done');
+  pills[currentStep].classList.add('cur');
+
+  const pct = Math.round(((currentStep + 1) / CONFIG.TOTAL_STEPS) * 100);
+  document.getElementById('pbar').style.width = pct + '%';
+  document.getElementById('step-label').textContent = `Step ${currentStep + 1} of ${CONFIG.TOTAL_STEPS} — ${CONFIG.STEP_TITLES[currentStep]}`;
+  document.getElementById('step-pct').textContent = pct + '%';
+  document.getElementById('step-counter').textContent = `Step ${currentStep + 1} of ${CONFIG.TOTAL_STEPS}`;
+  document.getElementById('btn-back').disabled = currentStep === 0;
+  document.getElementById('btn-next').textContent = currentStep === CONFIG.TOTAL_STEPS - 1 ? 'Submit ✓' : 'Continue →';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  autosave();
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (currentStep < CONFIG.TOTAL_STEPS - 1) {
+    if (currentStep === CONFIG.TOTAL_STEPS - 2) buildSummary();
+    navigateTo(currentStep + 1);
+  } else {
+    submitForm();
+  }
+});
+
+document.getElementById('btn-back').addEventListener('click', () => {
+  if (currentStep > 0) navigateTo(currentStep - 1);
+});
+
+// Click a completed pill to jump back to it
+document.querySelectorAll('.step-pill').forEach((pill, i) => {
+  pill.addEventListener('click', () => {
+    if (i < currentStep) navigateTo(i);
+  });
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   COPY BUTTONS
+   ─────────────────────────────────────────────────────────────────────────── */
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const d = collectData();
+  const lines = [
+    `Project Intake — ${d.name} / ${d.company}`,
+    '─'.repeat(50),
+    `Name: ${d.name}`,             `Email: ${d.email}`,
+    `Company: ${d.company}`,       `Industry: ${d.industry}`,
+    `Project type: ${d.project_type}`,
+    `Description: ${d.project_description}`,
+    `Goal: ${d.project_goal}`,     `Budget: ${d.budget}`,
+    `Launch: ${d.launch_date}`,    `Device focus: ${d.device_focus}`,
+    `Geography: ${d.geography.join(', ')}`,
+    `Languages: ${d.languages}`,   `Accessibility: ${d.accessibility}`,
+    `Brand assets: ${d.brand_assets.join(', ')}`,
+    `Tone: ${d.design_tone.join(', ')}`,
+    `Dark mode: ${d.dark_mode}`,
+    `Page count: ${d.page_count_estimate}`,
+    `Pages: ${d.pages_list}`,
+    `Core features: ${d.core_features.join(', ')}`,
+    `E-commerce: ${d.ecommerce.join(', ')}`,
+    `Integrations: ${d.integrations.join(', ')}`,
+    `Custom features: ${d.custom_features}`,
+    `Mobile: ${d.mobile_app}`,
+    '',
+    'USER STORIES:',
+    ...d.user_stories.map(s => `  [${s.priority}] As a ${s.role}, I want to ${s.action}${s.benefit ? ', so that ' + s.benefit : ''}.`),
+    `Never do: ${d.user_story_never}`,
+    `Key journey: ${d.user_story_journey}`,
+    '',
+    `Copywriting: ${d.copywriting}`,
+    `Photography: ${d.photography}`,
+    `CMS: ${d.cms}`,               `SEO: ${d.seo.join(', ')}`,
+    `Legal: ${d.legal_pages.join(', ')}`,
+    `Domain: ${d.domain_status} — ${d.domain_name}`,
+    `Hosting: ${d.hosting_platform.join(', ')}`,
+    `Stack: ${d.tech_stack.join(', ')}`,
+    `Security: ${d.security.join(', ')}`,
+    `Post-launch: ${d.post_launch_support.join(', ')}`,
+    `Extra notes: ${d.extra_notes}`,
+    '',
+    `Submitted: ${d.submitted_at}`
+  ];
+  copyToClipboard(lines.join('\n'), 'Copied as plain text!');
+});
+
+document.getElementById('json-btn').addEventListener('click', () => {
+  copyToClipboard(JSON.stringify(collectData(), null, 2), 'Copied as JSON!');
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UTILITIES
+   ─────────────────────────────────────────────────────────────────────────── */
+function copyToClipboard(text, successMsg) {
+  navigator.clipboard.writeText(text)
+    .then(() => showToast(successMsg))
+    .catch(() => showToast('Could not copy — try manually selecting the text.'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
