@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { readdirSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
-import { db } from "./client";
+import { db } from "./client.ts";
 
 const dialect = Bun.env.DATABASE_URL ? "postgres" : "sqlite";
 const migrationsDir = join(new URL("./migrations", import.meta.url).pathname, dialect);
