@@ -3,11 +3,11 @@ import { readdirSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { db } from "./client.ts";
 
-const dialect = Bun.env.DATABASE_URL ? "postgres" : "sqlite";
+const dialect = process.env.DATABASE_URL ? "postgres" : "sqlite";
 const migrationsDir = join(new URL("./migrations", import.meta.url).pathname, dialect);
 
 async function ensureMigrationsTable() {
-  const sql = Bun.env.DATABASE_URL
+  const sql = process.env.DATABASE_URL
     ? `
       CREATE TABLE IF NOT EXISTS migrations (
         id text PRIMARY KEY,
@@ -21,7 +21,7 @@ async function ensureMigrationsTable() {
       );
     `;
 
-  if (Bun.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL) {
     await (db.$client as import("pg").Pool).query(sql);
   } else {
     (db.$client as unknown as import("bun:sqlite").Database).exec(sql);
@@ -29,7 +29,7 @@ async function ensureMigrationsTable() {
 }
 
 async function hasMigration(id: string) {
-  if (Bun.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL) {
     const result = await (db.$client as import("pg").Pool).query(
       `SELECT id FROM migrations WHERE id = $1 LIMIT 1`,
       [id]
@@ -45,7 +45,7 @@ async function hasMigration(id: string) {
 }
 
 async function markMigration(id: string) {
-  if (Bun.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL) {
     await (db.$client as import("pg").Pool).query(
       `INSERT INTO migrations (id) VALUES ($1)`,
       [id]
@@ -82,7 +82,7 @@ async function runMigrations() {
 
     const sql = readFileSync(join(migrationsDir, file), "utf8");
 
-    if (Bun.env.DATABASE_URL) {
+    if (process.env.DATABASE_URL) {
       await (db.$client as import("pg").Pool).query(sql);
     } else {
       (db.$client as unknown as import("bun:sqlite").Database).exec(sql);
